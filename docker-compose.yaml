@@ -1,0 +1,46 @@
+version: "3.9"
+
+services:
+  #################################
+  # Commerce Database
+  #################################
+  commerce-db:
+    container_name: commerce-db
+    build: ./backend/database-commerce
+    ports:
+      - "5433:5432"  # Host:Container
+    volumes:
+      - commerce_pgdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: commerce_db
+    networks:
+      - internal_network
+
+  #################################
+  # Error Logging Database
+  #################################
+  error-db:
+    container_name: error-db
+    build: ./backend/database-error
+    ports:
+      - "5434:5432"  # Host:Container
+    volumes:
+      - error_pgdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: error_db
+    networks:
+      - internal_network
+
+volumes:
+  commerce_pgdata:
+    driver: local
+  error_pgdata:
+    driver: local
+
+networks:
+  internal_network:
+    driver: bridge

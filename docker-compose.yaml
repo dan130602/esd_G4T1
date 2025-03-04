@@ -48,6 +48,22 @@ services:
     networks:
       - internal_network
 
+  #################################
+  # Cart Microservice
+  #################################
+  cart-service:
+    container_name: cart-service
+    build: ./backend/cart-service  
+    ports:
+      - "3007:3007"  
+    depends_on:
+      - redis  
+    environment:
+      - NODE_ENV=production
+      - REDIS_URL=redis://redis:6379 
+    networks:
+      - internal_network
+
 volumes:
   commerce_pgdata:
     driver: local

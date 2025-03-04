@@ -34,11 +34,26 @@ services:
       POSTGRES_DB: error_db
     networks:
       - internal_network
+  #################################
+  # Redis Service
+  #################################
+  redis:
+    image: redis:latest  # Pulls latest Redis image
+    container_name: redis-cart
+    ports:
+      - "6379:6379"  # Redis default port
+    volumes:
+      - redis-data:/data
+    restart: always
+    networks:
+      - internal_network
 
 volumes:
   commerce_pgdata:
     driver: local
   error_pgdata:
+    driver: local
+  redis-data:
     driver: local
 
 networks:

@@ -7,6 +7,11 @@ const app = express();
 app.use(express.json());
 app.use(morgan('dev'));
 
+/*
+* to push to cart : POST http://localhost:3007/cart
+* to get cart by userId : GET http://localhost:3007/cart/1
+* to remove from cart : POST http://localhost:3007/cart/remove
+*/
 app.use("/cart", cartRoutes);
 
 app.get('/', (req, res) => {

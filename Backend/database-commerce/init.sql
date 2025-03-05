@@ -2,6 +2,8 @@
 DROP TABLE IF EXISTS transactions;
 DROP TABLE IF EXISTS items;
 DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS "order_item";
+DROP TABLE IF EXISTS "order";
 DROP TYPE IF EXISTS transaction_status;  -- Drop ENUM if it exists
 
 -- Create ENUM type for transaction status
@@ -35,6 +37,29 @@ CREATE TABLE transactions (
     FOREIGN KEY (item_id) REFERENCES items(item_id) ON DELETE CASCADE
 );
 
+-- 'order' table
+CREATE TABLE "order" (
+    order_id SERIAL PRIMARY KEY,
+    customer_id INTEGER NOT NULL,
+    total_amount NUMERIC(10, 2) NOT NULL,
+    status VARCHAR(10) NOT NULL,
+    created TIMESTAMP NOT NULL DEFAULT NOW(),
+    modified TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+-- 'order_item' table with foreign key reference to 'order'
+CREATE TABLE "order_item" (
+    item_id SERIAL PRIMARY KEY,
+    product_id VARCHAR(32) NOT NULL,
+    order_id INTEGER NOT NULL REFERENCES "order"("order_id") ON DELETE CASCADE ON UPDATE CASCADE,
+    quantity INTEGER NOT NULL,
+    unit_price NUMERIC(10, 2) NOT NULL,
+    order_item_subtotal NUMERIC(10, 2) NOT NULL
+);
+
+-- Create index on order_id in order_item table for faster lookups
+CREATE INDEX idx_order_item_order_id ON "order_item"("order_id");
+
 --  Insert Users
 INSERT INTO users (email, full_name) VALUES
 ('john@example.com', 'John Doe'),
@@ -52,3 +77,43 @@ INSERT INTO transactions (user_id, item_id, amount, status) VALUES
 (1, 2, 500.00, 'completed'),  -- John buys a Smartphone
 (2, 3, 150.00, 'completed'),  -- Jane buys Headphones
 (3, 1, 1000.00, 'failed');    -- Alice's Laptop purchase fails
+
+-- Insert test orders
+INSERT INTO "order" (customer_id, total_amount, status, created, modified)
+VALUES 
+    (1, 2499.99, 'NEW', NOW(), NOW()),
+    (1, 85.50, 'PAID', NOW() - INTERVAL '2 days', NOW() - INTERVAL '1 day'),
+    (2, 1299.00, 'PROCESSING', NOW() - INTERVAL '3 days', NOW() - INTERVAL '2 days'),
+    (3, 5000.00, 'SHIPPED', NOW() - INTERVAL '5 days', NOW() - INTERVAL '2 days'),
+    (3, 149.95, 'DELIVERED', NOW() - INTERVAL '10 days', NOW() - INTERVAL '5 days');
+
+-- Insert order items for each order
+-- Order 1: Customer 1's new order
+INSERT INTO "order_item" (product_id, order_id, quantity, unit_price, order_item_subtotal)
+VALUES 
+    ('laptop-pro-15', 1, 1, 2499.99, 2499.99);
+
+-- Order 2: Customer 1's paid order
+INSERT INTO "order_item" (product_id, order_id, quantity, unit_price, order_item_subtotal)
+VALUES 
+    ('keyboard-mech', 2, 1, 59.99, 59.99),
+    ('mouse-wireless', 2, 1, 25.51, 25.51);
+
+-- Order 3: Customer 2's processing order
+INSERT INTO "order_item" (product_id, order_id, quantity, unit_price, order_item_subtotal)
+VALUES 
+    ('tablet-10in', 3, 1, 799.00, 799.00),
+    ('tablet-case', 3, 1, 45.00, 45.00),
+    ('screen-protector', 3, 1, 15.00, 15.00),
+    ('stylus-pen', 3, 2, 220.00, 440.00);
+
+-- Order 4: Customer 3's shipped order
+INSERT INTO "order_item" (product_id, order_id, quantity, unit_price, order_item_subtotal)
+VALUES 
+    ('laptop-pro-15', 4, 2, 2499.99, 4999.98),
+    ('laptop-charger', 4, 1, 0.02, 0.02); -- Free charger promo
+
+-- Order 5: Customer 3's delivered order
+INSERT INTO "order_item" (product_id, order_id, quantity, unit_price, order_item_subtotal)
+VALUES 
+    ('headphones-wireless', 5, 1, 149.95, 149.95);

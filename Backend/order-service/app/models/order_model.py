@@ -12,7 +12,7 @@ class Order(db.Model):
     created = db.Column(db.DateTime, nullable=False, default=datetime.now)
     modified = db.Column(db.DateTime, nullable=False,
                          default=datetime.now, onupdate=datetime.now)
-    # items = db.relationship('Order_Item', backref='order', lazy='dynamic')
+    items = db.relationship('Order_Item', back_populates='order', lazy='dynamic')
 
 
     def to_dict(self):
@@ -22,30 +22,30 @@ class Order(db.Model):
             'total_amount': float(self.total_amount),
             'status': self.status,
             'created': self.created.isoformat() if self.created else None,
-            'modified': self.modified.isoformat() if self.modified else None
-            # 'items': [item.to_dict() for item in self.items.all()]
+            'modified': self.modified.isoformat() if self.modified else None,
+            'items': [item.to_dict() for item in self.items.all()]
         }
 
 class Order_Item(db.Model):
     __tablename__ = 'order_item'
 
-    item_id = db.Column(db.Integer, primary_key=True)
-    product_id = db.Column(db.String(32), nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    product_id = db.Column(db.Integer, nullable=False)
+    product_name = db.Column(db.String(255), nullable=False)
     order_id = db.Column(db.ForeignKey(
         'order.order_id', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, index=True)
     quantity = db.Column(db.Integer, nullable=False)
     unit_price = db.Column(db.Numeric(10, 2), nullable=False)
     order_item_subtotal = db.Column(db.Numeric(10, 2), nullable=False)
 
-    # order_id = db.Column(db.String(36), db.ForeignKey('order.order_id'), nullable=False)
-    # order = db.relationship('Order', backref='order_item')
-    order = db.relationship(
-        'Order', primaryjoin='Order_Item.order_id == Order.order_id', backref='order_item')
+    order = db.relationship('Order', back_populates='items')
+
 
     def to_dict(self):
         return {
-            'item_id': self.item_id, 
+            'id': self.id, 
             'product_id': self.product_id,
+            'product_name': self.product_name,
             'order_id': self.order_id, 
             'quantity': self.quantity, 
             'unit_price': self.unit_price,

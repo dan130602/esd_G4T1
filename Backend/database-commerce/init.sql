@@ -49,12 +49,14 @@ CREATE TABLE "order" (
 
 -- 'order_item' table with foreign key reference to 'order'
 CREATE TABLE "order_item" (
-    item_id SERIAL PRIMARY KEY,
-    product_id VARCHAR(32) NOT NULL,
+    id SERIAL PRIMARY KEY,
+    product_id INTEGER NOT NULL,
+    product_name VARCHAR(255) NOT NULL,
     order_id INTEGER NOT NULL REFERENCES "order"("order_id") ON DELETE CASCADE ON UPDATE CASCADE,
     quantity INTEGER NOT NULL,
     unit_price NUMERIC(10, 2) NOT NULL,
-    order_item_subtotal NUMERIC(10, 2) NOT NULL
+    order_item_subtotal NUMERIC(10, 2) NOT NULL,
+    FOREIGN KEY (product_id) REFERENCES items(item_id)
 );
 
 -- Create index on order_id in order_item table for faster lookups
@@ -81,39 +83,36 @@ INSERT INTO transactions (user_id, item_id, amount, status) VALUES
 -- Insert test orders
 INSERT INTO "order" (customer_id, total_amount, status, created, modified)
 VALUES 
-    (1, 2499.99, 'NEW', NOW(), NOW()),
-    (1, 85.50, 'PAID', NOW() - INTERVAL '2 days', NOW() - INTERVAL '1 day'),
-    (2, 1299.00, 'PROCESSING', NOW() - INTERVAL '3 days', NOW() - INTERVAL '2 days'),
-    (3, 5000.00, 'SHIPPED', NOW() - INTERVAL '5 days', NOW() - INTERVAL '2 days'),
-    (3, 149.95, 'DELIVERED', NOW() - INTERVAL '10 days', NOW() - INTERVAL '5 days');
+    (1, 1150.00, 'NEW', NOW(), NOW()),
+    (1, 800.00, 'PAID', NOW() - INTERVAL '2 days', NOW() - INTERVAL '1 day'),
+    (2, 300.00, 'PROCESSING', NOW() - INTERVAL '3 days', NOW() - INTERVAL '2 days'),
+    (3, 500.00, 'SHIPPED', NOW() - INTERVAL '5 days', NOW() - INTERVAL '2 days'),
+    (3, 1000.00, 'DELIVERED', NOW() - INTERVAL '10 days', NOW() - INTERVAL '5 days');
 
 -- Insert order items for each order
 -- Order 1: Customer 1's new order
-INSERT INTO "order_item" (product_id, order_id, quantity, unit_price, order_item_subtotal)
+INSERT INTO "order_item" (product_id, product_name, order_id, quantity, unit_price, order_item_subtotal)
 VALUES 
-    ('laptop-pro-15', 1, 1, 2499.99, 2499.99);
+    (1, 'Laptop', 1, 1, 1000.00, 1000.00),
+    (3, 'Headphones', 1, 1, 150.00, 150.00);
 
 -- Order 2: Customer 1's paid order
-INSERT INTO "order_item" (product_id, order_id, quantity, unit_price, order_item_subtotal)
+INSERT INTO "order_item" (product_id, product_name, order_id, quantity, unit_price, order_item_subtotal)
 VALUES 
-    ('keyboard-mech', 2, 1, 59.99, 59.99),
-    ('mouse-wireless', 2, 1, 25.51, 25.51);
+    (2, 'Smartphone', 2, 1, 500.00, 500.00),
+    (3, 'Headphones', 2, 2, 150.00, 300.00);
 
 -- Order 3: Customer 2's processing order
-INSERT INTO "order_item" (product_id, order_id, quantity, unit_price, order_item_subtotal)
+INSERT INTO "order_item" (product_id, product_name, order_id, quantity, unit_price, order_item_subtotal)
 VALUES 
-    ('tablet-10in', 3, 1, 799.00, 799.00),
-    ('tablet-case', 3, 1, 45.00, 45.00),
-    ('screen-protector', 3, 1, 15.00, 15.00),
-    ('stylus-pen', 3, 2, 220.00, 440.00);
+    (3, 'Headphones', 2, 2, 150.00, 300.00);
 
 -- Order 4: Customer 3's shipped order
-INSERT INTO "order_item" (product_id, order_id, quantity, unit_price, order_item_subtotal)
+INSERT INTO "order_item" (product_id, product_name, order_id, quantity, unit_price, order_item_subtotal)
 VALUES 
-    ('laptop-pro-15', 4, 2, 2499.99, 4999.98),
-    ('laptop-charger', 4, 1, 0.02, 0.02); -- Free charger promo
+    (2, 'Smartphone', 3, 1, 500.00, 500.00);
 
 -- Order 5: Customer 3's delivered order
-INSERT INTO "order_item" (product_id, order_id, quantity, unit_price, order_item_subtotal)
+INSERT INTO "order_item" (product_id, product_name, order_id, quantity, unit_price, order_item_subtotal)
 VALUES 
-    ('headphones-wireless', 5, 1, 149.95, 149.95);
+    (1, 'Laptop', 3, 1, 1000.00, 1000.00);

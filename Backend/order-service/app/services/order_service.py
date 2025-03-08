@@ -73,6 +73,7 @@ class OrderService:
                 order_item = Order_Item(
                     order_id = new_order.order_id,
                     product_id = item_data.get('item_id'),
+                    product_name = item_data.get('item_name', 'Unknown Product'),
                     quantity = quantity,
                     unit_price = unit_price,
                     order_item_subtotal = order_item_subtotal

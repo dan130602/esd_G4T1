@@ -5,6 +5,8 @@ DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS "order_item";
 DROP TABLE IF EXISTS "order";
 DROP TYPE IF EXISTS transaction_status;  -- Drop ENUM if it exists
+DROP TABLE IF EXISTS payment;
+DROP TABLE IF EXISTS payment_items;
 
 -- Create ENUM type for transaction status
 CREATE TYPE transaction_status AS ENUM ('pending', 'completed', 'failed');
@@ -57,6 +59,37 @@ CREATE TABLE "order_item" (
     unit_price NUMERIC(10, 2) NOT NULL,
     order_item_subtotal NUMERIC(10, 2) NOT NULL,
     FOREIGN KEY (product_id) REFERENCES items(item_id)
+);
+
+-- Payment table
+CREATE TABLE payment (
+    payment_id SERIAL PRIMARY KEY,
+    order_id INTEGER NOT NULL,
+    customer_id INTEGER NOT NULL,
+    amount FLOAT NOT NULL,
+    currency VARCHAR(3) NOT NULL DEFAULT 'SGD',
+    status VARCHAR(20) NOT NULL DEFAULT 'pending',
+    payment_method VARCHAR(50),
+    stripe_payment_intent_id VARCHAR(100),
+    stripe_session_id VARCHAR(100),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- PaymentItem table
+CREATE TABLE payment_items (
+    id SERIAL PRIMARY KEY,
+    payment_id INTEGER NOT NULL,
+    product_id VARCHAR(100),
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    quantity INTEGER NOT NULL DEFAULT 1,
+    unit_price FLOAT NOT NULL,
+    total_price FLOAT NOT NULL,
+    stripe_price_id VARCHAR(100),
+    stripe_product_id VARCHAR(100),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (payment_id) REFERENCES payment(payment_id)
 );
 
 -- Create index on order_id in order_item table for faster lookups
@@ -116,3 +149,28 @@ VALUES
 INSERT INTO "order_item" (product_id, product_name, order_id, quantity, unit_price, order_item_subtotal)
 VALUES 
     (1, 'Laptop', 3, 1, 1000.00, 1000.00);
+
+-- Payment table testing data
+INSERT INTO payment (
+    order_id,
+    customer_id,
+    amount,
+    currency,
+    status,
+    payment_method,
+    stripe_payment_intent_id,
+    stripe_session_id,
+    created_at,
+    updated_at
+) VALUES (
+    12345,                                      -- Order ID
+    789,                                        -- Customer ID
+    99.99,                                      -- Amount
+    'SGD',                                      -- Currency (Singapore Dollar)
+    'completed',                                -- Status
+    'card',                                     -- Payment method
+    'pi_3NMqXYLkdIwFu2yK1AFBhDi0',             -- Example Stripe payment intent ID
+    'cs_test_a1hBmqLchUGkj9Fqx2JDwHyZ7aLCmhBXeU02t2py1Ees8LBqaTvnJtQD', -- Example Stripe session ID
+    CURRENT_TIMESTAMP - INTERVAL '2 days',      -- Created 2 days ago
+    CURRENT_TIMESTAMP - INTERVAL '2 days'       -- Updated at the same time initially
+);

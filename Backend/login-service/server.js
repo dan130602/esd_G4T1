@@ -21,24 +21,24 @@ app.post('/register', async (req, res) => {
   const { email, full_name, password } = req.body;
 
   try {
-    // Check if the email already exists in PostgreSQL
+    // Check if email exists in PostgreSQL
     const existingUser = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
 
     if (existingUser.rows.length > 0) {
       return res.status(400).json({ message: 'Email already registered' });
     }
 
-    // Create a new user in Firebase Authentication
-    const userRecord = await admin.auth().createUser({
+    // Create user in Firebase
+    await admin.auth().createUser({
       email: email,
-      password: password, // Firebase handles password security
+      password: password,
       displayName: full_name,
     });
 
-    // Store the new user information in PostgreSQL
+    // Store user in PostgreSQL 
     const insertResult = await pool.query(
-      'INSERT INTO users (email, full_name, firebase_uid) VALUES ($1, $2, $3) RETURNING *',
-      [email, full_name, userRecord.uid]
+      'INSERT INTO users (email, full_name) VALUES ($1, $2) RETURNING *',
+      [email, full_name]
     );
 
     res.status(201).json({ message: 'User created successfully', user: insertResult.rows[0] });
@@ -47,6 +47,7 @@ app.post('/register', async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
+
 
 // Login 
 app.post('/login', async (req, res) => {

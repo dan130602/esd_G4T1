@@ -3,7 +3,7 @@
       <main class="payment-container">
         <h1 class="payment-title">Make Payment</h1>
   
-        <form class="payment-form">
+        <form class="payment-form" @submit.prevent="handlePayment">
           <section class="form-section">
             <h2 class="section-label">Contact information</h2>
             <div class="email-input-container">
@@ -364,6 +364,17 @@
 <script>
 export default {
   name: "payment",
+  methods: {
+    handlePayment() {
+      const isPaymentSuccessful = true;
+
+      if (isPaymentSuccessful) {
+        this.$router.push("/checkout-success");
+      } else {
+        this.$router.push("/checkout-failure");
+      }
+    }
+  }
 };
 </script>
   

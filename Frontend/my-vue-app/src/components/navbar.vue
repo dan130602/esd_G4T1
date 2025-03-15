@@ -1,61 +1,38 @@
 <template>
-    <header class="login-page">
+  <header class="login-page">
     <div class="top-bar">
       <div class="language-currency">
         <div class="language-selector">
           <span>EN</span>
-          <img
-            src="https://cdn.builder.io/api/v1/image/assets/TEMP/7fd684adc611365d7308647bd9dc358ae5124183bb73acd2e565687394b2b56c?placeholderIfAbsent=true&apiKey=3f0922c729bd4d318631e96bb560373e"
-            class="dropdown-arrow"
-            alt="Dropdown arrow"
-          />
+          <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/7fd684adc611365d7308647bd9dc358ae5124183bb73acd2e565687394b2b56c" class="dropdown-arrow" alt="Dropdown arrow" />
         </div>
         <div class="currency-selector">
           <span class="currency-code">USD</span>
-          <img
-            src="https://cdn.builder.io/api/v1/image/assets/TEMP/7fd684adc611365d7308647bd9dc358ae5124183bb73acd2e565687394b2b56c?placeholderIfAbsent=true&apiKey=3f0922c729bd4d318631e96bb560373e"
-            class="dropdown-arrow"
-            alt="Dropdown arrow"
-          />
+          <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/7fd684adc611365d7308647bd9dc358ae5124183bb73acd2e565687394b2b56c" class="dropdown-arrow" alt="Dropdown arrow" />
         </div>
       </div>
       <div class="user-section">
         <div class="user-placeholder"></div>
         <div class="profile-link">
-          <img
-            src="https://cdn.builder.io/api/v1/image/assets/TEMP/9423b7a1e50c530ed32b04debed661499212d253fcafd6ec660b8c3ae4d217b4?placeholderIfAbsent=true&apiKey=3f0922c729bd4d318631e96bb560373e"
-            class="profile-icon"
-            alt="Profile icon"
-          />
+          <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/9423b7a1e50c530ed32b04debed661499212d253fcafd6ec660b8c3ae4d217b4" class="profile-icon" alt="Profile icon" />
           <span>My profile</span>
         </div>
       </div>
     </div>
     <div class="main-nav">
       <div class="logo-container">
-        <img
-          src="https://cdn.builder.io/api/v1/image/assets/TEMP/118c29b5408696791199f48dac9da4393149099f78b1f8facb2795216aae3b4a?placeholderIfAbsent=true&apiKey=3f0922c729bd4d318631e96bb560373e"
-          class="logo-image"
-          alt="E-Comm logo"
-        />
+        <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/118c29b5408696791199f48dac9da4393149099f78b1f8facb2795216aae3b4a" class="logo-image" alt="E-Comm logo" />
         <span class="logo-text">E-Comm</span>
       </div>
       <nav class="navigation">
         <div class="nav-links">
-          <router-link to="/homepage">HOME</router-link>
-          <span class="nav-link">BAGS</span>
-          <span class="nav-link">SNEAKERS</span>
-          <router-link to="/orders">ORDERS</router-link>
+          <router-link to="/" class="nav-link" active-class="active">HOME</router-link>
+          <router-link to="/orders" class="nav-link">ORDERS</router-link>
         </div>
         <router-link to="/cart">
-        <div class="cart-section">
-          
-          <img
-            src="https://cdn.builder.io/api/v1/image/assets/TEMP/4c7960eeae22471aea522fff537b3c3a85b04b00ddc7584ec217757c8135ac11?placeholderIfAbsent=true&apiKey=3f0922c729bd4d318631e96bb560373e"
-            class="cart-icon"
-            alt="Shopping cart"
-          />
-        </div>
+          <div class="cart-section">
+            <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/4c7960eeae22471aea522fff537b3c3a85b04b00ddc7584ec217757c8135ac11" class="cart-icon" alt="Shopping cart" />
+          </div>
         </router-link>
       </nav>
     </div>
@@ -67,23 +44,23 @@
       </div>
     </nav>
   </header>
-  </template>
+</template>
 
-  <script>
-  export default {
-    name: "Navbar",
-  };
-  </script>
+<script>
+export default {
+  name: "Navbar",
+};
+</script>
 
   <style scoped>
   
-    /* Base styles */
+
     
     .login-page {
       background-color: #fff;
       display: flex;
       padding-top: 20px;
-      width: 100vw;  /* Make sure it's full width of the viewport */
+      width: 100vw;  
    
       flex-direction: column;
       overflow: hidden;
@@ -102,7 +79,7 @@
       }
     }
   
-    /* Top bar styles */
+    
     .top-bar {
       display: flex;
       width: 100%;
@@ -209,7 +186,7 @@
       flex-shrink: 0;
     }
   
-    /* Main navigation styles */
+    
     .main-nav {
       display: flex;
       
@@ -339,7 +316,7 @@
       flex-shrink: 0;
     }
   
-    /* Breadcrumb styles */
+    
     .breadcrumb {
       background-color: #f6f7f8;
       align-self: stretch;

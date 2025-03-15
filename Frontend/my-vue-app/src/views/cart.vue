@@ -85,13 +85,13 @@ export default {
   <style scoped>
     /* Cart container */
     
-.cart {
-  background-color: rgba(255, 255, 255, 1);
+    .cart {
+  background-color: #fff;
   display: flex;
-  
   flex-direction: column;
-  overflow: hidden;
-  align-items: start;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
   font-family:
     Poppins,
     -apple-system,
@@ -99,6 +99,7 @@ export default {
     Helvetica,
     sans-serif;
 }
+
 
 .cart-container {
   display: flex;

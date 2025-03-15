@@ -1,9 +1,9 @@
 {
   "name": "login-service",
   "version": "1.0.0",
-  "main": "server.js",  
+  "main": "server.js",
   "scripts": {
-    "start": "node server.js",  
+    "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -16,7 +16,6 @@
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "firebase-admin": "^13.1.0",
-    "pg": "^8.8.0" 
+    "pg": "^8.8.0"
   }
 }
-

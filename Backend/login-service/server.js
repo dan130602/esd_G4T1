@@ -3,9 +3,16 @@ const { Pool } = require('pg');
 const admin = require('./firebaseAdmin'); 
 const app = express();
 const port = process.env.PORT || 3000;
+const cors = require('cors');
 
 // Middleware to parse JSON bodies
 app.use(express.json());
+
+app.use(cors({
+  origin: 'http://localhost',
+  methods: 'GET,POST,PUT,DELETE',
+  allowedHeaders: 'Content-Type,Authorization'
+}));
 
 // PostgreSQL client setup using environment variables
 const pool = new Pool({

@@ -26,7 +26,7 @@
       </div>
       <nav class="navigation">
         <div class="nav-links">
-          <router-link to="/" class="nav-link" active-class="active">HOME</router-link>
+          <router-link to="/homepage" class="nav-link" active-class="active">HOME</router-link>
           <router-link to="/orders" class="nav-link" active-class="active">ORDERS</router-link>
         </div>
         <router-link to="/cart">
@@ -39,7 +39,12 @@
     <nav class="breadcrumb">
       <div class="breadcrumb-content">
         <span class="separator">/</span>
-        <span class="current-page">Login</span>
+        <router-link v-for="(crumb, index) in breadcrumbs" 
+                     :key="index" 
+                     :to="crumb.link" 
+                     class="breadcrumb-link">
+          <span class="breadcrumb-text">{{ crumb.text }}</span>
+        </router-link>
         <span class="separator">/</span>
       </div>
     </nav>
@@ -49,8 +54,42 @@
 <script>
 export default {
   name: "Navbar",
+  computed: {
+    breadcrumbs() {
+      // Split the current route path to create breadcrumb items
+      const pathParts = this.$route.path.split('/').filter(part => part);
+      const breadcrumbs = [];
+
+      // Iterate over the parts and create breadcrumb items
+      pathParts.forEach((part, index) => {
+        const link = `/${pathParts.slice(0, index + 1).join('/')}`; // Create the link to each part
+        breadcrumbs.push({
+          text: this.getBreadcrumbText(part), // Get a friendly name for the breadcrumb
+          link: link
+        });
+      });
+
+      
+
+      return breadcrumbs;
+    }
+  },
+  methods: {
+    getBreadcrumbText(part) {
+      // You can add a switch statement or map to convert URL segments to readable text
+      const breadcrumbMap = {
+        'homepage': 'Home',
+        'orders': 'Orders',
+        'cart': 'Cart',
+        'login': 'Login'
+        // Add more mapping as needed
+      };
+      return breadcrumbMap[part] || part.charAt(0).toUpperCase() + part.slice(1); // Default to the URL part if no match
+    }
+  }
 };
 </script>
+
 
   <style scoped>
   
@@ -359,6 +398,11 @@ export default {
       .breadcrumb-content {
         white-space: initial;
       }
+
+      .breadcrumb-text {
+  color: #40bfff;
+  
+}
     
   
     .current-page {

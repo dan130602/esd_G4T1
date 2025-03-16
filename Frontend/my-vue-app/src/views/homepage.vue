@@ -8,12 +8,12 @@
 </template>
 
 <script>
-import Navbar from '@/components/Navbar.vue';
+import Navbar from '@/components/navbar.vue';
 import SwiperCarousel from '@/components/SwiperCarousel.vue';
 import ProductList from '@/components/ProductList.vue';
 
 export default {
-  name: 'HomePage',
+  name: 'homepage',
   components: {
     Navbar,
     SwiperCarousel,

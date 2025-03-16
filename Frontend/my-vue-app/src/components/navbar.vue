@@ -27,7 +27,7 @@
       <nav class="navigation">
         <div class="nav-links">
           <router-link to="/" class="nav-link" active-class="active">HOME</router-link>
-          <router-link to="/orders" class="nav-link">ORDERS</router-link>
+          <router-link to="/orders" class="nav-link" active-class="active">ORDERS</router-link>
         </div>
         <router-link to="/cart">
           <div class="cart-section">
@@ -276,7 +276,10 @@ export default {
   
     .nav-link {
       cursor: pointer;
+      color: black;
     }
+
+    
   
     .nav-link.active {
       color: #40bfff;
@@ -288,6 +291,8 @@ export default {
         sans-serif;
       font-weight: 500;
     }
+
+    
   
     .cart-section {
       display: flex;

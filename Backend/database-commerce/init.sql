@@ -2,8 +2,8 @@
 DROP TABLE IF EXISTS transactions;
 DROP TABLE IF EXISTS items;
 DROP TABLE IF EXISTS users;
-DROP TABLE IF EXISTS "order_item";
-DROP TABLE IF EXISTS "order";
+DROP TABLE IF EXISTS order_item;
+DROP TABLE IF EXISTS orders;
 DROP TYPE IF EXISTS transaction_status;  -- Drop ENUM if it exists
 DROP TABLE IF EXISTS payment;
 DROP TABLE IF EXISTS payment_items;
@@ -40,7 +40,7 @@ CREATE TABLE transactions (
 );
 
 -- 'order' table
-CREATE TABLE "order" (
+CREATE TABLE orders (
     order_id SERIAL PRIMARY KEY,
     customer_id INTEGER NOT NULL,
     total_amount NUMERIC(10, 2) NOT NULL,
@@ -50,11 +50,11 @@ CREATE TABLE "order" (
 );
 
 -- 'order_item' table with foreign key reference to 'order'
-CREATE TABLE "order_item" (
+CREATE TABLE order_item (
     id SERIAL PRIMARY KEY,
     product_id INTEGER NOT NULL,
     product_name VARCHAR(255) NOT NULL,
-    order_id INTEGER NOT NULL REFERENCES "order"("order_id") ON DELETE CASCADE ON UPDATE CASCADE,
+    order_id INTEGER NOT NULL REFERENCES orders(order_id) ON DELETE CASCADE ON UPDATE CASCADE,
     quantity INTEGER NOT NULL,
     unit_price NUMERIC(10, 2) NOT NULL,
     order_item_subtotal NUMERIC(10, 2) NOT NULL,
@@ -93,7 +93,7 @@ CREATE TABLE payment_items (
 );
 
 -- Create index on order_id in order_item table for faster lookups
-CREATE INDEX idx_order_item_order_id ON "order_item"("order_id");
+-- CREATE INDEX idx_order_item_order_id ON order_item(order_id);
 
 --  Insert Users
 INSERT INTO users (email, full_name) VALUES
@@ -114,7 +114,7 @@ INSERT INTO transactions (user_id, item_id, amount, status) VALUES
 (3, 1, 1000.00, 'failed');    -- Alice's Laptop purchase fails
 
 -- Insert test orders
-INSERT INTO "order" (customer_id, total_amount, status, created, modified)
+INSERT INTO orders (customer_id, total_amount, status, created, modified)
 VALUES 
     (1, 1150.00, 'NEW', NOW(), NOW()),
     (1, 800.00, 'PAID', NOW() - INTERVAL '2 days', NOW() - INTERVAL '1 day'),
@@ -124,24 +124,24 @@ VALUES
 
 -- Insert order items for each order
 -- Order 1: Customer 1's new order
-INSERT INTO "order_item" (product_id, product_name, order_id, quantity, unit_price, order_item_subtotal)
+INSERT INTO order_item (product_id, product_name, order_id, quantity, unit_price, order_item_subtotal)
 VALUES 
     (1, 'Laptop', 1, 1, 1000.00, 1000.00),
     (3, 'Headphones', 1, 1, 150.00, 150.00);
 
 -- Order 2: Customer 1's paid order
-INSERT INTO "order_item" (product_id, product_name, order_id, quantity, unit_price, order_item_subtotal)
+INSERT INTO order_item (product_id, product_name, order_id, quantity, unit_price, order_item_subtotal)
 VALUES 
     (2, 'Smartphone', 2, 1, 500.00, 500.00),
     (3, 'Headphones', 2, 2, 150.00, 300.00);
 
 -- Order 3: Customer 2's processing order
-INSERT INTO "order_item" (product_id, product_name, order_id, quantity, unit_price, order_item_subtotal)
+INSERT INTO order_item (product_id, product_name, order_id, quantity, unit_price, order_item_subtotal)
 VALUES 
     (3, 'Headphones', 2, 2, 150.00, 300.00);
 
 -- Order 4: Customer 3's shipped order
-INSERT INTO "order_item" (product_id, product_name, order_id, quantity, unit_price, order_item_subtotal)
+INSERT INTO order_item (product_id, product_name, order_id, quantity, unit_price, order_item_subtotal)
 VALUES 
     (2, 'Smartphone', 3, 1, 500.00, 500.00);
 

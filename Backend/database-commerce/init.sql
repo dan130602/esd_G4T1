@@ -7,10 +7,11 @@ DROP TABLE IF EXISTS orders;
 DROP TYPE IF EXISTS transaction_status;  -- Drop ENUM if it exists
 DROP TABLE IF EXISTS payment;
 DROP TABLE IF EXISTS payment_items;
+DROP TABLE IF EXISTS supplier_returns;
 
 -- Create ENUM type for transaction status
 CREATE TYPE transaction_status AS ENUM ('pending', 'completed', 'failed');
-
+CREATE TYPE return_status AS ENUM ('PENDING', 'APPROVED', 'REJECTED');
 --  Users Table
 CREATE TABLE users (
     user_id SERIAL PRIMARY KEY,          
@@ -42,12 +43,14 @@ CREATE TABLE transactions (
 -- 'order' table
 CREATE TABLE orders (
     order_id SERIAL PRIMARY KEY,
-    customer_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
     total_amount NUMERIC(10, 2) NOT NULL,
     status VARCHAR(10) NOT NULL,
     created TIMESTAMP NOT NULL DEFAULT NOW(),
-    modified TIMESTAMP NOT NULL DEFAULT NOW()
+    modified TIMESTAMP NOT NULL DEFAULT NOW(),
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
+
 
 -- 'order_item' table with foreign key reference to 'order'
 CREATE TABLE order_item (
@@ -92,8 +95,23 @@ CREATE TABLE payment_items (
     FOREIGN KEY (payment_id) REFERENCES payment(payment_id)
 );
 
+CREATE TABLE supplier_returns (
+    return_id SERIAL PRIMARY KEY,
+    order_id INTEGER NOT NULL,
+    item_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    state_of_good VARCHAR(50) NOT NULL, 
+    return_status VARCHAR(20) DEFAULT 'PENDING', 
+    reason TEXT NULL, 
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE,
+    FOREIGN KEY (item_id) REFERENCES items(item_id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
 -- Create index on order_id in order_item table for faster lookups
--- CREATE INDEX idx_order_item_order_id ON order_item(order_id);
+CREATE INDEX idx_order_item_order_id ON order_item(order_id);
 
 --  Insert Users
 INSERT INTO users (email, full_name) VALUES
@@ -114,7 +132,7 @@ INSERT INTO transactions (user_id, item_id, amount, status) VALUES
 (3, 1, 1000.00, 'failed');    -- Alice's Laptop purchase fails
 
 -- Insert test orders
-INSERT INTO orders (customer_id, total_amount, status, created, modified)
+INSERT INTO orders (user_id, total_amount, status, created, modified)
 VALUES 
     (1, 1150.00, 'NEW', NOW(), NOW()),
     (1, 800.00, 'PAID', NOW() - INTERVAL '2 days', NOW() - INTERVAL '1 day'),
@@ -174,3 +192,10 @@ INSERT INTO payment (
     CURRENT_TIMESTAMP - INTERVAL '2 days',      -- Created 2 days ago
     CURRENT_TIMESTAMP - INTERVAL '2 days'       -- Updated at the same time initially
 );
+
+
+INSERT INTO supplier_returns (order_id, item_id, user_id, state_of_good, return_status, reason, created_at, updated_at)
+VALUES
+    (1, 1, 2, 'new', 'PENDING', NULL, '2025-03-01 10:00:00', '2025-03-01 10:00:00'),
+    (1, 2, 2, 'used', 'PENDING', NULL, '2025-03-02 12:30:00', '2025-03-02 12:30:00'),
+    (1, 3, 2, 'damaged', 'REJECTED', 'Item is heavily damaged and not eligible for return.', '2025-03-03 14:00:00', '2025-03-05 09:15:00')

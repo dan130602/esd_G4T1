@@ -29,7 +29,7 @@ class OrderService:
     def create_order(self, data):
         try:
             new_order = Order(
-                customer_id = data.get('userId'),
+                user_id = data.get('userId'),
                 total_amount = 0.0,
                 status = 'NEW'
             )
@@ -128,7 +128,7 @@ class OrderService:
     #Get all orders of a particular user  
     def get_user_order(self, user_id):
         try:
-            user_orders = self.db.scalars(db.select(Order).filter_by(customer_id=user_id)).all()
+            user_orders = self.db.scalars(db.select(Order).filter_by(user_id=user_id)).all()
                         
             return [order.to_dict() for order in user_orders]          
         except Exception as e:

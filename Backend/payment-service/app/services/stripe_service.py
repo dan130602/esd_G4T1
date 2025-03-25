@@ -95,9 +95,9 @@ class StripeService:
             line_items = []
             item_stripe_data = {}
             order_id = data['order_id']
-            order_customer_id = data['customer_id']
+            order_user_id = data['user_id']
             order_total_amount = int(float(data['total_amount']) *100)
-            order_date = data['created_on']
+            order_date = data['created']
             
             if 'items' in data and isinstance(data['items'], list):
                 for item in data['items']:
@@ -127,7 +127,7 @@ class StripeService:
                     name=f"Order #{order_id}" if order_id else "Complete Order",
                     description=f"Order placed on {order_date}" if order_date else "Your Order",
                     metadata={
-                        "customer_id": order_customer_id
+                        "user_id": order_user_id
                     }
                 )
                 
@@ -136,7 +136,7 @@ class StripeService:
                     unit_amount=order_total_amount,
                     product=stripe_product_object.id
                     # metadata= {
-                    #     "customer_id": order_customer_id
+                    #     "user_id": order_user_id
                     # }
                 )
                 
@@ -155,7 +155,7 @@ class StripeService:
                 mode="payment",
                 metadata={
                     "order_id": order_id,
-                    "customer_id": order_customer_id
+                    "user_id": order_user_id
                 },
                 automatic_tax={'enabled': True}
                 # tax_rate_data={
@@ -168,7 +168,7 @@ class StripeService:
             # Commented out to test checkout page
             payment = Payment(
                 order_id=order_id,
-                customer_id=order_customer_id,
+                user_id=order_user_id,
                 stripe_session_id=stripe_checkout_session.id,
                 amount=order_total_amount / 100,
                 currency="SGD", 
@@ -206,6 +206,7 @@ class StripeService:
             
         except Exception as e:
             StripeService._log_error(e)
+            logger.error(f"Error: {e}")
             raise
         
     @staticmethod
@@ -230,13 +231,13 @@ class StripeService:
                 
                 # print("=== Checkout Session Completed ===")
                 # print(f"Order ID: {session.metadata.get('order_id')}")
-                # print(f"Customer ID: {session.metadata.get('customer_id')}")
+                # print(f"Customer ID: {session.metadata.get('user_id')}")
                 # print(f"Amount: {session.amount_total / 100} {session.currency}")
                 # print(f"Payment Intent: {session.payment_intent}")
                 
                 logger.info("=== Checkout Session Completed ===")
                 logger.info(f"Order ID: {session.metadata.get('order_id')}")
-                logger.info(f"Customer ID: {session.metadata.get('customer_id')}")
+                logger.info(f"User ID: {session.metadata.get('user_id')}")
                 logger.info(f"Amount: {session.amount_total / 100} {session.currency}")
                 
                 '''print("\nOrchestrator would:")
@@ -246,7 +247,7 @@ class StripeService:
                 print("4. Record transaction in transaction service")'''
 
                 order_id = session.metadata.get('order_id')
-                customer_id = session.metadata.get('customer_id')
+                user_id = session.metadata.get('user_id')
 
                 if not order_id:
                     raise ValueError("Missing order_id in session metadata")
@@ -279,7 +280,7 @@ class StripeService:
                 try: 
                     payment = Payment(
                         order_id=order_id,
-                        customer_id=customer_id,
+                        user_id=user_id,
                         stripe_payment_intent_id=session.payment_intent,
                         stripe_session_id=session.id,
                         amount=session.amount_total / 100,

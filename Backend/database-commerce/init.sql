@@ -68,7 +68,7 @@ CREATE TABLE order_item (
 CREATE TABLE payment (
     payment_id SERIAL PRIMARY KEY,
     order_id INTEGER NOT NULL,
-    customer_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
     amount FLOAT NOT NULL,
     currency VARCHAR(3) NOT NULL DEFAULT 'SGD',
     status VARCHAR(20) NOT NULL DEFAULT 'pending',
@@ -171,7 +171,7 @@ VALUES
 -- Payment table testing data
 INSERT INTO payment (
     order_id,
-    customer_id,
+    user_id,
     amount,
     currency,
     status,

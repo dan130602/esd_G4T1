@@ -21,7 +21,8 @@ class OrderController:
         except ValueError as e:
             return jsonify({"error": str(e)}), 400
         except Exception as e:
-            return jsonify({"error": "Internal server error"}), 500
+            print(f"Error: {str(e)}")
+            return jsonify({"error": "Internal server error", "details": str(e)}), 500
         
     def get_order(self, order_id):
         try:

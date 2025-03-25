@@ -15,7 +15,7 @@ class Payment(db.Model):
     
     payment_id = db.Column(db.Integer, primary_key=True)
     order_id = db.Column(db.Integer, nullable=False)
-    customer_id = db.Column(db.Integer, nullable=False)
+    user_id = db.Column(db.Integer, nullable=False)
     amount = db.Column(db.Float, nullable=False)
     currency = db.Column(db.String(3), nullable=False, default='SGD')
     status = db.Column(db.String(20), nullable=False, default='pending')  # pending, processing, completed, failed
@@ -34,7 +34,7 @@ class Payment(db.Model):
         return {
             "payment_id": self.payment_id,
             "order_id": self.order_id,
-            "customer_id": self.customer_id,
+            "user_id": self.user_id,
             "amount": self.amount,
             "currency": self.currency,
             "status": self.status,

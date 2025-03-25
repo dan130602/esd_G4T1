@@ -12,20 +12,21 @@ def createApp():
     
     #Commerce db config
     db_user = os.getenv('commerce_db_user', 'user')
-    db_password = os.getenv('commerce_db_password', 'hidden')
-    db_host = os.getenv('dbHost', 'localhost')  
-    db_port = os.getenv('commerce_db_port', '5433')
+    db_password = os.getenv('commerce_db_password', 'password')
+    db_host = os.getenv('dbHost', 'commerce-db')  
+    db_port = os.getenv('commerce_db_port', '5432')
     db_name = os.getenv('commerce_db_name', 'commerce_db')
     
     # Error db config
     error_db_user = os.getenv('error_db_user', 'user')
-    error_db_password = os.getenv('error_db_password', 'hidden')
-    error_db_host = os.getenv('dbHost', 'localhost')  
-    error_db_port = os.getenv('error_db_port', '5434')  
+    error_db_password = os.getenv('error_db_password', 'password')
+    error_db_host = os.getenv('dbHost', 'error-db')  
+    error_db_port = os.getenv('error_db_port', '5432')  
     error_db_name = os.getenv('error_db_name', 'error_db')
     
     # Build the database URIs
     commerce_db_uri = f"postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
+    # commerce_db_uri = "postgresql://user:password@host.docker.internal:5433/commerce_db"
     error_db_uri = f"postgresql://{error_db_user}:{error_db_password}@{error_db_host}:{error_db_port}/{error_db_name}"
     
     # Configure the Flask app with both databases

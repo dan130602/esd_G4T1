@@ -3,10 +3,10 @@ from datetime import datetime
 import uuid
 
 class Order(db.Model):
-    __tablename__ = 'order'
+    __tablename__ = 'orders'
 
     order_id = db.Column(db.Integer, primary_key=True)
-    customer_id = db.Column(db.Integer, nullable=False)
+    user_id = db.Column(db.Integer, nullable=False)
     total_amount = db.Column(db.Numeric(10, 2), nullable=False)
     status = db.Column(db.String(10), nullable=False)
     created = db.Column(db.DateTime, nullable=False, default=datetime.now)
@@ -18,7 +18,7 @@ class Order(db.Model):
     def to_dict(self):
         return {
             'order_id': self.order_id,
-            'customer_id': self.customer_id,
+            'user_id': self.user_id,
             'total_amount': float(self.total_amount),
             'status': self.status,
             'created': self.created.isoformat() if self.created else None,
@@ -33,7 +33,7 @@ class Order_Item(db.Model):
     product_id = db.Column(db.Integer, nullable=False)
     product_name = db.Column(db.String(255), nullable=False)
     order_id = db.Column(db.ForeignKey(
-        'order.order_id', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, index=True)
+        'orders.order_id', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, index=True)
     quantity = db.Column(db.Integer, nullable=False)
     unit_price = db.Column(db.Numeric(10, 2), nullable=False)
     order_item_subtotal = db.Column(db.Numeric(10, 2), nullable=False)

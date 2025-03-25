@@ -141,6 +141,21 @@ services:
     networks:
       - internal_network
 
+  #################################
+  # Cart Orchestrator 
+  #################################
+  cart-orchestrator:
+    container_name: cart-orchestrator
+    build: ./backend/cart-orchestrator  
+    ports:
+      - "4000:4000"  
+    depends_on:
+      - cart-service
+    environment:
+      - CART_SERVICE_URL=http://cart-service:3007  
+    networks:
+      - internal_network
+
 volumes:
   commerce_pgdata:
     driver: local

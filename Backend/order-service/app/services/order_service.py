@@ -45,7 +45,7 @@ class OrderService:
             
             for item_data in items_data:
                 if 'item_id' not in item_data or 'price' not in item_data or 'quantity' not in item_data:
-                    raise ValueError(f"{item_data.get("item_name", 'Item')} has missing required item fields (id, price, quantity)")
+                    raise ValueError(f"{item_data.get('item_name', 'Item')} has missing required item fields (id, price, quantity)")
 
                 # Get and validate quantity
                 quantity = item_data.get('quantity')

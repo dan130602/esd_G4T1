@@ -34,6 +34,7 @@ services:
       POSTGRES_DB: error_db
     networks:
       - internal_network
+
   #################################
   # Redis Service
   #################################
@@ -83,6 +84,46 @@ services:
       - DB_USER=user
       - DB_PASSWORD=password
       - DB_NAME=commerce_db
+    networks:
+      - internal_network
+
+  #################################
+  # Order Microservice
+  #################################
+  order-service:
+    container_name: order-service
+    build: ./backend/order-service
+    ports:
+      - "5001:5001" 
+    depends_on:
+      - commerce-db
+    environment:
+      - NODE_ENV=production
+      - DB_HOST=commerce-db
+      - DB_PORT=5432
+      - DB_USER=user
+      - DB_PASSWORD=password
+      - DB_NAME=commerce_db
+    networks:
+      - internal_network
+
+  #################################
+  # Supplier Microservice
+  #################################
+  supplier-service:
+    container_name: supplier-service
+    build: ./backend/supplier-service
+    ports:
+      - "3008:3008"  
+    depends_on:
+      - commerce-db
+    environment:
+      - NODE_ENV=production
+      - DB_HOST=commerce-db
+      - commerce_db_port=5432
+      - commerce_db_user=user
+      - commerce_db_password=password
+      - commerce_db_name=commerce_db
     networks:
       - internal_network
 

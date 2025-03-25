@@ -127,6 +127,42 @@ services:
     networks:
       - internal_network
 
+  #################################
+  # Transaction Microservice
+  #################################
+  transaction-service:
+    container_name: transaction-service
+    build: ./backend/transaction-service
+    ports:
+      - "3009:3009"  
+    depends_on:
+      - commerce-db
+    environment:
+      - NODE_ENV=production
+      - DB_HOST=commerce-db
+      - commerce_db_port=5432
+      - commerce_db_user=user
+      - commerce_db_password=password
+      - commerce_db_name=commerce_db
+      - DATABASE_URL=postgresql://user:password@host.docker.internal:5433/commerce_db
+    networks:
+      - internal_network
+
+  #################################
+  # Cart Orchestrator 
+  #################################
+  cart-orchestrator:
+    container_name: cart-orchestrator
+    build: ./backend/cart-orchestrator  
+    ports:
+      - "4000:4000"  
+    depends_on:
+      - cart-service
+    environment:
+      - CART_SERVICE_URL=http://cart-service:3007  
+    networks:
+      - internal_network
+
 volumes:
   commerce_pgdata:
     driver: local

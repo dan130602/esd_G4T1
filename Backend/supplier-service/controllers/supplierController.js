@@ -1,14 +1,15 @@
-import { approveReturnRequest, rejectReturnRequest} from "../services/supplierService.js";
+import { approveReturnRequest, rejectReturnRequest, getAllPendingRequest} from "../services/supplierService.js";
 
-// export const createReturnRequest = async (req, res) => {
-//     try {
-//         const { order_id, item_id, user_id, state_of_good, return_status, reason } = req.body;
-//         const newReturnRequest = await createReturnRequest(order_id, item_id, user_id, state_of_good, return_status, reason);
-//         res.status(201).json(newReturnRequest);
-//     } catch (error) {
-//         res.status(500).json({ error: "Failed to create return request" });
-//     }
-// }
+
+export const getAllPendingRequestController = async (req, res) => {
+    try {
+        const pendingRequests = await getAllPendingRequest();
+        res.status(200).json(pendingRequests);
+    }
+    catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+}
 
 export const approveReturnRequestController  = async (req, res) => {
     try {

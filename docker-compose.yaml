@@ -119,6 +119,25 @@ services:
       - commerce_db_name=commerce_db
     networks:
       - internal_network
+  #################################
+  # Shop Microservice
+  #################################
+  shop-service:
+    container_name: shop-service
+    build: ./backend/shop-service
+    ports:
+      - "3006:3006"  
+    depends_on:
+      - commerce-db
+    environment:
+      - NODE_ENV=production
+      - DB_HOST=commerce-db
+      - commerce_db_port=5432
+      - commerce_db_user=user
+      - commerce_db_password=password
+      - commerce_db_name=commerce_db
+    networks:
+      - internal_network
 
   #################################
   # Transaction Microservice

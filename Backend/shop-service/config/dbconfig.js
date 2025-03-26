@@ -17,7 +17,7 @@ const sequelize = new Sequelize(
     process.env.commerce_db_user, // Username
     process.env.commerce_db_password, // Password
     {
-        host: process.env.dbHost, // Database host
+        host: "commerce-db", // Database host
         port: process.env.commerce_db_port, // Database port
         dialect: "postgres", // Specify PostgreSQL
         logging: false, // Disable SQL logging (optional)

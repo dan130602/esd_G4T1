@@ -1,0 +1,41 @@
+import axios from 'axios';
+import { API_URLS } from '../config/apiUrls.js'; // Import API URLs
+
+const processRefund = async (userId, orderId, refundAmount) => {
+    try {
+        // Step 1: Check if the order is valid
+        const orderResponse = await axios.get(`${API_URLS.orderService}/${userId}/${orderId}`);
+        
+        if (orderResponse.status !== 200) {
+            return { success: false, message: 'Invalid order ID' };
+        }
+
+        // Step 2: Verify with the supplier service
+        const supplierResponse = await axios.post(API_URLS.supplierService, {
+            orderId,
+            refundAmount
+        });
+        
+        if (!supplierResponse.data.isRefundAllowed) {
+            return { success: false, message: 'Refund not allowed by supplier' };
+        }
+
+        // Step 3: Write to the transaction service for logging
+        const transactionResponse = await axios.post(API_URLS.transactionService, {
+            orderId,
+            refundAmount
+        });
+
+        if (transactionResponse.status === 200) {
+            return { success: true };
+        } else {
+            return { success: false, message: 'Failed to log transaction' };
+        }
+
+    } catch (error) {
+        console.error(error);
+        throw new Error('Internal server error');
+    }
+};
+
+export default { processRefund };

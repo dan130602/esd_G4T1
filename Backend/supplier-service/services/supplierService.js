@@ -11,6 +11,12 @@ import Supplier from "../models/supplierModel.js";
 //     });   
 // }
 
+const getAllPendingRequest = async () => {
+    return await Supplier.findAll(
+        {where: { return_status: "PENDING" }}
+    );
+}
+
 const approveReturnRequest = async (return_id) => {
     return await Supplier.update(
         { return_status: "approved", reason: null , updated_at: new Date() },
@@ -28,4 +34,4 @@ const rejectReturnRequest = async (return_id, givenReason) => {
     );
 }
 
-export { approveReturnRequest, rejectReturnRequest };
+export { getAllPendingRequest, approveReturnRequest, rejectReturnRequest };

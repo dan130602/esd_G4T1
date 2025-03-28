@@ -39,6 +39,12 @@ const router = createRouter({
       name: 'checkout-failure',
       component: CheckoutFailure,
     },
+    {
+      path: '/login',
+      name: 'Login',
+      component: () => import('@/views/login.vue'),
+      meta: { hideNavbar: true }  // if needed
+    }
   ],
 })
 

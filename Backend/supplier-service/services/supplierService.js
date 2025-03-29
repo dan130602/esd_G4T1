@@ -20,7 +20,7 @@ const getAllPendingRequest = async () => {
 const approveReturnRequest = async (return_id) => {
     return await Supplier.update(
         { return_status: "approved", reason: null , updated_at: new Date() },
-        { where: { return_id } }
+        { where: { return_id }, returning: true }
     );
 }
 
@@ -30,7 +30,7 @@ const rejectReturnRequest = async (return_id, givenReason) => {
     }
     return await Supplier.update(
         { return_status: "rejected" , reason: givenReason, updated_at: new Date() },   
-        { where: { return_id } }
+        { where: { return_id }, returning: true }
     );
 }
 

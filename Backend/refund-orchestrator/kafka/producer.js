@@ -1,7 +1,7 @@
 import { Kafka } from 'kafkajs';
 
 const kafka = new Kafka({
-  clientId: 'supplier-service',
+  clientId: 'refund-orchestrator',
   brokers: ['localhost:9092'], // Use Docker service name and port
 });
 
@@ -12,9 +12,9 @@ export const connectProducer = async () => {
   console.log('[Kafka] Producer connected');
 };
 
-export const sendRefundStatus = async (message) => {
+export const sendTransaction = async (message) => {
   await producer.send({
-    topic: 'refund-status-topic',
+    topic: 'transaction-topic',
     messages: [
       {
         value: JSON.stringify(message),

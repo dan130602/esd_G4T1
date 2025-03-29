@@ -2,7 +2,7 @@ import express from 'express';
 import morgan from 'morgan';
 import sequelize from "./config/dbconfig.js";
 import supplierRoutes from "./routes/supplierRoutes.js";
-
+import { connectProducer } from './kafka/producer.js';
 
 const app = express();
 
@@ -44,6 +44,7 @@ app.get('/', (req, res) => {
 
 
 const PORT = 3008;
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+app.listen(PORT, async () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+    await connectProducer();
 });

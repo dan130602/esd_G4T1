@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { API_URLS } from '../config/apiUrls.js'; // Import API URLs
+import { API_URLS } from '../urls/apiUrls.js'; // Import API URLs
 
 const processRefund = async (userId, orderId, refundAmount) => {
     try {
@@ -38,4 +38,22 @@ const processRefund = async (userId, orderId, refundAmount) => {
     }
 };
 
-export default { processRefund };
+export const handleRefundStatus = async ({ returnId, status, reason, timestamp }) => {
+    try {
+      if (status === 'approved') {
+        // Log transaction or call payment service
+        await axios.post(API_URLS.transactionService, {
+          returnId,
+          refundAmount: 100, // Ideally you'd include this in the Kafka message
+          timestamp,
+        });
+        console.log(`[Orchestrator] Processed approved refund: ${returnId}`);
+      } else if (status === 'rejected') {
+        // Maybe notify user or log the reason
+        console.log(`[Orchestrator] Refund ${returnId} rejected: ${reason}`);
+      }
+    } catch (err) {
+      console.error('[Orchestrator] Error handling refund status:', err.message);
+    }
+  };
+export default { processRefund, handleRefundStatus };

@@ -2,6 +2,8 @@ from flask import Flask
 from config.config import db  
 import os
 from controllers.transactionController import transaction_bp 
+import threading
+from kafka.consumer import start_transaction_consumer
 
 app = Flask(__name__)
 
@@ -16,6 +18,9 @@ with app.app_context():
     db.create_all()
 
 app.register_blueprint(transaction_bp, url_prefix="/transactions", strict_slashes=False)
+
+consumer_thread = threading.Thread(target=start_transaction_consumer, daemon=True)
+consumer_thread.start()
 
 @app.route("/")
 def hello_world():

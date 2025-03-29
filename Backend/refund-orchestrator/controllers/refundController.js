@@ -1,5 +1,6 @@
 import processRefund from '../services/refundService.js';
-export const processRefund = async (req, res) => {
+
+export const processRefundController = async (req, res) => {
     const { userId, orderId, refundAmount } = req.body;
 
     try {

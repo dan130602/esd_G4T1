@@ -1,4 +1,5 @@
 import { approveReturnRequest, rejectReturnRequest, getAllPendingRequest} from "../services/supplierService.js";
+import { sendRefundStatus } from '../kafka/producer.js';
 
 
 export const getAllPendingRequestController = async (req, res) => {
@@ -18,6 +19,12 @@ export const approveReturnRequestController  = async (req, res) => {
         if (!updatedReturnRequest)
             return res.status(404).json({ error: "Return request not found" });
 
+        await sendRefundStatus({
+            returnId: return_id,
+            status: 'approved',
+            timestamp: new Date().toISOString()
+          });
+
         res.status(200).json(updatedReturnRequest);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -31,6 +38,13 @@ export const rejectReturnRequestController = async (req, res) => {
         const updatedReturnRequest = await rejectReturnRequest(return_id, reason);
         if (!updatedReturnRequest)
             return res.status(404).json({ error: "Return request not found" });
+
+        await sendRefundStatus({
+            returnId: return_id,
+            status: 'rejected',
+            reason: reason,
+            timestamp: new Date().toISOString()
+          });
 
         res.status(200).json(updatedReturnRequest);
     } catch (error) {

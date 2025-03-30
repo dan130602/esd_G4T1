@@ -1,10 +1,10 @@
 import stripe
 import traceback
-import datetime
 import logging
 from app.models.payment_model import Payment, Payment_Error, PaymentItem
 from app import db
 from app.config import Config
+from datetime import datetime
 
 stripe.api_key = Config.STRIPE_API_KEY
 logger = logging.getLogger('payment-service')
@@ -378,7 +378,97 @@ class StripeService:
                 event_id=event_id
             )
             raise
+    
+    @staticmethod
+    def refund(order_id, amount):
+        # Pass in order_id
+        # Query order_id in payments table
+        # Retrieve stripe_payment_intent
+        # Create refund object, pass stripe_payment_intent in
         
+        try: 
+            user_payment = db.session.scalar(db.select(Payment).filter_by(order_id=order_id))
+            
+            if not user_payment:
+                return {"order_id" : order_id, 
+                        "refund_status" : "UNSUCCESSFUL",
+                        "reason": "order does not exist"}
+
+            user_payment_dict = user_payment.to_dict()
+            stripe_payement_intent_id = user_payment_dict["stripe_payment_intent_id"]
+            
+            if not stripe_payement_intent_id:
+                return {"order_id" : order_id, 
+                        "refund_status" : "UNSUCCESSFUL",
+                        "reason": "stripe_payment_intent_id field empty"}
+            
+            # For custom amount
+            if amount:
+                amount_in_cent = int(float(amount)*100) # required by stripe
+                refund_response = stripe.Refund.create(payment_intent=stripe_payement_intent_id, amount=amount_in_cent)
+            else:
+                refund_response = stripe.Refund.create(payment_intent=stripe_payement_intent_id)
+                
+
+            # successful refund
+            if (refund_response["status"] == "succeeded"):
+                logger.info(f"Refund for order_id: {order_id} SUCCESSFUL.")
+                if amount:
+                    #Partial refund
+                    user_payment.status = "partially_refunded" 
+                    user_payment.refunded_amount = amount
+                else:
+                    #Full refund
+                    user_payment.refunded_amount = user_payment.amount
+                    user_payment.status = "refunded"
+                current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
+                user_payment.updated_at = current_time
+                db.session.commit()
+                return {"order_id" : order_id, "refund_status" : "SUCCESSFUL"}
+            
+            # unsuccessful refund    
+            if (refund_response["status"] == "failed"):
+                logger.warning(f"Refund for order_id: {order_id} UNSUCCESSFUL.")
+                logger.warning(f"Reason: {refund_response["failure_reason"]}")
+                failure_reason = refund_response["failure_reason"]
+                return {"order_id" : order_id, 
+                        "refund_status" : "UNSUCCESSFUL", 
+                        "reason" : failure_reason
+                        }    
+            
+            # Default case if status is neither succeeded nor failed
+            return {
+                "order_id": order_id,
+                "refund_status": "UNKNOWN",
+                "reason": f"Unexpected status: {refund_response['status']}"
+            }
+            
+        except stripe.error.InvalidRequestError as e:
+            error_message = str(e)
+    
+            # "already refunded"
+            if "has already been refunded" in error_message:
+                # Update database to reflect the refunded status
+                user_payment.status = "refunded"
+                user_payment.updated_at = datetime.datetime.now()
+                db.session.commit()
+                
+                # Return a success response, since the payment is already refunded
+                logger.info(f"Payment for order_id: {order_id} was already refunded.")
+                return {"order_id": order_id, 
+                        "refund_status": "SUCCESSFUL", 
+                        "message": "Payment was already refunded"
+                        }
+            else:
+                # Handle other Stripe errors
+                logger.error(f"Stripe error: {error_message}")
+                return {"order_id": order_id, 
+                        "refund_status": "UNSUCCESSFUL", 
+                        "reason": error_message
+                        }
+        except Exception as e:
+            logger.error(f"Error: {e}")
+            raise
         
         
         

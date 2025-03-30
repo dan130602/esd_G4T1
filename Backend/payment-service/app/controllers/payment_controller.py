@@ -113,5 +113,44 @@ class PaymentController:
             print(traceback.format_exc())
             return jsonify({"success": True}), 200
         
+    def refund(self, order_id):
+        data = request.get_json(silent=True) or {}
+        amount = data.get("amount")
+        
+        if not order_id:
+            return jsonify({
+                "code": "400",
+                "error": "order_id field not found"}), 400 
+        
+        try:
+            refund_response = StripeService.refund(order_id, amount)
+            
+            if refund_response["refund_status"] == "SUCCESSFUL":
+                if "message" in refund_response and refund_response["message"] == "Payment was already refunded":
+                    return jsonify({
+                        "code": "200",
+                        "refund_status": "SUCCESSFUL",
+                        "message": "Payment was already refunded"
+                    }), 200
+                else:
+                    # Regular successful refund
+                    return jsonify({
+                        "code": "200",
+                        "refund_status": "SUCCESSFUL"
+                    }), 200
+                
+            if refund_response["refund status"] == "UNSUCCESSFUL":
+                return jsonify({
+                    "code": "200",
+                    "refund_status": "UNSUCCESSFUL",
+                    "reason" : refund_response["reason"]
+                }), 200     
+        except Exception as e:
+            print(f"error message: {str(e)}")
+            return jsonify({
+                "code": "500",
+                "error": "Internal server error",
+            }), 500
+        
     
             

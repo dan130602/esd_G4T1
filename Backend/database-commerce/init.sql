@@ -70,8 +70,9 @@ CREATE TABLE payment (
     order_id INTEGER NOT NULL,
     user_id INTEGER NOT NULL,
     amount FLOAT NOT NULL,
+    refunded_amount FLOAT NOT NULL DEFAULT 0.00,
     currency VARCHAR(3) NOT NULL DEFAULT 'SGD',
-    status VARCHAR(20) NOT NULL DEFAULT 'pending',
+    status VARCHAR(20) NOT NULL DEFAULT 'pending', -- pending, processing, completed, failed, partially_refunded, refunded
     payment_method VARCHAR(50),
     stripe_payment_intent_id VARCHAR(100),
     stripe_session_id VARCHAR(100),
@@ -173,6 +174,7 @@ INSERT INTO payment (
     order_id,
     user_id,
     amount,
+    refunded_amount,
     currency,
     status,
     payment_method,
@@ -183,11 +185,12 @@ INSERT INTO payment (
 ) VALUES (
     12345,                                      -- Order ID
     789,                                        -- Customer ID
-    99.99,                                      -- Amount
+    20.00,                                      -- Amount
+    0.00,
     'SGD',                                      -- Currency (Singapore Dollar)
     'completed',                                -- Status
     'card',                                     -- Payment method
-    'pi_3NMqXYLkdIwFu2yK1AFBhDi0',             -- Example Stripe payment intent ID
+    'pi_3R8GaPRv5FH5Wskn0R3YD9jb',             -- Example Stripe payment intent ID
     'cs_test_a1hBmqLchUGkj9Fqx2JDwHyZ7aLCmhBXeU02t2py1Ees8LBqaTvnJtQD', -- Example Stripe session ID
     CURRENT_TIMESTAMP - INTERVAL '2 days',      -- Created 2 days ago
     CURRENT_TIMESTAMP - INTERVAL '2 days'       -- Updated at the same time initially

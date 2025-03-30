@@ -19,3 +19,8 @@ def create_checkout_session():
 def stripe_webhook():   
     print("Webhook called") 
     return payment_controller.stripe_webhook()
+
+#Refund
+@payment_bp.route('/refund/<int:order_id>', methods=['POST'])
+def refund(order_id):
+    return payment_controller.refund(order_id)

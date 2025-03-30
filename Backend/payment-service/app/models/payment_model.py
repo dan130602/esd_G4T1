@@ -17,8 +17,9 @@ class Payment(db.Model):
     order_id = db.Column(db.Integer, nullable=False)
     user_id = db.Column(db.Integer, nullable=False)
     amount = db.Column(db.Float, nullable=False)
+    refunded_amount = db.Column(db.Float, nullable=False, default=0.0)
     currency = db.Column(db.String(3), nullable=False, default='SGD')
-    status = db.Column(db.String(20), nullable=False, default='pending')  # pending, processing, completed, failed
+    status = db.Column(db.String(20), nullable=False, default='pending')  # pending, processing, completed, failed, partially_refunded, refunded
     payment_method = db.Column(db.String(50))
     
     # Stripe specific fields
@@ -36,6 +37,7 @@ class Payment(db.Model):
             "order_id": self.order_id,
             "user_id": self.user_id,
             "amount": self.amount,
+            "refunded_amount": self.refunded_amount,
             "currency": self.currency,
             "status": self.status,
             "payment_method": self.payment_method,

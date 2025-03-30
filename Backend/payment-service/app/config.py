@@ -12,8 +12,8 @@ class Config:
     #Commerce db config
     COMMERCE_DB_USER = os.getenv('commerce_db_user', 'user')
     COMMERCE_DB_USER_PASSWORD = os.getenv('commerce_db_password', 'password')
-    COMMERCE_DB_USER_HOST = os.getenv('dbHost', 'commerce-db')  
-    COMMERCE_DB_USER_PORT = os.getenv('commerce_db_port', '5432')
+    COMMERCE_DB_USER_HOST = os.getenv('commerce_dbHost', 'commerce_db')  
+    COMMERCE_DB_USER_PORT = os.getenv('commerce_db_port', '5433')
     COMMERCE_DB_USER_NAME = os.getenv('commerce_db_name', 'payment_db')
     
     # Error db config

@@ -12,14 +12,14 @@ class Config:
     #Commerce db config
     COMMERCE_DB_USER = os.getenv('commerce_db_user', 'user')
     COMMERCE_DB_USER_PASSWORD = os.getenv('commerce_db_password', 'hidden')
-    COMMERCE_DB_USER_HOST = os.getenv('dbHost', 'localhost')  
+    COMMERCE_DB_USER_HOST = os.getenv('commerce_dbHost', 'commerce_db')  
     COMMERCE_DB_USER_PORT = os.getenv('commerce_db_port', '5433')
     COMMERCE_DB_USER_NAME = os.getenv('commerce_db_name', 'payment_db')
     
     # Error db config
     ERROR_DB_USER = os.getenv('error_db_user', 'user')
     ERROR_DB_PASSWORD= os.getenv('error_db_password', 'hidden')
-    ERROR_DB_HOST = os.getenv('dbHost', 'localhost')  
+    ERROR_DB_HOST = os.getenv('error_dbHost', 'error_db')  
     ERROR_DB_PORT = os.getenv('error_db_port', '5434')  
     ERROR_DB_NAME = os.getenv('error_db_name', 'error_db')
     

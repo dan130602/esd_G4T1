@@ -134,3 +134,10 @@ class OrderService:
         except Exception as e:
             self._log_error(e)
             raise
+    
+    def get_user_specific_order(self, user_id, order_id):
+        try:
+            order = Order.query.filter_by(user_id=user_id, order_id=order_id).first()
+            return order.to_dict() if order else None
+        except Exception as e:
+            raise e

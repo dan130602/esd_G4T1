@@ -28,7 +28,7 @@ def find_user_order(user_id):
 
 #Get all orders based on user_id and order_id
 @order_bp.route('/user/<int:user_id>/order/<int:order_id>', methods=['GET'])
-def find_user_order_orderId(user_id):
-    return order_controller.get_user_order(user_id)
+def find_user_order_orderId(user_id, order_id):
+    return order_controller.get_user_specifc_order(user_id, order_id)
 
 

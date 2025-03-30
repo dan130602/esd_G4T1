@@ -76,3 +76,16 @@ class OrderController:
         except Exception as e:
             return jsonify({"error": "Internal server error"}), 500
             
+    def get_user_specifc_order(self, user_id, order_id):
+        try:
+            order = self.order_service.get_user_specific_order(user_id, order_id)
+
+            if not order:
+                return jsonify({"message": "Order not found for this user"}), 404
+
+            return jsonify({"order": order}), 200
+
+        except ValueError:
+            return jsonify({"error": "Invalid input (non-integer value)"}), 400
+        except Exception:
+            return jsonify({"error": "Internal server error"}), 500

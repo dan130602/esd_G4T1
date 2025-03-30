@@ -16,7 +16,7 @@ load_dotenv(ENV_PATH)
 app = Flask(__name__)
 
 # Configure database from environment variables
-DATABASE_URL = "postgresql://user:password@commerce-db:5432/commerce_db"
+DATABASE_URL = "postgresql://user:password@commerce-db:5432/commerce_db" 
 
 
 app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL

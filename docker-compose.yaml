@@ -274,6 +274,22 @@ services:
       - "8001:8001"  # Admin API
       - "8002:8002"  # Kong Manager GUI
 
+  #################################
+  # Payment Service
+  #################################
+  payment-service:
+    container_name: payment-service
+    build: ./backend/payment-service
+    ports:
+      - "5002:5002"
+    depends_on:
+      - commerce-db
+      - error-db
+    env_file:
+      - ./backend/payment-service/.env
+    networks:
+      - internal_network
+  
 volumes:
   commerce_pgdata:
     driver: local

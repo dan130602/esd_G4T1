@@ -429,7 +429,7 @@ class StripeService:
             # unsuccessful refund    
             if (refund_response["status"] == "failed"):
                 logger.warning(f"Refund for order_id: {order_id} UNSUCCESSFUL.")
-                logger.warning(f"Reason: {refund_response["failure_reason"]}")
+                logger.warning(f"Reason: {refund_response['failure_reason']}")
                 failure_reason = refund_response["failure_reason"]
                 return {"order_id" : order_id, 
                         "refund_status" : "UNSUCCESSFUL", 

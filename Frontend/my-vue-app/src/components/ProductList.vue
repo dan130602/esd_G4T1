@@ -19,54 +19,7 @@ export default {
   name: 'ProductList',
   data() {
     return {
-      products: [
-      {
-          item_name: "Black PopGrip",
-          price: 14.9,
-          image: "/Images/Black PopGrip $14.9.webp"
-        },
-        {
-          item_name: "JBL Flip 6 Portable Bluetooth Speaker",
-          price: 135,
-          image: "/Images/JBL Flip 6 Portable Bluetooth Speaker $135.jpg"
-        },
-        {
-          item_name: "JETech Magnetic Case for iPhone 14",
-          price: 16.99,
-          image: "/Images/JETech Magnetic Case for iPhone 14 6.1-Inch (Black) $16.99.jpg"
-        },
-        {
-          item_name: "Men's Casual Sports Shoes",
-          price: 28.75,
-          image: "/Images/Men's Casual Sports Shoes Soft Breathable Running Shoes $28.75.webp"
-        },
-        {
-          item_name: "Single Folding Cell Phone Holder & Tablet Stand",
-          price: 5.3,
-          image: "/Images/Single Folding Cell Phone Holder & Tablet Stand $5.3.jpg"
-        },
-        {
-          item_name: "SodaStream Fizz & Go Metal Water Bottle",
-          price: 59.90,
-          image: "/Images/SodaStream Fizz & Go Metal Water Bottle $59.90.webp"
-        },
-        {
-          item_name: "Sports Tee Workout Tops",
-          price: 6.5,
-          image: "/Images/Sports Tee Workout Tops $6.5.webp"
-        },
-        {
-          item_name: "Tefal Emotion Non Stick Frypan 24cm",
-          price: 59,
-          image: "/Images/Tefal Emotion Non Stick Frypan 24cm $59.jpg"
-        },
-        {
-          item_name: "Thermos® KFJ-series Deep Non-Stick Frying Pans",
-          price: 43.80,
-          image: "/Images/Thermos® KFJ-series Deep Non-Stick Frying Pans $43.80.webp"
-        }
-      ],
-      
+      products: [],
     };
   },
   async mounted() {

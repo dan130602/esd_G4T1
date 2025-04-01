@@ -1,10 +1,10 @@
 import { processRefund } from '../services/refundService.js';
 
 export const processRefundController = async (req, res) => {
-    const { userId, orderId, refundAmount } = req.body;
+    const { userId, orderId, refundAmount, reason } = req.body;
 
     try {
-        const result = await processRefund(userId, orderId, refundAmount);
+        const result = await processRefund(userId, orderId, refundAmount, reason);
 
         if (result.success) {
             return res.status(200).json({ message: 'Refund processed successfully' });

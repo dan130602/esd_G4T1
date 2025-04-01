@@ -1,5 +1,5 @@
 import Supplier from "../models/supplierModel.js";
-
+import axios from "axios";
 // const createReturnRequest = async (order_id, item_id, user_id, state_of_good, return_status, reason) => {
 //     return await Supplier.create({
 //         order_id,
@@ -17,11 +17,34 @@ const getAllPendingRequest = async () => {
     );
 }
 
-const approveReturnRequest = async (return_id) => {
-    return await Supplier.update(
+const createReturnRequest = async (order_id, item_id, user_id, state_of_good, return_status, reason) => {
+    return await Supplier.create({
+        order_id,
+        item_id,
+        user_id,
+        state_of_good,
+        return_status,
+        reason,
+    });   
+}
+
+const approveReturnRequest = async (return_id,item_id) => {
+    const [updatedCount, updatedReturns] = await Supplier.update(
         { return_status: "approved", reason: null , updated_at: new Date() },
         { where: { return_id }, returning: true }
     );
+    
+    const response = await axios.get(`http://shop-service:3006/shop/${item_id}`)
+    const currentQuantity = response.data["quantity"]
+    await axios.put(`http://shop-service:3006/shop/${item_id}`, {
+        item_id: response.data.item_id,
+        item_name: response.data.item_name,
+        price: response.data.price,
+        quantity: currentQuantity + 1
+      });
+
+    return updatedReturns[0];
+
 }
 
 const rejectReturnRequest = async (return_id, givenReason) => {
@@ -34,4 +57,4 @@ const rejectReturnRequest = async (return_id, givenReason) => {
     );
 }
 
-export { getAllPendingRequest, approveReturnRequest, rejectReturnRequest };
+export { getAllPendingRequest, approveReturnRequest, rejectReturnRequest, createReturnRequest };

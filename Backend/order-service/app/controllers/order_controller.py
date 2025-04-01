@@ -87,5 +87,5 @@ class OrderController:
 
         except ValueError:
             return jsonify({"error": "Invalid input (non-integer value)"}), 400
-        except Exception:
-            return jsonify({"error": "Internal server error"}), 500
+        except Exception as e:
+            return jsonify({"error": e}), 500

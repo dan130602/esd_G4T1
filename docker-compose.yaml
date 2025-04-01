@@ -107,7 +107,7 @@ services:
     container_name: supplier-service
     build: ./backend/supplier-service
     ports:
-      - "3008:3008"  
+      - "3011:3011"  
     depends_on:
       - commerce-db
     environment:
@@ -156,7 +156,7 @@ services:
       - commerce_db_user=user
       - commerce_db_password=password
       - commerce_db_name=commerce_db
-      - DATABASE_URL=postgresql://user:password@host.docker.internal:5433/commerce_db
+      - DATABASE_URL=postgresql://user:password@commerce-db:5432/commerce_db
     networks:
       - internal_network
 

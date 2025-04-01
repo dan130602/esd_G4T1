@@ -7,7 +7,7 @@ import shopRoutes from "./routes/shopRoutes.js";
 const app = express();
 
 app.use(express.json());
-app.use("/", shopRoutes);
+app.use("/shop", shopRoutes);
 app.use(morgan('dev'));
 
 

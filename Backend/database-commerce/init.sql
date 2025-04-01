@@ -165,9 +165,19 @@ VALUES
     (2, 'Smartphone', 3, 1, 500.00, 500.00);
 
 -- Order 5: Customer 3's delivered order
-INSERT INTO "order_item" (product_id, product_name, order_id, quantity, unit_price, order_item_subtotal)
+INSERT INTO order_item (product_id, product_name, order_id, quantity, unit_price, order_item_subtotal)
 VALUES 
     (1, 'Laptop', 3, 1, 1000.00, 1000.00);
+
+-- order 5: 
+INSERT INTO order_item (product_id, product_name, order_id, quantity, unit_price, order_item_subtotal)
+VALUES 
+    (1, 'Laptop', 5, 2, 1000.00, 1000.00);
+
+INSERT INTO order_item (product_id, product_name, order_id, quantity, unit_price, order_item_subtotal)
+VALUES 
+    (2, 'Smartphone', 4, 1, 500.00, 500.00);
+
 
 -- Payment table testing data
 INSERT INTO payment (

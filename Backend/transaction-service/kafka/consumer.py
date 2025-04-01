@@ -8,6 +8,7 @@ logging.basicConfig(level=logging.INFO)
 def start_transaction_consumer():
     consumer = Consumer({
         'bootstrap.servers': 'kafka:29092',  # or 'kafka:29092' if running inside Docker
+        # 'bootstrap.servers': 'localhost:9092',
         'group.id': 'transaction-consumer-group',
         'auto.offset.reset': 'earliest',
     })

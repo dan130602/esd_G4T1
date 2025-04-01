@@ -8,7 +8,7 @@ from kafka.consumer import start_transaction_consumer
 app = Flask(__name__)
 
 # Configure database from config
-app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
+app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://user:password@transaction-db:5432/transaction_db" 
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 # Initialize db with Flask app

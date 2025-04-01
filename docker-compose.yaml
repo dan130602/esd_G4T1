@@ -34,6 +34,22 @@ services:
       POSTGRES_DB: error_db
     networks:
       - internal_network
+  #################################
+  # Transaction Database
+  #################################
+  transaction-db:
+    container_name: transaction-db
+    build: ./backend/database-transaction
+    ports:
+      - "5436:5432"  # Host:Container
+    volumes:
+      - transaction_pgdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: transaction_db
+    networks:
+      - internal_network
 
   #################################
   # Redis Service
@@ -148,15 +164,7 @@ services:
     ports:
       - "3009:3009"  
     depends_on:
-      - commerce-db
-    environment:
-      - NODE_ENV=production
-      - DB_HOST=commerce-db
-      - commerce_db_port=5432
-      - commerce_db_user=user
-      - commerce_db_password=password
-      - commerce_db_name=commerce_db
-      - DATABASE_URL=postgresql://user:password@commerce-db:5432/commerce_db
+      - transaction-db
     networks:
       - internal_network
 
@@ -294,6 +302,8 @@ volumes:
   commerce_pgdata:
     driver: local
   error_pgdata:
+    driver: local
+  transaction_pgdata:
     driver: local
   redis-data:
     driver: local

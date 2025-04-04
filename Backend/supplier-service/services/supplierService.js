@@ -1,5 +1,6 @@
 import Supplier from "../models/supplierModel.js";
 import axios from "axios";
+import { sendRefundStatus } from "../kafka/producer.js"; // Import Kafka producer
 // const createReturnRequest = async (order_id, item_id, user_id, state_of_good, return_status, reason) => {
 //     return await Supplier.create({
 //         order_id,
@@ -42,8 +43,16 @@ const approveReturnRequest = async (return_id,item_id) => {
         price: response.data.price,
         quantity: currentQuantity + 1
       });
-
+ 
+    const refundtoOrchestrator = await sendRefundStatus({
+        status: "approved",
+        user_id: updatedReturns[0].user_id,
+        item_id: item_id,
+        refundAmount: response.data.price,
+        orderId: updatedReturns[0].order_id
+    })
     return updatedReturns[0];
+
 
 }
 

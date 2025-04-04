@@ -28,34 +28,8 @@ export const processRefund = async (userId, orderId, refundAmount, reason) => {
                 reason: reason
             };
             await axios.post(supplierUrl, orderDataJSON);
-
-            // Step 3: Write to the transaction service for logging
-            try{
-              transactionResponse = await sendTransaction( {
-                user_id,
-                item_id,
-                amount: refundAmount,
-                status: "completed",
-              });
-            }
-            catch(error){
-              // console.error('Error logging transaction:', error.message);
-              return { success: false, message: "transaction " + error.message };
-            }
-              
-            // const transactionResponse = await axios.post(API_URLS.transactionService, {
-            //   user_id,
-            //   item_id,
-            //   amount: refundAmount,
-            //   status: "completed",
-            // });
-
-            if (transactionResponse.status === 201) {
-              return { success: true, message: 'Refund request processed successfully' };
-            } else {
-              return { success: false, message: 'Failed to log transaction' };
-            }
           }
+          return { success: true, message: 'Refund request sent to supplier' };
         }
         catch (error) {
           return { success: false, message: "supplier " + error.message };
@@ -66,54 +40,83 @@ export const processRefund = async (userId, orderId, refundAmount, reason) => {
     }
 };
 
-export const handleRefundStatus = async ({ returnId, status, reason, timestamp }) => {
-    try {
-      if (status === 'approved') {
-        // Log transaction or call payment service
-        await axios.post(API_URLS.transactionService, {
-          returnId,
-          refundAmount: 100, // Ideally you'd include this in the Kafka message
-          timestamp,
-        });
-        
-        console.log(`[Orchestrator] Processed approved refund: ${returnId}`);
-      } else if (status === 'rejected') {
-        // Maybe notify user or log the reason
-        console.log(`[Orchestrator] Refund ${returnId} rejected: ${reason}`);
-      }
-    } catch (err) {
-      console.error('[Orchestrator] Error handling refund status:', err.message);
+export const handleRefundStatus = async (status, user_id, item_id, refundAmount, orderId) => {
+  if (status === 'approved') {
+    // Step 3: Process transaction
+    const transactionResult = await processTransaction({ user_id, item_id, refundAmount });
+    if (!transactionResult.success) {
+      return transactionResult; 
     }
-  };
-// export default { processRefund, handleRefundStatus };
-// Step 4: payment
-              // try{
-              //   let paymentUrl = `${API_URLS.paymentService}/refund`;
-              //   const paymentResponse = await axios.post(paymentUrl, {
-              //     orderId,
-              //     amount: refundAmount,
-              //   })
-              // }
-              // catch(error){
-              //   // console.error('Error processing payment:', error.message);
-              //   return { success: false, message: "payment " + error.message };
-              // }
 
-              // step 5: send email
+    // Step 4: Process refund to Stripe
+    const paymentResult = await processRefundToStripe(orderId, refundAmount);
+    if (!paymentResult.success) {
+      return paymentResult; 
+    }
 
-              // try{
-              //   let emailUrl = `${API_URLS.emailService}`;
-              //   const emailResponse = await axios.post(emailUrl, {
-              //     email_address: "danielleong02@gmail.com",   // New field for email address
-              //     subject: "refund successful",              
-              //     message: "refund successful!"
-              // });
-              //   if (emailResponse.status !== 200) {
-              //     return { success: false, message: 'Failed to send email' };
-              //   }
-              // }
-              
-              // catch(error){
-              //   // console.error('Error sending email:', error.message);
-              //   return { success: false, message: "email " + error.message };
-              // }
+    // Step 5: Send email
+    const emailResult = await sendRefundEmail();
+    if (!emailResult.success) {
+      return emailResult; 
+    }
+
+    return { success: true, message: 'Refund request processed successfully' };
+  } else if (status === 'rejected') {
+    // Maybe notify user or log the reason
+    console.log(`[Orchestrator] Refund ${returnId} rejected: ${reason}`);
+    return { success: false, message: 'Refund rejected' };
+  }
+}
+
+
+async function processTransaction({ user_id, item_id, refundAmount }) {
+  try {
+    const transactionResponse = await sendTransaction({
+      user_id,
+      item_id,
+      amount: refundAmount,
+      status: "completed",
+    });
+    console.log('Transaction response:', transactionResponse);
+    return { success: true };
+  } catch (error) {
+    console.error('Error logging transaction:', error.message);
+    return { success: false, message: "transaction " + error.message };
+  }
+}
+ 
+async function processRefundToStripe(orderId, refundAmount) {
+  try {
+    let paymentUrl = `${API_URLS.paymentService}/refund/${orderId}`;
+    const paymentResponse = await axios.post(paymentUrl, {
+      amount: refundAmount,
+    });
+    console.log(paymentResponse.data);
+    return { success: true };
+  } catch (error) {
+    console.error('Error processing payment:', error.message);
+    return { success: false, message: "payment " + error.message };
+  }
+}
+
+async function sendRefundEmail() {
+  try {
+    let emailUrl = `${API_URLS.emailService}`;
+    const emailResponse = await axios.post(emailUrl, {
+      email_address: "danielleong02@gmail.com", // New field for email address
+      subject: "Refund Successful",
+      message: "Refund successful!",
+    });
+    if (emailResponse.status !== 200) {
+      return { success: false, message: 'Failed to send email' };
+    }
+    return { success: true };
+  } catch (error) {
+    console.error('Error sending email:', error.message);
+    return { success: false, message: "email " + error.message };
+  }
+}
+
+export default { processRefund, handleRefundStatus };
+
+

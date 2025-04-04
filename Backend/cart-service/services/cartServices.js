@@ -65,4 +65,23 @@ const removeItemFromCart = async (userId, itemId, decreaseBy) => {
     }
 };
 
-export {addItemToCart, getFromCart, removeItemFromCart};
+const sendToOrder = async () => {
+    try {
+        const cartKey = `cart:${userId}`;
+        let cart = await client.get(cartKey);
+        cart = cart ? JSON.parse(cart) : [];
+
+        // Send cart to order service
+        const response = await axios.post('http://order-service:5001/api/order', { items: cart });
+
+        // Clear the cart after sending
+        await client.del(cartKey);
+
+        return response.data;
+    } catch (err) {
+        console.error("Error in sendToOrder:", err);
+        return false;
+    }
+}
+
+export {addItemToCart, getFromCart, removeItemFromCart, sendToOrder};

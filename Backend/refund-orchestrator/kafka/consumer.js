@@ -13,7 +13,7 @@ export const startRefundStatusConsumer  = async () => {
 
   await consumer.subscribe({ topic: 'refund-status-topic', fromBeginning: false });
   console.log('[Kafka] Subscribed to refund-status-topic');
-
+ 
   await consumer.run({
     eachMessage: async ({ topic, partition, message }) => {
       const data = JSON.parse(message.value.toString());

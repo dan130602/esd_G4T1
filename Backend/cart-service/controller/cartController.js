@@ -49,3 +49,20 @@ export const removeFromCart = async (req, res) => {
         res.status(500).json({ error: "Internal Server Error" });
     }
 }
+
+export const addToOrder = async (req, res) => {
+	try {
+		const { userId, order } = req.body;
+		if (!userId || !order) {
+			return res
+				.status(400)
+				.json({ error: "User ID and order are required" });
+		}
+
+		const updatedCart = await sendToOrder(userId, order);
+		res.json({ success: true, cart: updatedCart });
+	} catch (error) {
+		console.error("Error adding to cart:", error);
+		res.status(500).json({ error: "Internal Server Error" });
+	}
+}

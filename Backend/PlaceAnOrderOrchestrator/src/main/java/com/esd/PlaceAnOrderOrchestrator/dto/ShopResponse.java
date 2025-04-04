@@ -9,7 +9,7 @@ public class ShopResponse {
     private List<StockItemResult> itemResults;
 
     public static class StockItemResult {
-        private Long itemId;
+        private Integer itemId;
         private boolean available;
         private Integer requestedQuantity;
         private Integer availableQuantity;

@@ -102,16 +102,16 @@ class StripeService:
             if 'items' in data and isinstance(data['items'], list):
                 for item in data['items']:
                     product = stripe.Product.create(
-                        name=item['name'],
+                        name=item['item_name'],
                     )
                     
                     price = stripe.Price.create(
                         product=product.id,
-                        unit_amount=int(float(item['unit_price'])*100),
+                        unit_amount=int(float(item['item_price'])*100),
                         currency="sgd"
                     )
                     
-                    item_id = item.get('id') or str(hash(item['name']))
+                    item_id = item.get('id') or str(hash(item['item_name']))
                     item_stripe_data[item_id] = {
                         'stripe_product_id': product.id,
                         'stripe_price_id': price.id,
@@ -181,17 +181,17 @@ class StripeService:
             # Create payment items model if we have multiple items
             if 'items' in data and isinstance(data['items'], list):
                 for item in data['items']:
-                    item_id = item.get('id') or str(hash(item['name']))
+                    item_id = item.get('id') or str(hash(item['item_name']))
                     stripe_data = item_stripe_data.get(item_id, {})    
                     
                     payment_item = PaymentItem(
                         payment_id=payment.payment_id,
-                        product_id=item.get('product_id'),
-                        name=item['name'],
+                        item_id=item.get('item_id'),
+                        name=item['item_name'],
                         description=item.get('description'),
                         quantity=item.get('quantity', 1),
-                        unit_price=float(item['unit_price']),
-                        total_price=float(item['unit_price']) * item.get('quantity', 1),
+                        item_price=float(item['item_price']),
+                        total_price=float(item['item_price']) * item.get('quantity', 1),
                         stripe_price_id=stripe_data.get('stripe_price_id'),  # From your Stripe price creation
                         stripe_product_id=stripe_data.get('stripe_product_id')  # From your Stripe product creation
                     )

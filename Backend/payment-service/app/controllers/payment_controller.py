@@ -85,7 +85,7 @@ class PaymentController:
         except Exception as e:
             return jsonify({
                 "code": "500",
-                "error": "Internal server error"
+                "error": str(e)
             }), 500
     
     

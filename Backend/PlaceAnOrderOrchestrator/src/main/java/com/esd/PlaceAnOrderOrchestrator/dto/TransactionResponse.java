@@ -13,9 +13,9 @@ public class TransactionResponse {
     private Integer transcation_id;
 
     @JsonProperty("userId")
-    private Long user_id;
+    private Integer user_id;
     
-    private Long item_id;
+    private Integer item_id;
     private BigDecimal amount;
     private String status;
     

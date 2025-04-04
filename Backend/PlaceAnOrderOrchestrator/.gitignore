@@ -31,3 +31,37 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# OS specific files
+.DS_Store
+**/.DS_Store
+
+# Environment configuration
+.env
+*.env
+
+# Application properties for different environments
+application-*.properties
+!application-example.properties
+
+# Log files
+logs/
+*.log
+
+# Temporary files
+*.tmp
+*~
+
+# Sensitive information files
+**/secrets.properties
+**/credentials.properties
+**/application-prod.properties
+
+# Any potential docker related files that might contain sensitive info
+docker-compose.override.yml
+
+# Any potential certificates, keys, or keystores
+*.jks
+*.p12
+*.pem
+*.key

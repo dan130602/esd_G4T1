@@ -5,6 +5,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.IntToLongFunction;
+import java.util.function.IntToLongFunction;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -61,7 +63,7 @@ public class OrchestratorServiceImpl implements OrchestratorService {
 
     @Override
     public PaymentResponse processCheckout(CheckoutRequest checkoutRequest) {
-        log.info("Processing checkout for user: {}", checkoutRequest.getUserId());
+        log.info("Processing checkout for user: {}", checkoutRequest.getUser_id());
 
         try {
             //1. Create order in Order Service
@@ -84,7 +86,7 @@ public class OrchestratorServiceImpl implements OrchestratorService {
                 log.info("Payment initiated, checkout URL: {}", paymentResponse.getCheckout_url());
 
                 //Update order status
-                updateOrderStatus(orderResponse, OrderStatus.PAID);
+                // updateOrderStatus(orderResponse, OrderStatus.PAID);
 
                 return paymentResponse;
             } else { // 2.2 if not, reject order
@@ -103,9 +105,9 @@ public class OrchestratorServiceImpl implements OrchestratorService {
         log.info("Received payment webhook with event type: {}", webhookRequest.getEventType());
 
         // Get order ID from webhook data
-        Long orderId = webhookRequest.getData().getOrderId();
+        Integer orderId = webhookRequest.getData().getOrderId();
         try {
-            if ("payment.completed".equals(webhookRequest.getEventType())) {
+            if ("payment.completed".equals(webhookRequest.getEventType())) { //could be charge.succeeded instead of payment.completed
                 // Payment successful - Update order status
                 updateOrderStatus(orderId, OrderStatus.PAID);
                 log.info("Order {} marked as PAID", orderId);
@@ -147,7 +149,17 @@ public class OrchestratorServiceImpl implements OrchestratorService {
     // Helper method to check stock availability
     private boolean checkStock(OrderResponse orderResponse) {
         for (OrderItemDto item : orderResponse.getItems()) {
-            String getItemFromShopURL = shopServiceUrl + "/shop/" + item.getProduct_id();
+            Integer item_id = item.getItem_id();
+            String item_name = item.getItem_name();
+            log.info("item_name/product_name : {}", item_name);
+            log.info("item: {}", item.toString());
+
+            if (item_id == null) {
+                log.error("item_id retrieve error. value: {}", item_id);
+                return false; 
+            }
+
+            String getItemFromShopURL = shopServiceUrl + "/shop/" + item.getItem_id();
             int retryCount = 0;
             int maxRetries = 3;
             
@@ -156,7 +168,7 @@ public class OrchestratorServiceImpl implements OrchestratorService {
                     ItemResponse itemResponse = restTemplate.getForObject(getItemFromShopURL, ItemResponse.class);
                     
                     if (itemResponse == null) {
-                        log.warn("Received null response for item id: {} name: {}", item.getProduct_id(), item.getProduct_name());
+                        log.warn("Received null response for item id: {} name: {}", item.getItem_id(), item.getItem_name());
                         retryCount++;
                         if (retryCount < maxRetries) {
                             Thread.sleep(1000); //Wait 1 second before retry
@@ -167,8 +179,8 @@ public class OrchestratorServiceImpl implements OrchestratorService {
 
                     if (itemResponse.getItem_stock_quantity() < item.getQuantity()) {
                         log.warn("Insufficient stock for item named: {} id: {}. Required amount: {}, Available: {}",
-                            item.getProduct_name(),
-                            item.getProduct_id(),
+                            item.getItem_name(),
+                            item.getItem_id(),
                             item.getQuantity(),
                             itemResponse.getItem_stock_quantity()
                         );
@@ -177,8 +189,8 @@ public class OrchestratorServiceImpl implements OrchestratorService {
                     break;
                 } catch (Exception e) {
                     log.error("Error checking stock for item named: {} and id :{}. Attempt {}/{}. Error: {}", 
-                        item.getProduct_name(), 
-                        item.getProduct_id(),
+                        item.getItem_name(), 
+                        item.getItem_id(),
                         retryCount + 1,
                         maxRetries,
                         e.getMessage()
@@ -187,8 +199,8 @@ public class OrchestratorServiceImpl implements OrchestratorService {
 
                     if (retryCount >= maxRetries) {
                         log.error("Max retries exceeded for checking stock of item id: {} name: {}",
-                            item.getProduct_id(),
-                            item.getProduct_name()
+                            item.getItem_id(),
+                            item.getItem_name()
                         );
                         return false;
                     }
@@ -212,7 +224,7 @@ public class OrchestratorServiceImpl implements OrchestratorService {
         boolean allUpdatesSuccessful = true;
 
         for (OrderItemDto item : orderResponse.getItems()) {
-            String putItemFromShopURL = shopServiceUrl + "/shop/" + item.getProduct_id();
+            String putItemFromShopURL = shopServiceUrl + "/shop/" + item.getItem_id();
             
             StockUpdateRequest updateRequest = new StockUpdateRequest();
             updateRequest.setItem_quantity(item.getQuantity());
@@ -220,7 +232,7 @@ public class OrchestratorServiceImpl implements OrchestratorService {
             try {
                 restTemplate.put(putItemFromShopURL, updateRequest);
             } catch (Exception e) {
-                log.warn("Failed to update item name: {} id: {}.", item.getProduct_name(), item.getProduct_id());
+                log.warn("Failed to update item name: {} id: {}.", item.getItem_name(), item.getItem_id());
                 allUpdatesSuccessful = false;
             }
         }
@@ -272,14 +284,14 @@ public class OrchestratorServiceImpl implements OrchestratorService {
         paymentRequest.setOrder_id(orderResponse.getOrder_id());
         paymentRequest.setUser_id(orderResponse.getUser_id());
         paymentRequest.setTotal_amount(orderResponse.getTotal_amount());
-        paymentRequest.setCreated_on(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME));
+        paymentRequest.setCreated_on(orderResponse.getCreated());
         paymentRequest.setItems(orderResponse.getItems());
 
         return restTemplate.postForObject(url, paymentRequest, PaymentResponse.class);
     }
 
     // Helper method to update order status
-    private void updateOrderStatus(Long orderId, String status) {
+    private void updateOrderStatus(Integer orderId, String status) {
         String url = orderServiceUrl + "/api/order/" + orderId + "/status";
 
         HttpHeaders headers = new HttpHeaders();
@@ -294,31 +306,31 @@ public class OrchestratorServiceImpl implements OrchestratorService {
     }
 
     // Helper method for transcation logging
-    private void processTransactionLogging(Long orderId) {
+    private void processTransactionLogging(Integer orderId) {
         OrderResponse userOrder = getOrder(orderId);
-        Long user_id = userOrder.getUser_id();
+        Integer user_id = userOrder.getUser_id();
         List<OrderItemDto> order_items = userOrder.getItems();
 
         for (OrderItemDto item : order_items) {
-            Long item_id = item.getProduct_id();
-            String item_amount = item.getUnit_price();
+            Integer item_id = item.getItem_id();
+            String item_amount = item.getItem_price();
             String status = "Completed";
 
             // Call transactions service
             TransactionResponse transactionResponse = createTransaction(user_id, item_id, item_amount, status);
             if (transactionResponse != null) {
                 log.info("UserId: {}, orderId: {}, Item: {}, itemID: {} is successfully logged as '{}'' in table.",
-                        user_id, orderId, item.getProduct_name(), item_id, status);
+                        user_id, orderId, item.getItem_name(), item_id, status);
             } else {
                 log.info("UserId: {}, orderId: {}, Item: {}, itemID: {} was not logged",
-                        user_id, orderId, item.getProduct_name(), item_id, status);
+                        user_id, orderId, item.getItem_name(), item_id, status);
             }
 
         }
     }
 
     // Helper method to get order details
-    private OrderResponse getOrder(Long orderId) {
+    private OrderResponse getOrder(Integer orderId) {
         String url = orderServiceUrl + "/api/order/" + orderId;
 
         return restTemplate.getForObject(url, OrderResponse.class);
@@ -326,7 +338,7 @@ public class OrchestratorServiceImpl implements OrchestratorService {
     }   
 
     // Helper method to create transaction 
-    private TransactionResponse createTransaction(Long user_id, Long item_id, String amount, String status) {
+    private TransactionResponse createTransaction(Integer user_id, Integer item_id, String amount, String status) {
         String url = transactionServiceUrl + "/transactions";
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("user_id", user_id);

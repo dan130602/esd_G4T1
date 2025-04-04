@@ -40,12 +40,12 @@ public class PaymentEventListener {
             // Extract event data based on event type
             if ("payment.completed".equals(eventType)) {
                 JsonNode dataNode = eventNode.get("data");
-                paymentData.setOrderId(dataNode.get("order_id").asLong());
+                paymentData.setOrderId(dataNode.get("order_id").asInt());
                 paymentData.setPaymentId(dataNode.get("payment_id").asText());
                 paymentData.setStatus("succeeded");
             } else if ("payment.failed".equals(eventType)) {
                 JsonNode dataNode = eventNode.get("data");
-                paymentData.setOrderId(dataNode.get("order_id").asLong());
+                paymentData.setOrderId(dataNode.get("order_id").asInt());
                 paymentData.setPaymentId(dataNode.get("payment_intent_id").asText());
                 paymentData.setStatus("failed");
                 paymentData.setErrorMessage(dataNode.get("error_message").asText());

@@ -186,7 +186,7 @@ services:
       - internal_network
 
   #################################
-  # Transaction Microservice
+  # Refund Orchestrator
   #################################
   refund-orchestrator:
     container_name: refund-orchestrator
@@ -314,8 +314,36 @@ services:
     depends_on:
       - commerce-db
       - error-db
+      - kafka
     env_file:
       - ./backend/payment-service/.env
+    networks:
+      - internal_network
+
+  #################################
+  # Place An Order Orchestrator
+  #################################
+  place-order-orchestrator:
+    container_name: place-order-orchestrator
+    build: ./Backend/PlaceAnOrderOrchestrator
+    ports:
+      - "5004:5004"  
+    depends_on:
+      - order-service
+      - shop-service
+      - payment-service
+      - transaction-service
+      - transaction-db
+      - kafka
+    environment:
+      - server.port=5004
+      - spring.kafka.bootstrap-servers=kafka:29092
+      - spring.kafka.consumer.group-id=orchestrator-group
+      - spring.kafka.consumer.auto-offset-reset=earliest
+      - service.order.url=http://order-service:5001
+      - service.shop.url=http://shop-service:3006
+      - service.payment.url=http://payment-service:5002
+      - service.transaction.url=http://transaction-service:3009
     networks:
       - internal_network
   

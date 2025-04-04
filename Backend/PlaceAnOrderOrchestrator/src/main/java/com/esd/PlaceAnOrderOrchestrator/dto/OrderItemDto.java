@@ -1,23 +1,27 @@
 package com.esd.PlaceAnOrderOrchestrator.dto;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
 
 @Data
 public class OrderItemDto {
-    private Long id;
-    private Long order_id;
+    private Integer id;
+    private Integer order_id;
     private String order_item_subtotal;
 
-    @JsonProperty("item_id")
-    private Long product_id;
+    // @JsonProperty("item_id")
+    // @JsonAlias({"product_id"})
+    private Integer item_id;
 
-    @JsonProperty("item_name")
-    private String product_name;
+    // @JsonProperty("name")
+    // @JsonAlias({"product_name", "item_name"})
+    private String item_name;
 
     private Integer quantity;
 
-    @JsonProperty("price")
-    private String unit_price;
+    // @JsonProperty("price") // Send as 'price'
+    // @JsonAlias({"unit_price"}) // Can receive as 'price' 'unit_price'
+    private String item_price;
 }

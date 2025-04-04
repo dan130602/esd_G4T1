@@ -6,6 +6,6 @@ import lombok.Data;
 
 @Data
 public class ShopRequest {
-    private Long orderId;
+    private Integer orderId;
     private List<OrderItemDto> items;
 }

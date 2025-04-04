@@ -10,7 +10,7 @@ public class PaymentWebhookRequest {
     @Data
     public static class PaymentData {
         private String paymentId;
-        private Long orderId;
+        private Integer orderId;
         private String status;
         private String errorMessage;
     }

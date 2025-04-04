@@ -8,10 +8,10 @@ import lombok.Data;
 
 @Data
 public class OrderResponse {
-    private Long order_id;
+    private Integer order_id;
 
-    @JsonProperty("userId")
-    private Long user_id;
+    // @JsonProperty("userId")
+    private Integer user_id;
 
     private Double total_amount;
     private String status;

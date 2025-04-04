@@ -44,13 +44,13 @@ CREATE TABLE orders (
 -- 'order_item' table with foreign key reference to 'order'
 CREATE TABLE order_item (
     id SERIAL PRIMARY KEY,
-    product_id INTEGER NOT NULL,
-    product_name VARCHAR(255) NOT NULL,
+    item_id INTEGER NOT NULL,
+    item_name VARCHAR(255) NOT NULL,
     order_id INTEGER NOT NULL REFERENCES orders(order_id) ON DELETE CASCADE ON UPDATE CASCADE,
     quantity INTEGER NOT NULL,
-    unit_price NUMERIC(10, 2) NOT NULL,
+    item_price NUMERIC(10, 2) NOT NULL,
     order_item_subtotal NUMERIC(10, 2) NOT NULL,
-    FOREIGN KEY (product_id) REFERENCES items(item_id)
+    FOREIGN KEY (item_id) REFERENCES items(item_id)
 );
 
 -- Payment table
@@ -73,11 +73,11 @@ CREATE TABLE payment (
 CREATE TABLE payment_items (
     id SERIAL PRIMARY KEY,
     payment_id INTEGER NOT NULL,
-    product_id VARCHAR(100),
+    item_id VARCHAR(100),
     name VARCHAR(255) NOT NULL,
     description TEXT,
     quantity INTEGER NOT NULL DEFAULT 1,
-    unit_price FLOAT NOT NULL,
+    item_price FLOAT NOT NULL,
     total_price FLOAT NOT NULL,
     stripe_price_id VARCHAR(100),
     stripe_product_id VARCHAR(100),
@@ -128,38 +128,38 @@ VALUES
 
 -- Insert order items for each order
 -- Order 1: Customer 1's new order
-INSERT INTO order_item (product_id, product_name, order_id, quantity, unit_price, order_item_subtotal)
+INSERT INTO order_item (item_id, item_name, order_id, quantity, item_price, order_item_subtotal)
 VALUES 
     (1, 'Laptop', 1, 1, 1000.00, 1000.00),
     (3, 'Headphones', 1, 1, 150.00, 150.00);
 
 -- Order 2: Customer 1's paid order
-INSERT INTO order_item (product_id, product_name, order_id, quantity, unit_price, order_item_subtotal)
+INSERT INTO order_item (item_id, item_name, order_id, quantity, item_price, order_item_subtotal)
 VALUES 
     (2, 'Smartphone', 2, 1, 500.00, 500.00),
     (3, 'Headphones', 2, 2, 150.00, 300.00);
 
 -- Order 3: Customer 2's processing order
-INSERT INTO order_item (product_id, product_name, order_id, quantity, unit_price, order_item_subtotal)
+INSERT INTO order_item (item_id, item_name, order_id, quantity, item_price, order_item_subtotal)
 VALUES 
     (3, 'Headphones', 2, 2, 150.00, 300.00);
 
 -- Order 4: Customer 3's shipped order
-INSERT INTO order_item (product_id, product_name, order_id, quantity, unit_price, order_item_subtotal)
+INSERT INTO order_item (item_id, item_name, order_id, quantity, item_price, order_item_subtotal)
 VALUES 
     (2, 'Smartphone', 3, 1, 500.00, 500.00);
 
 -- Order 5: Customer 3's delivered order
-INSERT INTO order_item (product_id, product_name, order_id, quantity, unit_price, order_item_subtotal)
+INSERT INTO order_item (item_id, item_name, order_id, quantity, item_price, order_item_subtotal)
 VALUES 
     (1, 'Laptop', 3, 1, 1000.00, 1000.00);
 
 -- order 5: 
-INSERT INTO order_item (product_id, product_name, order_id, quantity, unit_price, order_item_subtotal)
+INSERT INTO order_item (item_id, item_name, order_id, quantity, item_price, order_item_subtotal)
 VALUES 
     (1, 'Laptop', 5, 2, 1000.00, 1000.00);
 
-INSERT INTO order_item (product_id, product_name, order_id, quantity, unit_price, order_item_subtotal)
+INSERT INTO order_item (item_id, item_name, order_id, quantity, item_price, order_item_subtotal)
 VALUES 
     (2, 'Smartphone', 4, 1, 500.00, 500.00);
 

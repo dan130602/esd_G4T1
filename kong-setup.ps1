@@ -30,6 +30,32 @@ Invoke-RestMethod -Method POST -Uri "http://localhost:8001/services/shop-service
   -Body $pluginBody `
   -ContentType "application/x-www-form-urlencoded"
 
+# Register the orchestrator service
+Write-Host "Creating orchestrator service..."
+Invoke-RestMethod -Method POST -Uri "http://localhost:8001/services" -Body @{
+    name = "cart-orchestrator"
+    url  = "http://cart-orchestrator:4000"
+} -ContentType "application/x-www-form-urlencoded"
+
+# Add route for orchestrator (e.g., /cart-api)
+Write-Host "Creating route for orchestrator..."
+Invoke-RestMethod -Method POST -Uri "http://localhost:8001/services/cart-orchestrator/routes" -Body @{
+    name   = "cart-orchestrator-route"
+    paths  = "/cart-api"
+} -ContentType "application/x-www-form-urlencoded"
+
+# Add CORS plugin for orchestrator
+Write-Host "Enabling CORS for orchestrator..."
+$orchestratorPluginBody = @"
+name=cors&
+config.origins=* &
+config.methods=GET&config.methods=POST&config.methods=OPTIONS&
+config.headers=Accept&config.headers=Authorization&config.headers=Content-Type
+"@ -replace "\s+", ""
+
+Invoke-RestMethod -Method POST -Uri "http://localhost:8001/services/cart-orchestrator/plugins" `
+  -Body $orchestratorPluginBody `
+  -ContentType "application/x-www-form-urlencoded"
 
 
 Write-Host "✅ Kong setup complete!"

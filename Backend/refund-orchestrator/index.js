@@ -1,7 +1,6 @@
 import express from 'express';
 import morgan from 'morgan';
 import {startRefundStatusConsumer} from './kafka/consumer.js'; 
-import { sendTransaction } from "./kafka/producer.js"
 import refundRoutes from './routes/refundRoutes.js';
 const app = express();
 

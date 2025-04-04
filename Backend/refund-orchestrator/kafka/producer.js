@@ -2,10 +2,17 @@ import { Kafka } from 'kafkajs';
 
 const kafka = new Kafka({
   clientId: 'refund-orchestrator',
-  brokers: ['localhost:9092'], // Use Docker service name and port
+  brokers: ['kafka:29092'], 
 });
 
-const producer = kafka.producer();
+const producer = kafka.producer({
+  retry: {
+    retries: 5,  // Retry up to 5 times
+    initialRetryTime: 300, // Wait 300ms between retries
+  },
+});
+
+await producer.connect();
 
 export const connectProducer = async () => {
   await producer.connect();

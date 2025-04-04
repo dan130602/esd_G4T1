@@ -1,16 +1,15 @@
 -- Drop tables if they exist (to avoid errors)
-DROP TABLE IF EXISTS transactions;
+
 DROP TABLE IF EXISTS items;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS order_item;
 DROP TABLE IF EXISTS orders;
-DROP TYPE IF EXISTS transaction_status;  -- Drop ENUM if it exists
+ -- Drop ENUM if it exists
 DROP TABLE IF EXISTS payment;
 DROP TABLE IF EXISTS payment_items;
 DROP TABLE IF EXISTS supplier_returns;
 
--- Create ENUM type for transaction status
-CREATE TYPE transaction_status AS ENUM ('pending', 'completed', 'failed');
+
 CREATE TYPE return_status AS ENUM ('PENDING', 'APPROVED', 'REJECTED');
 --  Users Table
 CREATE TABLE users (
@@ -28,17 +27,7 @@ CREATE TABLE items (
     quantity INT NOT NULL CHECK (quantity >= 0)
 );
 
---  Transactions Table
-CREATE TABLE transactions (
-    transaction_id SERIAL PRIMARY KEY,      
-    user_id BIGINT NOT NULL,                    
-    item_id BIGINT NOT NULL,                     
-    amount DECIMAL(10,2) NOT NULL,            
-    status transaction_status NOT NULL DEFAULT 'pending',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
-    FOREIGN KEY (item_id) REFERENCES items(item_id) ON DELETE CASCADE
-);
+
 
 -- 'order' table
 CREATE TABLE orders (
@@ -126,11 +115,7 @@ INSERT INTO items (item_name, price, quantity) VALUES
 ('Smartphone', 500.00, 10),
 ('Headphones', 150.00, 20);
 
---  Insert Transactions
-INSERT INTO transactions (user_id, item_id, amount, status) VALUES
-(1, 2, 500.00, 'completed'),  -- John buys a Smartphone
-(2, 3, 150.00, 'completed'),  -- Jane buys Headphones
-(3, 1, 1000.00, 'failed');    -- Alice's Laptop purchase fails
+
 
 -- Insert test orders
 INSERT INTO orders (user_id, total_amount, status, created, modified)
@@ -165,9 +150,19 @@ VALUES
     (2, 'Smartphone', 3, 1, 500.00, 500.00);
 
 -- Order 5: Customer 3's delivered order
-INSERT INTO "order_item" (product_id, product_name, order_id, quantity, unit_price, order_item_subtotal)
+INSERT INTO order_item (product_id, product_name, order_id, quantity, unit_price, order_item_subtotal)
 VALUES 
     (1, 'Laptop', 3, 1, 1000.00, 1000.00);
+
+-- order 5: 
+INSERT INTO order_item (product_id, product_name, order_id, quantity, unit_price, order_item_subtotal)
+VALUES 
+    (1, 'Laptop', 5, 2, 1000.00, 1000.00);
+
+INSERT INTO order_item (product_id, product_name, order_id, quantity, unit_price, order_item_subtotal)
+VALUES 
+    (2, 'Smartphone', 4, 1, 500.00, 500.00);
+
 
 -- Payment table testing data
 INSERT INTO payment (

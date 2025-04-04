@@ -7,7 +7,7 @@ import { connectProducer } from './kafka/producer.js';
 const app = express();
 
 app.use(express.json());
-app.use("/", supplierRoutes);
+app.use("/supplier", supplierRoutes);
 app.use(morgan('dev'));
 
 
@@ -43,7 +43,7 @@ app.get('/', (req, res) => {
 });
 
 
-const PORT = 3008;
+const PORT = 3011;
 app.listen(PORT, async () => {
     console.log(`Server is running on http://localhost:${PORT}`);
     await connectProducer();

@@ -11,20 +11,21 @@ class Config:
     
     #Commerce db config
     COMMERCE_DB_USER = os.getenv('commerce_db_user', 'user')
-    COMMERCE_DB_USER_PASSWORD = os.getenv('commerce_db_password', 'hidden')
-    COMMERCE_DB_USER_HOST = os.getenv('commerce_dbHost', 'localhost')  
-    COMMERCE_DB_USER_PORT = os.getenv('commerce_db_port', '5433')
-    COMMERCE_DB_USER_NAME = os.getenv('commerce_db_name', 'payment_db')
+    COMMERCE_DB_USER_PASSWORD = os.getenv('commerce_db_password', 'password')
+    COMMERCE_DB_USER_HOST = os.getenv('commerce_dbHost', 'commerce-db')  
+    COMMERCE_DB_USER_PORT = os.getenv('commerce_db_port', '5432')
+    COMMERCE_DB_USER_NAME = os.getenv('commerce_db_name', 'commerce_db')
     
     # Error db config
     ERROR_DB_USER = os.getenv('error_db_user', 'user')
-    ERROR_DB_PASSWORD= os.getenv('error_db_password', 'hidden')
-    ERROR_DB_HOST = os.getenv('error_dbHost', 'localhost')  
-    ERROR_DB_PORT = os.getenv('error_db_port', '5434')  
+    ERROR_DB_PASSWORD= os.getenv('error_db_password', 'password')
+    ERROR_DB_HOST = os.getenv('dbHost', 'error-db')  
+    ERROR_DB_PORT = os.getenv('error_db_port', '5432')  
     ERROR_DB_NAME = os.getenv('error_db_name', 'error_db')
     
     # Build the database URIs
     SQLALCHEMY_DATABASE_URI = f"postgresql://{COMMERCE_DB_USER}:{COMMERCE_DB_USER_PASSWORD}@{COMMERCE_DB_USER_HOST}:{COMMERCE_DB_USER_PORT}/{COMMERCE_DB_USER_NAME}"
+    print(SQLALCHEMY_DATABASE_URI)
     SQLALCHEMY_BINDS = {'error_db': f"postgresql://{ERROR_DB_USER}:{ERROR_DB_PASSWORD}@{ERROR_DB_HOST}:{ERROR_DB_PORT}/{ERROR_DB_NAME}"}
     
     SQLALCHEMY_TRACK_MODIFICATIONS = False

@@ -8,7 +8,7 @@ from kafka.consumer import start_transaction_consumer
 app = Flask(__name__)
 
 # Configure database from config
-app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
+app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://user:password@transaction-db:5432/transaction_db" 
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 # Initialize db with Flask app
@@ -19,12 +19,19 @@ with app.app_context():
 
 app.register_blueprint(transaction_bp, url_prefix="/transactions", strict_slashes=False)
 
-consumer_thread = threading.Thread(target=start_transaction_consumer, daemon=True)
-consumer_thread.start()
+# consumer_thread = threading.Thread(target=start_transaction_consumer, daemon=True)
+# consumer_thread.start()
 
 @app.route("/")
 def hello_world():
     return "Hello, World!"
+
+def run_consumer():
+    with app.app_context():
+        start_transaction_consumer()
+
+consumer_thread = threading.Thread(target=run_consumer, daemon=True)
+consumer_thread.start()
 
 if __name__ == "__main__":
     app.run(debug=True, port=3009, host="0.0.0.0")

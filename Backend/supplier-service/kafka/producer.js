@@ -2,7 +2,8 @@ import { Kafka } from 'kafkajs';
 
 const kafka = new Kafka({
   clientId: 'supplier-service',
-  brokers: ['localhost:9092'], // Use Docker service name and port
+  brokers: ['kafka:29092'], // Use Docker service name and port
+  // brokers: ['localhost:9092']
 });
 
 const producer = kafka.producer();

@@ -13,4 +13,6 @@ class TransactionService:
         with db.session.begin():  # ✅ Ensures db session is properly bound
             db.session.add(new_transaction)
             db.session.commit()
-            return new_transaction
+
+        db.session.refresh(new_transaction)
+        return new_transaction

@@ -16,10 +16,11 @@ load_dotenv(ENV_PATH)
 app = Flask(__name__)
 
 # Configure database from environment variables
-DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASE_URL = "postgresql://user:password@transaction-db:5432/transaction_db" 
 
 
 app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
+
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 # Initialize database

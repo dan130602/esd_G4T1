@@ -2,7 +2,7 @@
   <div class="product-container">
     <div class="product-card" v-for="(product, index) in products" :key="index">
       <img
-        :src="product.image || '/Images/placeholder.jpg'"
+        :src="getProductImage(product) || '/Images/placeholder.jpg'"
         :alt="product.item_name"
         class="product-image"
       />
@@ -64,6 +64,12 @@ export default {
         alert('Something went wrong.');
       }
     },
+    getProductImage(product) {
+    const formattedName = product.item_name.toLowerCase().replace(/\s+/g, '');
+    const imagePath = `../public/images/${formattedName}.jpg`; // assuming .jpg
+    return imagePath;
+  },
+
   },
 };
 </script>

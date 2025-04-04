@@ -16,8 +16,8 @@
   
       <article class="product-item" v-for="(product, index) in cartItems" :key="index">
   <div class="product-info">
-    <img :src="product.image || 'https://via.placeholder.com/200'" alt="product.name" class="product-image" />
-    <h3 class="product-name">{{ product.product_name }}</h3>
+    <!--<img :src="product.image || 'https://via.placeholder.com/200'" class="product-image" />-->
+    <h3 class="product-name">{{ product.item_name }}</h3>
   </div>
   <div class="product-pricing">
     <p class="total-price">${{ product.unit_price * product.quantity }}</p>

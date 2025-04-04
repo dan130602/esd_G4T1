@@ -2,6 +2,7 @@ from confluent_kafka import Consumer
 import json
 import logging
 from services.transactionService import TransactionService
+from flask import current_app
 
 logging.basicConfig(level=logging.INFO)
 
@@ -30,18 +31,19 @@ def start_transaction_consumer():
                 data = json.loads(msg.value().decode('utf-8'))
                 logging.info(f"📩 Received transaction message: {data}")
 
-                user_id = int(data.get('userId'))
-                item_id = int(data.get('itemId'))
+                user_id = int(data.get('user_id'))
+                item_id = int(data.get('item_id'))
                 amount = float(data.get('amount'))
                 status = data.get('status', 'completed')
 
                 # Insert into DB
-                new_txn = TransactionService.create_transaction(
-                    user_id=user_id,
-                    item_id=item_id,
-                    amount=amount,
-                    status=status
-                )
+                with current_app.app_context():
+                    new_txn = TransactionService.create_transaction(
+                        user_id=user_id,
+                        item_id=item_id,
+                        amount=amount,
+                        status=status
+                    )
 
                 logging.info(f"✅ Transaction recorded: ID {new_txn.transaction_id}")
 

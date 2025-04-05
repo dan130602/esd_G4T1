@@ -31,7 +31,7 @@ export default {
   },
     async mounted() {
       try {
-        const response = await fetch('http://localhost:8000/shop');
+        const response = await fetch('http://localhost:8000/shop/shop');
         if (!response.ok) throw new Error('Failed to fetch products');
         const data = await response.json();
         console.log('✅ Fetched data:', data);

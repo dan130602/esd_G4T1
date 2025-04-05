@@ -5,6 +5,7 @@ import orders from "../views/orders.vue"
 import payment from "../views/payment.vue"
 import CheckoutSuccess from "../views/CheckoutSuccess.vue"
 import CheckoutFailure from "../views/CheckoutFailure.vue"
+import supplier from "../views/supplier.vue"
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -44,7 +45,13 @@ const router = createRouter({
       name: 'Login',
       component: () => import('@/views/login.vue'),
       meta: { hideNavbar: true }  // if needed
-    }
+    },
+    {
+      path: '/supplier',
+      name: 'supplier',
+      component: supplier,
+      meta: { hideNavbar: true }
+    },
   ],
 })
 

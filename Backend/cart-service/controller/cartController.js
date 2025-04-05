@@ -1,4 +1,4 @@
-import {addItemToCart, getFromCart, removeItemFromCart} from "../services/cartServices.js";
+import {addItemToCart, getFromCart, removeItemFromCart, sendToOrder} from "../services/cartServices.js";
 
 export const addToCart = async (req, res) => {
 	try {
@@ -52,14 +52,14 @@ export const removeFromCart = async (req, res) => {
 
 export const addToOrder = async (req, res) => {
 	try {
-		const { userId, order } = req.body;
-		if (!userId || !order) {
-			return res
-				.status(400)
-				.json({ error: "User ID and order are required" });
+		let userId = req.headers['x-user-id']; // header names are lowercase in Node
+		if (!userId) {
+			// return res.status(401).json({ error: "Missing user ID in headers" });
+			userId = 3
 		}
 
-		const updatedCart = await sendToOrder(userId, order);
+
+		const updatedCart = await sendToOrder(userId);
 		res.json({ success: true, cart: updatedCart });
 	} catch (error) {
 		console.error("Error adding to cart:", error);

@@ -29,16 +29,17 @@ export default {
       userId: 4, // static for testing
     };
   },
-  async mounted() {
-    try {
-      const response = await fetch('http://localhost:8000/shop/shop');
-      if (!response.ok) throw new Error('Failed to fetch products');
-      const data = await response.json();
-      this.products = data;
-    } catch (error) {
-      console.error('Error fetching products:', error);
-    }
-  },
+    async mounted() {
+      try {
+        const response = await fetch('http://localhost:8000/shop/shop');
+        if (!response.ok) throw new Error('Failed to fetch products');
+        const data = await response.json();
+        console.log('✅ Fetched data:', data);
+        this.products = data;
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      }
+    },
   methods: {
     async addToCart(product) {
       try {

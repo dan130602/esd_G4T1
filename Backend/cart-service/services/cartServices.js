@@ -1,4 +1,5 @@
 import client from '../config/redis.js';
+import axios from 'axios';
 
 const addItemToCart = async (userId, item) => {
     try {
@@ -65,15 +66,17 @@ const removeItemFromCart = async (userId, itemId, decreaseBy) => {
     }
 };
 
-const sendToOrder = async () => {
+const sendToOrder = async (userId) => {
     try {
         const cartKey = `cart:${userId}`;
         let cart = await client.get(cartKey);
         cart = cart ? JSON.parse(cart) : [];
+        let cartJson = cart[0]
+        console.log(cartJson)
 
         // Send cart to order service
-        const response = await axios.post('http://order-service:5001/api/order', { items: cart });
-
+        const response = await axios.post('http://order-service:5001/api/order', { userId: userId, item: cartJson });
+        console.log(response.data)
         // Clear the cart after sending
         await client.del(cartKey);
 

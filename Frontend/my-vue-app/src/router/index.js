@@ -44,6 +44,11 @@ const router = createRouter({
       name: 'Login',
       component: () => import('@/views/login.vue'),
       meta: { hideNavbar: true }  // if needed
+    },
+    { 
+      path: "/register",
+      name: "Register",
+      component: () => import("@/views/RegisterView.vue")
     }
   ],
 })

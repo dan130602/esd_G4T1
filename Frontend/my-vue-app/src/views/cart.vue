@@ -83,7 +83,8 @@ export default {
   },
   methods: {
   calculateSubtotal() {
-    this.subtotal = this.cartItems.reduce(
+    const items = this.cartItems || [];
+    this.subtotal = items.reduce(
       (acc, item) => acc + item.quantity * item.unit_price,
       0
     );

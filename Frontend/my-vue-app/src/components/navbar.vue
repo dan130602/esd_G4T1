@@ -100,6 +100,7 @@ export default {
       display: flex;
       padding-top: 20px;
       width: 100vw;  
+      
    
       flex-direction: column;
       overflow: hidden;
@@ -122,7 +123,7 @@ export default {
     .top-bar {
       display: flex;
       width: 100%;
-      max-width: 1225px;
+      
       align-items: stretch;
       gap: 20px;
       font-size: 20px;
@@ -131,11 +132,7 @@ export default {
       justify-content: space-between;
     }
   
-    @media (max-width: 991px) {
-      .top-bar {
-        max-width: 100%;
-      }
-    }
+    
   
     .language-currency {
       display: flex;
@@ -230,7 +227,7 @@ export default {
       display: flex;
       
       width: 100%;
-      max-width: 1201px;
+      
       align-items: stretch;
       gap: 20px;
       font-family:

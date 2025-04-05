@@ -195,12 +195,12 @@ services:
       KAFKA_BROKER: kafka:29092
     ports:
       - "3010:3010"  
-    # depends_on:
-      # - transaction-db
-      # - transaction-service
-      # - supplier-service
-      # - order-service
-      # - commerce-db
+    depends_on:
+      - transaction-db
+      - transaction-service
+      - supplier-service
+      - order-service
+      - commerce-db
     networks:
       - internal_network
 

@@ -109,6 +109,7 @@ INSERT INTO users (email, full_name) VALUES
 ('jane@example.com', 'Jane Smith'),
 ('alice@example.com', 'Alice Johnson');
 
+
 --  Insert Items
 INSERT INTO items (item_name, price, quantity) VALUES
 ('Laptop', 1000.00, 5),

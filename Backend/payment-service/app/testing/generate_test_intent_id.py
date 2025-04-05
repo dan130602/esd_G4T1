@@ -5,7 +5,7 @@ stripe.api_key = Config.STRIPE_API_KEY
 
 # Create a successful test payment intent
 payment_intent = stripe.PaymentIntent.create(
-    amount=2000,  # $20.00
+    amount=50000,  # $20.00
     currency="usd",
     payment_method_types=["card"],
     payment_method="pm_card_visa",  # This is a test card token

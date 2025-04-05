@@ -43,7 +43,8 @@ const approveReturnRequest = async (return_id,item_id) => {
         price: response.data.price,
         quantity: currentQuantity + 1
       });
- 
+
+    console.log("updatedReturns[0].order_id: " + updatedReturns[0].order_id)
     const refundtoOrchestrator = await sendRefundStatus({
         status: "approved",
         user_id: updatedReturns[0].user_id,

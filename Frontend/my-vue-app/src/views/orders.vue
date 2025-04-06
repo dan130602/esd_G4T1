@@ -3,27 +3,28 @@
     <div v-for="order in orders" :key="order.order_id" class="order-block">
       <h3>Order ID: {{ order.order_id }}</h3>
 
-      <table border="1" cellspacing="0" cellpadding="8">
-        <thead>
-          <tr>
-            <th>Product Name</th>
-            <th>Quantity</th>
-            <th>Subtotal ($)</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="item in order.items" :key="item.id">
-            <td>{{ item.product_name }}</td>
-            <td>{{ item.quantity }}</td>
-            <td>{{ item.order_item_subtotal }}</td>
-          </tr>
-          <tr>
-            <td><strong>Status:</strong> {{ order.status }}</td>
-            <td><strong>Total:</strong></td>
-            <td><strong>{{ order.total_amount }} $</strong></td>
-          </tr>
-        </tbody>
-      </table>
+      <table class="table table-bordered table-striped">
+  <thead class="table-dark">
+    <tr>
+      <th>Product Name</th>
+      <th>Quantity</th>
+      <th>Subtotal ($)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr v-for="item in order.items" :key="item.id">
+      <td>{{ item.product_name }}</td>
+      <td>{{ item.quantity }}</td>
+      <td>{{ item.order_item_subtotal }}</td>
+    </tr>
+    <tr class="table-primary">
+      <td><strong>Status:</strong> {{ order.status }}</td>
+      <td><strong>Total:</strong></td>
+      <td><strong>{{ order.total_amount }} $</strong></td>
+    </tr>
+  </tbody>
+</table>
+
 
       <br />
     </div>

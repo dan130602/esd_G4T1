@@ -128,3 +128,43 @@ Invoke-RestMethod -Method POST -Uri "http://localhost:8001/services/login-servic
 
 Write-Host "✅ login-service setup complete!"
 
+
+Write-Host "Creating supplier-service..."
+Invoke-RestMethod -Method POST -Uri "http://localhost:8001/services" `
+  -Body "name=supplier-service&url=http://supplier-service:3011" `
+  -ContentType "application/x-www-form-urlencoded"
+
+Write-Host "Creating route for /supplier..."
+$supplierRouteBody = @"
+name=supplier-route&
+paths=/&
+methods=GET&
+methods=POST&
+methods=PUT&
+methods=DELETE&
+methods=OPTIONS
+"@ -replace "\s+", ""
+
+Invoke-RestMethod -Method POST -Uri "http://localhost:8001/services/supplier-service/routes" `
+  -Body $supplierRouteBody `
+  -ContentType "application/x-www-form-urlencoded"
+
+Write-Host "Enabling CORS for supplier-service..."
+$supplierPluginBody = @"
+name=cors&
+config.origins=* &
+config.methods=GET&
+config.methods=POST&
+config.methods=PUT&
+config.methods=DELETE&
+config.methods=OPTIONS&
+config.headers=Accept&
+config.headers=Authorization&
+config.headers=Content-Type
+"@ -replace "\s+", ""
+
+Invoke-RestMethod -Method POST -Uri "http://localhost:8001/services/supplier-service/plugins" `
+  -Body $supplierPluginBody `
+  -ContentType "application/x-www-form-urlencoded"
+
+Write-Host "✅ supplier-service setup complete!"

@@ -52,6 +52,7 @@ public class PaymentEventListener {
             }
 
             webhookRequest.setData(paymentData);
+            log.info("Processed payment event: {}", paymentData.toString());
 
             // Process the webhook request
             orchestratorService.handlePaymentWebhook(webhookRequest);

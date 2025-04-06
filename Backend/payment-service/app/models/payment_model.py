@@ -43,8 +43,8 @@ class Payment(db.Model):
             "payment_method": self.payment_method,
             "stripe_payment_intent_id": self.stripe_payment_intent_id,
             "stripe_session_id": self.stripe_session_id,
-            "created_at": self.created_at,
-            "updated_at": self.updated_at
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }
 
 class PaymentItem(db.Model):

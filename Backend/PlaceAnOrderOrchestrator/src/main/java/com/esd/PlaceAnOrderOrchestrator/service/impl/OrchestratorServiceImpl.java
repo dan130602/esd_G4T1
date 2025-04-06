@@ -25,6 +25,7 @@ import com.esd.PlaceAnOrderOrchestrator.dto.PaymentResponse;
 import com.esd.PlaceAnOrderOrchestrator.dto.PaymentWebhookRequest;
 import com.esd.PlaceAnOrderOrchestrator.dto.StockUpdateRequest;
 import com.esd.PlaceAnOrderOrchestrator.dto.TransactionResponse;
+import com.esd.PlaceAnOrderOrchestrator.messaging.TransactionEventProducer;
 import com.esd.PlaceAnOrderOrchestrator.service.OrchestratorService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j //For logging
 public class OrchestratorServiceImpl implements OrchestratorService {
     private final RestTemplate restTemplate;
+    private final TransactionEventProducer transactionEventProducer;
 
     // Getting urls from application properties
     @Value("${service.order.url}")
@@ -47,11 +49,15 @@ public class OrchestratorServiceImpl implements OrchestratorService {
     @Value("${service.transaction.url}")
     private String transactionServiceUrl;
 
+    @Value("${service.cart.url}")
+    private String cartServiceUrl;;
+
     // @Value("${service.email.url:}") 
     // private String emailServiceUrl;
 
-    public OrchestratorServiceImpl(RestTemplate restTemplate) {
+    public OrchestratorServiceImpl(RestTemplate restTemplate, TransactionEventProducer transactionEventProducer) {
         this.restTemplate = restTemplate;
+        this.transactionEventProducer = transactionEventProducer;
     }
 
     private static final class OrderStatus {
@@ -67,6 +73,7 @@ public class OrchestratorServiceImpl implements OrchestratorService {
 
         try {
             //1. Create order in Order Service
+            //OrderResponse orderResponse = createOrder(checkoutRequest);
             OrderResponse orderResponse = createOrder(checkoutRequest);
             log.info("Order created with ID: {}", orderResponse.getOrder_id());
 
@@ -116,7 +123,7 @@ public class OrchestratorServiceImpl implements OrchestratorService {
                 try {
                     processTransactionLogging(orderId);
                 } catch (Exception e) {
-                    log.error("Failed to log transactions for oder {}. Error: {}",
+                    log.error("Failed to log transactions for order {}. Error: {}",
                         orderId, e.getMessage()
                     );
                 }
@@ -141,6 +148,8 @@ public class OrchestratorServiceImpl implements OrchestratorService {
 
     // Helper method to create an order
     private OrderResponse createOrder(CheckoutRequest checkoutRequest) {
+        // String url = cartServiceUrl + "/cart/send"; // Uncomment this for production
+        // log.info("Retrieving order from cart service on {}", url); // Uncomment this for production
         String url = orderServiceUrl + "/api/order";
         log.info("Creating order on {}", url);
         return restTemplate.postForObject(url, checkoutRequest, OrderResponse.class);
@@ -305,7 +314,7 @@ public class OrchestratorServiceImpl implements OrchestratorService {
         restTemplate.put(url, requestEntity);
     }
 
-    // Helper method for transcation logging
+    // Helper method for transcation logging via Kafka
     private void processTransactionLogging(Integer orderId) {
         OrderResponse userOrder = getOrder(orderId);
         Integer user_id = userOrder.getUser_id();
@@ -314,20 +323,42 @@ public class OrchestratorServiceImpl implements OrchestratorService {
         for (OrderItemDto item : order_items) {
             Integer item_id = item.getItem_id();
             String item_amount = item.getItem_price();
-            String status = "Completed";
+            String status = "completed";  // lowercase to match what transaction service expects
 
-            // Call transactions service
-            TransactionResponse transactionResponse = createTransaction(user_id, item_id, item_amount, status);
-            if (transactionResponse != null) {
-                log.info("UserId: {}, orderId: {}, Item: {}, itemID: {} is successfully logged as '{}'' in table.",
-                        user_id, orderId, item.getItem_name(), item_id, status);
-            } else {
-                log.info("UserId: {}, orderId: {}, Item: {}, itemID: {} was not logged",
-                        user_id, orderId, item.getItem_name(), item_id, status);
+            try {
+                // Send transaction event via Kafka
+                transactionEventProducer.sendTransactionEvent(user_id, item_id, item_amount, status);
+                log.info("UserId: {}, orderId: {}, Item: {}, itemID: {} sent to transaction service via Kafka",
+                        user_id, orderId, item.getItem_name(), item_id);
+            } catch (Exception e) {
+                log.error("Failed to send transaction event for UserId: {}, orderId: {}, Item: {}, itemID: {}. Error: {}",
+                        user_id, orderId, item.getItem_name(), item_id, e.getMessage());
             }
-
         }
     }
+    // Helper method for transcation logging via HTTP
+    // private void processTransactionLogging(Integer orderId) {
+    //     OrderResponse userOrder = getOrder(orderId);
+    //     Integer user_id = userOrder.getUser_id();
+    //     List<OrderItemDto> order_items = userOrder.getItems();
+
+    //     for (OrderItemDto item : order_items) {
+    //         Integer item_id = item.getItem_id();
+    //         String item_amount = item.getItem_price();
+    //         String status = "Completed";
+
+    //         // Call transactions service
+    //         TransactionResponse transactionResponse = createTransaction(user_id, item_id, item_amount, status);
+    //         if (transactionResponse != null) {
+    //             log.info("UserId: {}, orderId: {}, Item: {}, itemID: {} is successfully logged as '{}'' in table.",
+    //                     user_id, orderId, item.getItem_name(), item_id, status);
+    //         } else {
+    //             log.info("UserId: {}, orderId: {}, Item: {}, itemID: {} was not logged",
+    //                     user_id, orderId, item.getItem_name(), item_id, status);
+    //         }
+
+    //     }
+    // }
 
     // Helper method to get order details
     private OrderResponse getOrder(Integer orderId) {
@@ -337,17 +368,17 @@ public class OrchestratorServiceImpl implements OrchestratorService {
 
     }   
 
-    // Helper method to create transaction 
-    private TransactionResponse createTransaction(Integer user_id, Integer item_id, String amount, String status) {
-        String url = transactionServiceUrl + "/transactions";
-        Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("user_id", user_id);
-        requestBody.put("item_id", item_id);
-        requestBody.put("amount", amount);
-        requestBody.put("status", status);
+    // // Helper method to create transaction 
+    // private TransactionResponse createTransaction(Integer user_id, Integer item_id, String amount, String status) {
+    //     String url = transactionServiceUrl + "/transactions/";
+    //     Map<String, Object> requestBody = new HashMap<>();
+    //     requestBody.put("user_id", user_id);
+    //     requestBody.put("item_id", item_id);
+    //     requestBody.put("amount", amount);
+    //     requestBody.put("status", status);
 
-        return restTemplate.postForObject(url, requestBody, TransactionResponse.class);
-    }
+    //     return restTemplate.postForObject(url, requestBody, TransactionResponse.class);
+    // }
 
     // Helper method for email
     // private void sendOrderConfirmationEmail(Long userId, Long orderId) {

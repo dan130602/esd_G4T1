@@ -332,6 +332,7 @@ services:
       - order-service
       - shop-service
       - payment-service
+      - cart-service
       - transaction-service
       - transaction-db
       - kafka
@@ -344,6 +345,7 @@ services:
       - service.shop.url=http://shop-service:3006
       - service.payment.url=http://payment-service:5002
       - service.transaction.url=http://transaction-service:3009
+      - service.cart.url=http://cart-service:3007
     networks:
       - internal_network
   

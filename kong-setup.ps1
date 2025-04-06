@@ -87,3 +87,35 @@ Invoke-RestMethod -Method POST -Uri "http://localhost:8001/services/refund-orche
   -ContentType "application/x-www-form-urlencoded"
 
 Write-Host "✅ Kong setup complete!"
+
+
+# ----------------------------------
+# NEW: login-service setup
+# ----------------------------------
+
+Write-Host "Creating login-service..."
+Invoke-RestMethod -Method POST -Uri "http://localhost:8001/services" -Body @{
+    name = "login-service"
+    url  = "http://login-service:3000"
+} -ContentType "application/x-www-form-urlencoded"
+
+Write-Host "Creating POST route for /login-service..."
+Invoke-RestMethod -Method POST -Uri "http://localhost:8001/services/login-service/routes" -Body @{
+    name   = "login-route"
+    paths  = "/login-service"
+    methods = "POST"
+} -ContentType "application/x-www-form-urlencoded"
+
+Write-Host "Enabling CORS for login-service..."
+$loginPluginBody = @"
+name=cors&
+config.origins=* &
+config.methods=GET&config.methods=POST&config.methods=OPTIONS&
+config.headers=Accept&config.headers=Authorization&config.headers=Content-Type
+"@ -replace "\s+", ""
+
+Invoke-RestMethod -Method POST -Uri "http://localhost:8001/services/login-service/plugins" `
+  -Body $loginPluginBody `
+  -ContentType "application/x-www-form-urlencoded"
+
+Write-Host "✅ login-service setup complete!"

@@ -65,6 +65,19 @@
   border-radius: 5px;
   z-index: 10;
 }
+
+@media (max-width: 968px) {
+  .swiper-container {
+    height: 300px;
+    max-width: 80%;
+    margin: auto;
+  }
+  
+  .slide-text {
+    font-size: 14px;
+    padding: 8px 12px;
+  }
+}
 </style>
 
   

@@ -23,54 +23,90 @@ export default {
 </script>
 
 <style scoped>
-
-header {
-  line-height: 1.5;
-  max-height: 100vh;
-}
-
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-nav {
-  width: 100%;
-  font-size: 12px;
-  text-align: center;
-  margin-top: 2rem;
-}
-
-nav a.router-link-exact-active {
-  color: var(--color-text);
-}
-
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
-}
-
-nav a { 
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
-}
-
-nav a:first-of-type {
-  border: 0;
-}
+/* :root {
+  --color-primary: #0d6efd;
+  --color-text: #2c3e50;
+  --color-text-muted: #6c757d;
+  --color-border: #e0e0e0;
+  --color-bg-hover: #f8f9fa;
+  --font-family: 'Poppins', 'Segoe UI', Roboto, sans-serif;
+} */
 
 body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
   width: 100vw;
+  font-family: var(--font-family);
+  background-color: #eef3f8;
+  color: var(--color-text);
+  line-height: 1.6;
 }
 
+/* Header */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  box-sizing: border-box;
+  background-color: #fff;
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* Logo */
+.logo {
+  display: block;
+  margin: 0 auto 2rem;
+  max-width: 100px;
+}
+
+/* Navbar */
+nav {
+  width: 100%;
+  font-size: 14px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 2rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+nav a {
+  text-decoration: none;
+  color: var(--color-text-muted);
+  padding: 0.5rem 1rem;
+  border-left: 1px solid var(--color-border);
+  transition: color 0.3s ease, background-color 0.3s ease;
+  border-radius: 4px;
+}
+
+nav a:first-of-type {
+  border-left: none;
+}
+
+nav a.router-link-exact-active {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+nav a:hover {
+  background-color: var(--color-bg-hover);
+  color: var(--color-primary);
+}
+
+/* Media Queries */
 @media (min-width: 1024px) {
   header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
+    padding-right: calc(var(--section-gap, 2rem) / 2);
+  }
+
+  nav {
+    font-size: 1rem;
+    padding: 1rem 0;
+    margin-top: 1rem;
+    text-align: left;
   }
 
   .logo {
@@ -79,17 +115,9 @@ body {
 
   header .wrapper {
     display: flex;
-    place-items: flex-start;
+    align-items: flex-start;
     flex-wrap: wrap;
   }
-
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
-  }
 }
+
 </style>

@@ -5,12 +5,17 @@
     <input type="email" v-model="email" placeholder="Email" />
     <input type="password" v-model="password" placeholder="Password" />
     <button @click="handleLogin">Login</button>
+
+
+    <p class="register-link">
+      Don’t have an account? <router-link to="/register">Register here</router-link>
+    </p>
   </div>
 </template>
 
 <script>
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "@/firebase"; // Adjust this path if your firebase config is elsewhere
+import { auth } from "@/firebase";
 
 export default {
   name: "LoginView",
@@ -31,17 +36,15 @@ export default {
       }
 
       try {
-        // 🔐 Sign in with Firebase and get ID token
         const userCredential = await signInWithEmailAndPassword(auth, this.email, this.password);
         const token = await userCredential.user.getIdToken();
 
-        // 🌐 Send token to backend via Kong
         const response = await fetch("http://localhost:8000/login-service/login", {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
           },
-          body: JSON.stringify({ token }) // Backend expects token, not email/pass
+          body: JSON.stringify({ token })
         });
 
         const data = await response.json();
@@ -109,6 +112,21 @@ body {
 
 .login-container button:hover {
   background: #0056b3;
+}
+
+.register-link {
+  margin-top: 16px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.register-link a {
+  color: #007BFF;
+  text-decoration: none;
+}
+
+.register-link a:hover {
+  text-decoration: underline;
 }
 
 .error {

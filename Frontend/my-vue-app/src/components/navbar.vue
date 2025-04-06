@@ -3,12 +3,12 @@
     <div class="top-bar">
       <div class="language-currency">
         <div class="language-selector">
-          <span>EN</span>
-          <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/7fd684adc611365d7308647bd9dc358ae5124183bb73acd2e565687394b2b56c" class="dropdown-arrow" alt="Dropdown arrow" />
+          <!-- <span>EN</span>
+          <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/7fd684adc611365d7308647bd9dc358ae5124183bb73acd2e565687394b2b56c" class="dropdown-arrow" alt="Dropdown arrow" /> -->
         </div>
         <div class="currency-selector">
-          <span class="currency-code">USD</span>
-          <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/7fd684adc611365d7308647bd9dc358ae5124183bb73acd2e565687394b2b56c" class="dropdown-arrow" alt="Dropdown arrow" />
+          <!-- <span class="currency-code">USD</span>
+          <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/7fd684adc611365d7308647bd9dc358ae5124183bb73acd2e565687394b2b56c" class="dropdown-arrow" alt="Dropdown arrow" /> -->
         </div>
       </div>
       <div class="user-section">
@@ -99,7 +99,7 @@ export default {
       background-color: #fff;
       display: flex;
       padding-top: 20px;
-      width: 100vw;  
+      width: 100%;  
       
    
       flex-direction: column;

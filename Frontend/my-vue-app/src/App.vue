@@ -1,6 +1,5 @@
 <script setup>
 import { RouterLink, RouterView, useRoute } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
 const route = useRoute();
 
 </script>
@@ -50,7 +49,7 @@ nav a.router-link-exact-active:hover {
   background-color: transparent;
 }
 
-nav a {
+nav a { 
   display: inline-block;
   padding: 0 1rem;
   border-left: 1px solid var(--color-border);
@@ -58,6 +57,13 @@ nav a {
 
 nav a:first-of-type {
   border: 0;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  width: 100vw;
 }
 
 @media (min-width: 1024px) {

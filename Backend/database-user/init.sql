@@ -10,4 +10,7 @@ CREATE TABLE users (
 
 --  Insert Users
 INSERT INTO users (user_id, email, full_name) VALUES
-('2SLYV14RkmUrdRvP4JQR0vED3N12','john@example.com', 'John Doe')
+('2SLYV14RkmUrdRvP4JQR0vED3N12','john@example.com', 'John Doe'),
+('na63gIAVdkgCb9oDL7nim0UkfhO2','danielleong04@gmail.com', 'bob'),
+('vn4sFpclG1Y6mu3OgSVamSPCZ7e2','danielleong05@gmail.com', 'bob')
+

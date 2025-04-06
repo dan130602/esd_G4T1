@@ -2,25 +2,21 @@ const express = require('express');
 const { Pool } = require('pg');
 const admin = require('./firebaseAdmin'); 
 const cors = require('cors'); // ✅ Only declare once
+const morgan = require('morgan');
 
 const app = express();
 const port = process.env.PORT || 3000;
 
 // Middleware to parse JSON
+app.use(morgan('dev'));
 app.use(express.json());
 
 
 app.use(cors({
-  origin: [
-    'http://localhost:5173',
-    'http://localhost:5174',
-    'http://localhost:5175',
-    'http://localhost:5176',
-    'http://localhost:5177'
-  ],
+  origin: ['*'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true,
+  credentials: false,
 }));
 
 // PostgreSQL client setup
@@ -31,7 +27,15 @@ const pool = new Pool({
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
 });
-
+pool.connect()
+  .then(client => {
+    console.log("✅ Connected to PostgreSQL database");
+    client.release(); // Release the connection back to the pool
+  })
+  .catch(err => {
+    console.error("❌ Failed to connect to PostgreSQL:", err);
+    process.exit(1); // Exit the app if DB is critical
+  });
 // --- Routes ---
 
 // Register route
@@ -43,15 +47,17 @@ app.post('/register', async (req, res) => {
       return res.status(400).json({ message: 'Email already registered' });
     }
 
-    await admin.auth().createUser({
+    const userRecord = await admin.auth().createUser({
       email,
       password,
       displayName: full_name,
     });
 
+    const userId = userRecord.uid;
+
     const insertResult = await pool.query(
-      'INSERT INTO users (email, full_name) VALUES ($1, $2) RETURNING *',
-      [email, full_name]
+      'INSERT INTO users (user_id, email, full_name) VALUES ($1, $2, $3) RETURNING *',
+      [userId, email, full_name]
     );
 
     res.status(201).json({ message: 'User created successfully', user: insertResult.rows[0] });
@@ -81,6 +87,10 @@ app.post('/login', async (req, res) => {
     console.error('Error verifying Firebase ID token:', error);
     res.status(401).json({ message: 'Unauthorized' });
   }
+});
+
+app.get("/", (req, res) => {
+  res.send("Hello from the login service!");
 });
 
 app.listen(port, () => {

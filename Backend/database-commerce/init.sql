@@ -1,7 +1,7 @@
 -- Drop tables if they exist (to avoid errors)
 
 DROP TABLE IF EXISTS items;
-DROP TABLE IF EXISTS users;
+
 DROP TABLE IF EXISTS order_item;
 DROP TABLE IF EXISTS orders;
  -- Drop ENUM if it exists
@@ -11,13 +11,7 @@ DROP TABLE IF EXISTS supplier_returns;
 
 
 CREATE TYPE return_status AS ENUM ('PENDING', 'APPROVED', 'REJECTED');
---  Users Table
-CREATE TABLE users (
-    user_id SERIAL PRIMARY KEY,          
-    email VARCHAR(255) UNIQUE NOT NULL,  
-    full_name VARCHAR(255) NOT NULL,     
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+
 
 --  Items Table
 CREATE TABLE items (
@@ -37,7 +31,6 @@ CREATE TABLE orders (
     status VARCHAR(10) NOT NULL,
     created TIMESTAMP NOT NULL DEFAULT NOW(),
     modified TIMESTAMP NOT NULL DEFAULT NOW(),
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
 
@@ -97,17 +90,11 @@ CREATE TABLE supplier_returns (
     updated_at TIMESTAMP DEFAULT NOW(),
     FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE,
     FOREIGN KEY (item_id) REFERENCES items(item_id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
 -- Create index on order_id in order_item table for faster lookups
 CREATE INDEX idx_order_item_order_id ON order_item(order_id);
 
---  Insert Users
-INSERT INTO users (email, full_name) VALUES
-('john@example.com', 'John Doe'),
-('jane@example.com', 'Jane Smith'),
-('alice@example.com', 'Alice Johnson');
 
 
 --  Insert Items

@@ -50,7 +50,6 @@ export default {
           throw new Error(data.message || "Login failed");
         }
 
-        alert("Login successful!");
         this.$router.push("/homepage");
       } catch (err) {
         this.error = err.message;

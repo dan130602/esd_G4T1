@@ -17,11 +17,16 @@ export const startRefundStatusConsumer  = async () => {
   await consumer.run({
     eachMessage: async ({ topic, partition, message }) => {
       const data = JSON.parse(message.value.toString());
-      console.log('[Kafka] Refund update received:', data);
+      console.log('[Kafka] Refund update received:');
 
       // Call your custom logic handler
-      console.log(JSON.stringify(data))
-      await handleRefundStatus(data);
+      let status = data.status
+      let user_id = data.user_id
+      let item_id = data.item_id
+      let refundAmount = data.refundAmount
+      let orderId = data.orderId
+      console.log(orderId)
+      await handleRefundStatus(status, user_id, item_id, refundAmount, orderId);
     },
   });
 };

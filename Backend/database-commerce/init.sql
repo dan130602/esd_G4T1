@@ -1,7 +1,7 @@
 -- Drop tables if they exist (to avoid errors)
 
 DROP TABLE IF EXISTS items;
-DROP TABLE IF EXISTS users;
+
 DROP TABLE IF EXISTS order_item;
 DROP TABLE IF EXISTS orders;
  -- Drop ENUM if it exists
@@ -11,13 +11,7 @@ DROP TABLE IF EXISTS supplier_returns;
 
 
 CREATE TYPE return_status AS ENUM ('PENDING', 'APPROVED', 'REJECTED');
---  Users Table
-CREATE TABLE users (
-    user_id SERIAL PRIMARY KEY,          
-    email VARCHAR(255) UNIQUE NOT NULL,  
-    full_name VARCHAR(255) NOT NULL,     
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+
 
 --  Items Table
 CREATE TABLE items (
@@ -32,12 +26,11 @@ CREATE TABLE items (
 -- 'order' table
 CREATE TABLE orders (
     order_id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL,
+    user_id VARCHAR(128) NOT NULL,
     total_amount NUMERIC(10, 2) NOT NULL,
     status VARCHAR(10) NOT NULL,
     created TIMESTAMP NOT NULL DEFAULT NOW(),
-    modified TIMESTAMP NOT NULL DEFAULT NOW(),
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+    modified TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 
@@ -57,7 +50,7 @@ CREATE TABLE order_item (
 CREATE TABLE payment (
     payment_id SERIAL PRIMARY KEY,
     order_id INTEGER NOT NULL,
-    user_id INTEGER NOT NULL,
+    user_id VARCHAR(128) NOT NULL,
     amount FLOAT NOT NULL,
     refunded_amount FLOAT NOT NULL DEFAULT 0.00,
     currency VARCHAR(3) NOT NULL DEFAULT 'SGD',
@@ -89,25 +82,20 @@ CREATE TABLE supplier_returns (
     return_id SERIAL PRIMARY KEY,
     order_id INTEGER NOT NULL,
     item_id INTEGER NOT NULL,
-    user_id INTEGER NOT NULL,
+    user_id VARCHAR(128) NOT NULL,
     state_of_good VARCHAR(50) NOT NULL, 
     return_status VARCHAR(20) DEFAULT 'PENDING', 
     reason TEXT NULL, 
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW(),
     FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE,
-    FOREIGN KEY (item_id) REFERENCES items(item_id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+    FOREIGN KEY (item_id) REFERENCES items(item_id) ON DELETE CASCADE
 );
 
 -- Create index on order_id in order_item table for faster lookups
 CREATE INDEX idx_order_item_order_id ON order_item(order_id);
 
---  Insert Users
-INSERT INTO users (email, full_name) VALUES
-('john@example.com', 'John Doe'),
-('jane@example.com', 'Jane Smith'),
-('alice@example.com', 'Alice Johnson');
+
 
 --  Insert Items
 INSERT INTO items (item_name, price, quantity) VALUES
@@ -120,11 +108,11 @@ INSERT INTO items (item_name, price, quantity) VALUES
 -- Insert test orders
 INSERT INTO orders (user_id, total_amount, status, created, modified)
 VALUES 
-    (1, 1150.00, 'NEW', NOW(), NOW()),
-    (1, 800.00, 'PAID', NOW() - INTERVAL '2 days', NOW() - INTERVAL '1 day'),
-    (2, 300.00, 'PROCESSING', NOW() - INTERVAL '3 days', NOW() - INTERVAL '2 days'),
-    (3, 500.00, 'SHIPPED', NOW() - INTERVAL '5 days', NOW() - INTERVAL '2 days'),
-    (3, 1000.00, 'DELIVERED', NOW() - INTERVAL '10 days', NOW() - INTERVAL '5 days');
+    ('2SLYV14RkmUrdRvP4JQR0vED3N12', 1150.00, 'NEW', NOW(), NOW()),
+    ('2SLYV14RkmUrdRvP4JQR0vED3N12', 800.00, 'PAID', NOW() - INTERVAL '2 days', NOW() - INTERVAL '1 day'),
+    ('na63gIAVdkgCb9oDL7nim0UkfhO2', 300.00, 'PROCESSING', NOW() - INTERVAL '3 days', NOW() - INTERVAL '2 days'),
+    ('vn4sFpclG1Y6mu3OgSVamSPCZ7e2', 500.00, 'SHIPPED', NOW() - INTERVAL '5 days', NOW() - INTERVAL '2 days'),
+    ('vn4sFpclG1Y6mu3OgSVamSPCZ7e2', 1000.00, 'DELIVERED', NOW() - INTERVAL '10 days', NOW() - INTERVAL '5 days');
 
 -- Insert order items for each order
 -- Order 1: Customer 1's new order
@@ -179,7 +167,7 @@ INSERT INTO payment (
     updated_at
 ) VALUES (
     12345,                                      -- Order ID
-    789,                                        -- Customer ID
+    'vn4sFpclG1Y6mu3OgSVamSPCZ7e2',             -- Customer ID
     20.00,                                      -- Amount
     0.00,
     'SGD',                                      -- Currency (Singapore Dollar)
@@ -194,6 +182,6 @@ INSERT INTO payment (
 
 INSERT INTO supplier_returns (order_id, item_id, user_id, state_of_good, return_status, reason, created_at, updated_at)
 VALUES
-    (1, 1, 2, 'new', 'PENDING', NULL, '2025-03-01 10:00:00', '2025-03-01 10:00:00'),
-    (1, 2, 2, 'used', 'PENDING', NULL, '2025-03-02 12:30:00', '2025-03-02 12:30:00'),
-    (1, 3, 2, 'damaged', 'REJECTED', 'Item is heavily damaged and not eligible for return.', '2025-03-03 14:00:00', '2025-03-05 09:15:00')
+    (1, 1, 'na63gIAVdkgCb9oDL7nim0UkfhO2', 'new', 'PENDING', NULL, '2025-03-01 10:00:00', '2025-03-01 10:00:00'),
+    (1, 2, 'na63gIAVdkgCb9oDL7nim0UkfhO2', 'used', 'PENDING', NULL, '2025-03-02 12:30:00', '2025-03-02 12:30:00'),
+    (1, 3, 'na63gIAVdkgCb9oDL7nim0UkfhO2', 'damaged', 'REJECTED', 'Item is heavily damaged and not eligible for return.', '2025-03-03 14:00:00', '2025-03-05 09:15:00');

@@ -29,5 +29,5 @@ export const sendTransaction = async (message) => {
     ],
   });
 
-  console.log('[Kafka] Refund status sent:', message);
+  console.log('[Kafka] Refund status sent from refund orchestrator:', message);
 };

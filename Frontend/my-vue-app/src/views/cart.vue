@@ -12,46 +12,29 @@
       </header>
       <div class="divider"></div>
   
-      <article class="product-item">
-        <div class="product-info">
-          <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/39b52805f174cb2cf41a7164a194d5e79856fe7ff4fd16e6113b9235c939d7cc?placeholderIfAbsent=true" alt="Nike Airmax 270 react" class="product-image" />
-          <h3 class="product-name">Nike Airmax 270 react</h3>
-        </div>
-        <div class="product-pricing">
-          <p class="total-price">$998</p>
-          <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/d4e2c2c0a53e8986593dd7391c27c151832a4516ddd6d354317e5d2214d2b350?placeholderIfAbsent=true" alt="Quantity selector" class="quantity-selector" />
-          <p class="unit-price">$499</p>
-        </div>
-      </article>
+      
+  
+      <article class="product-item" v-for="(product, index) in cartItems" :key="index">
+  <div class="product-info">
+    <!--<img :src="product.image || 'https://via.placeholder.com/200'" class="product-image" />-->
+    <h3 class="product-name">{{ product.item_name }}</h3>
+  </div>
+  <div class="product-pricing">
+    <p class="total-price">${{ product.unit_price * product.quantity }}</p>
+    <div class="qty-controls">
+  <button @click="decreaseQuantity(product)" class="qty-button">−</button>
+  <span class="qty">{{ product.quantity }}</span>
+  <button @click="increaseQuantity(product)" class="qty-button">+</button>
+</div>
+
+    <p class="unit-price">${{ product.unit_price }}</p>
+  </div>
+</article>
+
+
       <div class="divider"></div>
   
-      <article class="product-item">
-        <div class="product-info">
-          <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/347d99f8ac57859891c4fb62d8b7d8af4a0fcb86862de862dbaa946751e9a79e?placeholderIfAbsent=true" alt="Nike Airmax 270 react" class="product-image" />
-          <h3 class="product-name">Nike Airmax 270 react</h3>
-        </div>
-        <div class="product-pricing">
-          <p class="total-price">$998</p>
-          <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/d4e2c2c0a53e8986593dd7391c27c151832a4516ddd6d354317e5d2214d2b350?placeholderIfAbsent=true" alt="Quantity selector" class="quantity-selector" />
-          <p class="unit-price">$499</p>
-        </div>
-      </article>
-      <div class="divider"></div>
-  
-      <section class="order-summary">
-        <div class="summary-labels">
-          <p class="subtotal-label">Subtotal</p>
-          <p class="shipping-label">Shipping fee</p>
-          
-        </div>
-        <div class="summary-values">
-          <p class="subtotal-value">$998</p>
-          <div class="shipping-coupon-values">
-            <p class="shipping-value">$20</p>
-            
-          </div>
-        </div>
-      </section>
+      
   
       <section class="checkout-section">
         
@@ -60,7 +43,7 @@
           <div class="divider total-divider"></div>
           <div class="total-container">
             <h2 class="total-label">TOTAL</h2>
-            <p class="total-value">$118</p>
+            <p class="total-value">${{ subtotal }}</p>
           </div>
           <router-link to="/payment">
           <button class="checkout-button">
@@ -77,12 +60,104 @@
   </template>
 
 <script>
+import axios from 'axios';
+
 export default {
   name: "cart",
+  data() {
+    return {
+      cartItems: [],
+      subtotal: 0,
+      shipping: 20,
+    };
+  },
+  async mounted() {
+    try {
+      const userId = 4; // Example; replace with actual logic
+      const res = await axios.get(`http://localhost:8000/cart-api/cart/${userId}`);
+      this.cartItems = res.data.cart;
+      this.calculateSubtotal();
+    } catch (err) {
+      console.error("Error loading cart:", err);
+    }
+  },
+  methods: {
+  calculateSubtotal() {
+    const items = this.cartItems || [];
+    this.subtotal = items.reduce(
+      (acc, item) => acc + item.quantity * item.unit_price,
+      0
+    );
+  },
+
+  async increaseQuantity(product) {
+    try {
+      const userId = 4;
+      const item = {
+        item_id: product.item_id,
+        item_name: product.product_name,
+        quantity: 1,
+        unit_price: product.unit_price,
+        image: product.image || ''
+      };
+
+      await axios.post('http://localhost:8000/cart-api/add-to-cart', {
+        userId,
+        item
+      });
+
+      product.quantity += 1;
+      this.calculateSubtotal();
+    } catch (err) {
+      console.error('Error increasing quantity:', err);
+    }
+  },
+
+  async decreaseQuantity(product) {
+    try {
+      const userId = 4;
+
+      await axios.post('http://localhost:8000/cart-api/remove-from-cart', {
+        userId,
+        itemId: product.item_id,
+        decreaseBy: 1
+      });
+
+      if (product.quantity > 1) {
+        product.quantity -= 1;
+      } else {
+        // Optionally remove item from cart if quantity is 0
+        this.cartItems = this.cartItems.filter(item => item.item_id !== product.item_id);
+      }
+
+      this.calculateSubtotal();
+    } catch (err) {
+      console.error('Error decreasing quantity:', err);
+    }
+  }
+}
+
 };
 </script>
+
   
   <style scoped>
+  .qty-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.qty-button {
+  background-color: #f0f0f0;
+  border: none;
+  padding: 5px 10px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
     /* Cart container */
     
     .cart {

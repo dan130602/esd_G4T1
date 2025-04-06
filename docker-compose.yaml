@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   #################################
   # Commerce Database
@@ -52,6 +50,23 @@ services:
       - internal_network
 
   #################################
+  # User Database
+  #################################
+  user-db:
+    container_name: user-db
+    build: ./backend/database-user
+    ports:
+      - "5437:5432"  # Host:Container
+    volumes:
+      - user_pgdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: user_db
+    networks:
+      - internal_network
+
+  #################################
   # Redis Service
   #################################
   redis:
@@ -85,23 +100,23 @@ services:
   # Login Microservice
   #################################
   login-service:
-    container_name: login-service
     build: ./backend/login-service
     ports:
-      - "3000:3000"  
-    volumes:
-      - ./Backend/login-service/firebase-service-account.json:/usr/src/app/firebase-service-account.json
+      - "3000:3000"
     depends_on:
-      - commerce-db
+      - user-db
     environment:
       - NODE_ENV=production
-      - DB_HOST=commerce-db  
+      - DB_HOST=user-db
       - DB_PORT=5432
       - DB_USER=user
       - DB_PASSWORD=password
-      - DB_NAME=commerce_db
+      - DB_NAME=user_db
+    volumes:
+      - ./backend/login-service/firebase-service-account.json:/usr/src/app/firebase-service-account.json
     networks:
       - internal_network
+
 
   #################################
   # Order Microservice
@@ -195,12 +210,12 @@ services:
       KAFKA_BROKER: kafka:29092
     ports:
       - "3010:3010"  
-    # depends_on:
-      # - transaction-db
-      # - transaction-service
-      # - supplier-service
-      # - order-service
-      # - commerce-db
+    depends_on:
+      - transaction-db
+      - transaction-service
+      - supplier-service
+      - order-service
+      - commerce-db
     networks:
       - internal_network
 
@@ -355,6 +370,8 @@ volumes:
   error_pgdata:
     driver: local
   transaction_pgdata:
+    driver: local
+  user_pgdata:
     driver: local
   redis-data:
     driver: local

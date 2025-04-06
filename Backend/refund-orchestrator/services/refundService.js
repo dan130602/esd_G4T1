@@ -77,7 +77,6 @@ async function processTransaction({ user_id, item_id, refundAmount }) {
       amount: refundAmount,
       status: "completed",
     });
-    console.log('Transaction response:', transactionResponse);
     return { success: true };
   } catch (error) {
     console.error('Error logging transaction:', error.message);

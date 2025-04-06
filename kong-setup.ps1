@@ -128,3 +128,42 @@ Invoke-RestMethod -Method POST -Uri "http://localhost:8001/services/login-servic
 
 Write-Host "✅ login-service setup complete!"
 
+# ----------------------------------
+# NEW: PlaceAnOrderOrchestrator setup
+# ----------------------------------
+
+Write-Host "Creating place-order-orchestrator service..."
+Invoke-RestMethod -Method POST -Uri "http://localhost:8001/services" -Body @{
+    name = "place-order-orchestrator"
+    url  = "http://place-order-orchestrator:5004/api/place-an-order"
+} -ContentType "application/x-www-form-urlencoded"
+
+Write-Host "Creating routes for place-order-orchestrator..."
+$placeOrderRouteBody = @"
+name=place-order-route&
+paths=/place-order&
+methods=POST&
+methods=OPTIONS
+"@ -replace "\s+", ""
+
+Invoke-RestMethod -Method POST -Uri "http://localhost:8001/services/place-order-orchestrator/routes" `
+  -Body $placeOrderRouteBody `
+  -ContentType "application/x-www-form-urlencoded"
+
+Write-Host "Enabling CORS for place-order-orchestrator..."
+$placeOrderPluginBody = @"
+name=cors&
+config.origins=* &
+config.methods=GET&
+config.methods=POST&
+config.methods=OPTIONS&
+config.headers=Accept&
+config.headers=Authorization&
+config.headers=Content-Type
+"@ -replace "\s+", ""
+
+Invoke-RestMethod -Method POST -Uri "http://localhost:8001/services/place-order-orchestrator/plugins" `
+  -Body $placeOrderPluginBody `
+  -ContentType "application/x-www-form-urlencoded"
+
+Write-Host "✅ place-order-orchestrator setup complete!"

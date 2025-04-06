@@ -52,8 +52,8 @@ public class OrchestratorServiceImpl implements OrchestratorService {
     @Value("${service.cart.url}")
     private String cartServiceUrl;;
 
-    // @Value("${service.email.url:}") 
-    // private String emailServiceUrl;
+    @Value("${service.email.url:}") 
+    private String emailServiceUrl;
 
     public OrchestratorServiceImpl(RestTemplate restTemplate, TransactionEventProducer transactionEventProducer) {
         this.restTemplate = restTemplate;
@@ -121,16 +121,21 @@ public class OrchestratorServiceImpl implements OrchestratorService {
                 
                 // Get order details and process items for transaction table
                 try {
+                    OrderResponse orderResponse = getOrder(orderId);
+                    String userId = orderResponse.getUser_id();
+
                     processTransactionLogging(orderId);
+
+                    // Call email service (OutSystems) to send email to user
+                    log.info("Writing to email outsystems");
+                    sendOrderConfirmationEmail(userId, orderId);
                 } catch (Exception e) {
                     log.error("Failed to log transactions for order {}. Error: {}",
                         orderId, e.getMessage()
                     );
                 }
                 
-                // TODO: Call email service (OutSystems) to send email to user
-                log.info("Writing to email outsystems");
-                //sendOrderConfirmationEmail(userId, orderId)
+    
             
             } else if ("payment.failed".equals(webhookRequest.getEventType())) {
                 // Payment failed - Update order status
@@ -148,11 +153,28 @@ public class OrchestratorServiceImpl implements OrchestratorService {
 
     // Helper method to create an order
     private OrderResponse createOrder(CheckoutRequest checkoutRequest) {
-        // String url = cartServiceUrl + "/cart/send"; // Uncomment this for production
-        // log.info("Retrieving order from cart service on {}", url); // Uncomment this for production
-        String url = orderServiceUrl + "/api/order";
-        log.info("Creating order on {}", url);
-        return restTemplate.postForObject(url, checkoutRequest, OrderResponse.class);
+        String url = cartServiceUrl + "/cart/send"; // Uncomment this for production
+        log.info("Retrieving order from cart service on {}", url); // Uncomment this for production
+        
+        // Set up headers with the user ID
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("x-user-id", checkoutRequest.getUser_id());
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        // Create an empty request entity with just the headers
+        HttpEntity<String> requestEntity = new HttpEntity<>(null, headers);
+
+        // Make the request to the cart service, which will create the order
+        OrderResponse response = restTemplate.postForObject(url, requestEntity, OrderResponse.class);
+
+        log.info("Order created via cart service with ID: {}",
+                response != null ? response.getOrder_id() : "unknown");
+
+        return response;
+        
+        // String url = orderServiceUrl + "/api/order";
+        // log.info("Creating order on {}", url);
+        // return restTemplate.postForObject(url, checkoutRequest, OrderResponse.class);
     }
 
     // Helper method to check stock availability
@@ -317,7 +339,7 @@ public class OrchestratorServiceImpl implements OrchestratorService {
     // Helper method for transcation logging via Kafka
     private void processTransactionLogging(Integer orderId) {
         OrderResponse userOrder = getOrder(orderId);
-        Integer user_id = userOrder.getUser_id();
+        String user_id = userOrder.getUser_id();
         List<OrderItemDto> order_items = userOrder.getItems();
 
         for (OrderItemDto item : order_items) {
@@ -381,26 +403,30 @@ public class OrchestratorServiceImpl implements OrchestratorService {
     // }
 
     // Helper method for email
-    // private void sendOrderConfirmationEmail(Long userId, Long orderId) {
-    //     // Skip if email service URL is not configured
-    //     if (emailServiceUrl == null || emailServiceUrl.isEmpty()) {
-    //         log.info("Email service not configured. Skipping email confirmation.");
-    //         return;
-    //     }
+    private void sendOrderConfirmationEmail(String userId, Integer orderId) {
+        // Skip if email service URL is not configured
+        if (emailServiceUrl == null || emailServiceUrl.isEmpty()) {
+            log.info("Email service not configured. Skipping email confirmation.");
+            return;
+        }
 
-    //     try {
-    //         String url = emailServiceUrl + "/api/email/order-confirmation";
+        try {
+            String url = emailServiceUrl + "/api/email/order-confirmation";
 
-    //         Map<String, Object> emailRequest = new HashMap<>();
-    //         emailRequest.put("userId", userId);
-    //         emailRequest.put("orderId", orderId);
-    //         emailRequest.put("emailType", "ORDER_CONFIRMATION");
+            String content = String.format("Order ID: %d has been paid and pending shipping", orderId);
+            String emailAdd = "danielleong04@gmail.com";
+            String subject = String.format("Order Confirmation for Order ID: %d", orderId);
 
-    //         restTemplate.postForObject(url, emailRequest, Object.class);
-    //         log.info("Order confirmation email request sent for user: {}, order: {}", userId, orderId);
-    //     } catch (Exception e) {
-    //         // Log but don't fail the process
-    //         log.error("Failed to send order confirmation email. Error: {}", e.getMessage());
-    //     }
-    // }
+            Map<String, Object> emailRequest = new HashMap<>();
+            emailRequest.put("email_address", emailAdd);
+            emailRequest.put("subject", subject);
+            emailRequest.put("content", content);
+
+            restTemplate.postForObject(url, emailRequest, Object.class);
+            log.info("Order confirmation email request sent for user: {}, order: {}", userId, orderId);
+        } catch (Exception e) {
+            // Log but don't fail the process
+            log.error("Failed to send order confirmation email. Error: {}", e.getMessage());
+        }
+    }
 }

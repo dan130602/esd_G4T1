@@ -8,8 +8,8 @@ import lombok.Data;
 
 @Data
 public class CheckoutRequest {
-    private Integer user_id;
+    private String user_id;
 
-    // @JsonProperty("item")
-    private List<OrderItemDto> items;
+    // // @JsonProperty("item")
+    // private List<OrderItemDto> items;
 }

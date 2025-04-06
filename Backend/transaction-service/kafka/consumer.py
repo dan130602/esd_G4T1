@@ -31,7 +31,7 @@ def start_transaction_consumer():
                 data = json.loads(msg.value().decode('utf-8'))
                 logging.info(f"📩 Received transaction message: {data}")
 
-                user_id = int(data.get('user_id'))
+                user_id = data.get('user_id')
                 item_id = int(data.get('item_id'))
                 amount = float(data.get('amount'))
                 status = data.get('status', 'completed')

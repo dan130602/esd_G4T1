@@ -11,7 +11,7 @@ public class OrderResponse {
     private Integer order_id;
 
     // @JsonProperty("userId")
-    private Integer user_id;
+    private String user_id;
 
     private Double total_amount;
     private String status;

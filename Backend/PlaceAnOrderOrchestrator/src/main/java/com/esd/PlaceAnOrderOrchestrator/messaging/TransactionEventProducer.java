@@ -19,7 +19,7 @@ public class TransactionEventProducer {
         this.kafkaTemplate = kafkaTemplate;
     }
 
-    public void sendTransactionEvent(Integer userId, Integer itemId, String amount, String status) {
+    public void sendTransactionEvent(String userId, Integer itemId, String amount, String status) {
         Map<String, Object> transaction = new HashMap<>();
         transaction.put("user_id", userId);
         transaction.put("item_id", itemId);

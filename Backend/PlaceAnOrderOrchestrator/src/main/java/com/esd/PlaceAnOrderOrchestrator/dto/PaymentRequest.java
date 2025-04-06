@@ -9,7 +9,7 @@ import lombok.Data;
 @Data
 public class PaymentRequest {
     private Integer order_id;
-    private Integer user_id;
+    private String user_id;
     private Double total_amount;
 
     @JsonProperty("created")

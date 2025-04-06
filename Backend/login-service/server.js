@@ -40,27 +40,28 @@ pool.connect()
 
 // Register route
 app.post('/register', async (req, res) => {
-  const { email, full_name, password } = req.body;
+  const { token, full_name } = req.body;
+
   try {
+    // 1. Verify token from frontend
+    const decodedToken = await admin.auth().verifyIdToken(token);
+    const email = decodedToken.email;
+    const userId = decodedToken.uid;
+
+    // 2. Check if user already exists
     const existingUser = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
     if (existingUser.rows.length > 0) {
       return res.status(400).json({ message: 'Email already registered' });
     }
 
-    const userRecord = await admin.auth().createUser({
-      email,
-      password,
-      displayName: full_name,
-    });
-
-    const userId = userRecord.uid;
-
+    // 3. Save to PostgreSQL
     const insertResult = await pool.query(
       'INSERT INTO users (user_id, email, full_name) VALUES ($1, $2, $3) RETURNING *',
       [userId, email, full_name]
     );
 
     res.status(201).json({ message: 'User created successfully', user: insertResult.rows[0] });
+
   } catch (error) {
     console.error('Error registering user:', error);
     res.status(500).json({ message: 'Internal server error' });

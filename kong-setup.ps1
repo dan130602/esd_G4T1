@@ -94,24 +94,32 @@ Write-Host "✅ Kong setup complete!"
 # ----------------------------------
 
 Write-Host "Creating login-service..."
-Invoke-RestMethod -Method POST -Uri "http://localhost:8001/services" -Body @{
-    name = "login-service"
-    url  = "http://login-service:3000"
-} -ContentType "application/x-www-form-urlencoded"
+Invoke-RestMethod -Method POST -Uri "http://localhost:8001/services" `
+  -Body "name=login-service&url=http://login-service:3000" `
+  -ContentType "application/x-www-form-urlencoded"
 
-Write-Host "Creating POST route for /login-service..."
-Invoke-RestMethod -Method POST -Uri "http://localhost:8001/services/login-service/routes" -Body @{
-    name   = "login-route"
-    paths  = "/login-service"
-    methods = "POST"
-} -ContentType "application/x-www-form-urlencoded"
+Write-Host "Creating POST+OPTIONS route for /login-service..."
+$loginRouteBody = @"
+name=login-route&
+paths=/login-service&
+methods=POST&
+methods=OPTIONS
+"@ -replace "\s+", ""
+
+Invoke-RestMethod -Method POST -Uri "http://localhost:8001/services/login-service/routes" `
+  -Body $loginRouteBody `
+  -ContentType "application/x-www-form-urlencoded"
 
 Write-Host "Enabling CORS for login-service..."
 $loginPluginBody = @"
 name=cors&
 config.origins=* &
-config.methods=GET&config.methods=POST&config.methods=OPTIONS&
-config.headers=Accept&config.headers=Authorization&config.headers=Content-Type
+config.methods=GET&
+config.methods=POST&
+config.methods=OPTIONS&
+config.headers=Accept&
+config.headers=Authorization&
+config.headers=Content-Type
 "@ -replace "\s+", ""
 
 Invoke-RestMethod -Method POST -Uri "http://localhost:8001/services/login-service/plugins" `
@@ -119,3 +127,4 @@ Invoke-RestMethod -Method POST -Uri "http://localhost:8001/services/login-servic
   -ContentType "application/x-www-form-urlencoded"
 
 Write-Host "✅ login-service setup complete!"
+

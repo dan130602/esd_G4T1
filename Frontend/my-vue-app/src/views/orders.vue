@@ -29,20 +29,31 @@
       <br />
     </div>
   </section>
-  <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+  <!-- <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br> -->
 </template>
 
 <script>
+import { auth } from "../firebase.js";
+import { onAuthStateChanged } from "firebase/auth";
+
 export default {
   name: "orders",
   data() {
     return {
       orders: [],
-      userId: 4 // Replace with actual logged-in user ID later
+      userId: null // Replace with actual logged-in user ID later
     };
   },
   mounted() {
-    this.fetchOrders();
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        this.userId = user.uid;
+        console.log("User ID:", this.userId);
+        await this.fetchOrders(); // Only fetch after user is available
+      } else {
+        console.warn("No user is logged in.");
+      }
+    });
   },
   methods: {
     async fetchOrders() {

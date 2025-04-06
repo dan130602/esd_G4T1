@@ -15,7 +15,7 @@
         <div class="user-section">
           <div class="user-placeholder"></div>
 
-          <button class="profile-link" @click="toggleDropdown">
+          <button class="profile-link" @click.stop="toggleDropdown">
             <img
               src="https://cdn.builder.io/api/v1/image/assets/TEMP/9423b7a1e50c530ed32b04debed661499212d253fcafd6ec660b8c3ae4d217b4"
               class="profile-icon"
@@ -26,8 +26,8 @@
         </div>
 
         <!-- Keep this inside profile-wrapper so it positions correctly -->
-        <div v-if="showDropdown" class="dropdown-menu">
-          <button class="logout-button" @click.stop="handleLogout">Logout</button>
+        <div v-if="showDropdown" class="custom-dropdown-menu">
+          <button class="logout-button" @click="handleLogout">Logout</button>
         </div>
       </div>
 
@@ -45,6 +45,9 @@
         <router-link to="/cart">
           <div class="cart-section">
             <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/4c7960eeae22471aea522fff537b3c3a85b04b00ddc7584ec217757c8135ac11" class="cart-icon" alt="Shopping cart" />
+            <span class="cart-badge" v-if="cartState.totalQuantity > 0">
+              {{ cartState.totalQuantity }}
+            </span>
           </div>
         </router-link>
       </nav>
@@ -66,6 +69,12 @@
 
 <script>
 import { getAuth, signOut } from "firebase/auth";
+import { reactive } from 'vue';
+
+export const cartState = reactive({
+  totalQuantity: 0
+});
+
 export default {
   name: "Navbar",
   data() {
@@ -111,6 +120,7 @@ export default {
     async handleLogout() {
       const auth = getAuth();
       try {
+        console.log("Logging out...");
         await signOut(auth);
         this.$router.push("/login");
       } catch (error) {
@@ -456,7 +466,7 @@ export default {
       font-weight: 500;
     }
 
-    .dropdown-menu {
+    .custom-dropdown-menu {
       position: absolute;
       top: 100%;
       right: 0;

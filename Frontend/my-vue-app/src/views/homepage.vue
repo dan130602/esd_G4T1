@@ -24,7 +24,6 @@ export default {
   mounted(){
     const auth = getAuth();
     const user = auth.currentUser;
-    console.log(user)
   }
 };
 </script>

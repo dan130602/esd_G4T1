@@ -51,7 +51,7 @@ export default {
         }
 
         alert("Login successful!");
-        this.$router.push("/home");
+        this.$router.push("/homepage");
       } catch (err) {
         this.error = err.message;
       }

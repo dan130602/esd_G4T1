@@ -86,7 +86,7 @@ export default {
 };
 </script>
   
-  <style scoped>
+<style scoped>
 
 /* Orders Component Styles */
 .orders-container {
@@ -96,11 +96,13 @@ export default {
   flex-direction: column;
   overflow: hidden;
   align-items: center;
+  width:80%;
+  margin: auto;
 }
 
 .orders-wrapper {
   width: 100%;
-  max-width: 1248px;
+  /* max-width: 1248px; */
 }
 
 .order-item {

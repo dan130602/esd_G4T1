@@ -25,46 +25,45 @@ export default {
   },
   methods: {
     async handleRegister() {
-      this.error = "";
+  this.error = "";
 
-      if (!this.full_name || !this.email || !this.password) {
-        this.error = "All fields are required.";
-        return;
-      }
+  if (!this.full_name || !this.email || !this.password) {
+    this.error = "All fields are required.";
+    return;
+  }
 
-      try {
-        const userCredential = await createUserWithEmailAndPassword(auth, this.email, this.password);
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, this.email, this.password);
+    const token = await userCredential.user.getIdToken();
 
-        
-        await new Promise(resolve => setTimeout(resolve, 1000)); 
+    console.log("✅ Token received:", token); // ADD THIS
 
-        const token = await userCredential.user.getIdToken();
+    const response = await fetch("http://localhost:8000/login-service/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        email: this.email,
+        full_name: this.full_name,
+        token: token
+      })
+    });
 
-        const response = await fetch("http://localhost:8000/login-service/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: this.email,
-          full_name: this.full_name,
-          token: token
-        })
-      });
+    const data = await response.json();
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Registration failed");
-      }
-
-
-        alert("Registration successful!");
-        this.$router.push("/login");
-      } catch (err) {
-        this.error = err.message;
-      }
+    if (!response.ok) {
+      throw new Error(data.message || "Registration failed");
     }
+
+    alert("Registration successful!");
+    this.$router.push("/login");
+
+  } catch (err) {
+    console.error("❌ Registration error:", err);
+    this.error = err.message;
+  }
+}
   }
 };
 </script>

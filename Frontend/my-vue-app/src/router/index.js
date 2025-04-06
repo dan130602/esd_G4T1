@@ -61,11 +61,6 @@ const router = createRouter({
       meta: { hideNavbar: true } 
     },
     {
-      path: "/register",
-      name: "Register",
-      component: RegisterView
-    },
-    {
       path: '/supplier',
       name: 'supplier',
       component: supplier,

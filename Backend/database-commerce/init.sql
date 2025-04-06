@@ -92,6 +92,14 @@ CREATE TABLE supplier_returns (
     FOREIGN KEY (item_id) REFERENCES items(item_id) ON DELETE CASCADE
 );
 
+-- Users Table
+CREATE TABLE users (
+    user_id VARCHAR(128) PRIMARY KEY,  -- Use Firebase UID
+    email VARCHAR(255) UNIQUE NOT NULL,
+    full_name VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Create index on order_id in order_item table for faster lookups
 CREATE INDEX idx_order_item_order_id ON order_item(order_id);
 

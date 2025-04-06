@@ -192,7 +192,7 @@ Invoke-RestMethod -Method POST -Uri "http://localhost:8001/services/order-servic
 Write-Host "✅ order-service setup complete!"
 
 # ----------------------------------
-# NEW: PlaceAnOrderOrchestrator setup
+# PlaceAnOrderOrchestrator setup
 # ----------------------------------
 
 Write-Host "Creating place-order-orchestrator service..."
@@ -230,6 +230,7 @@ Invoke-RestMethod -Method POST -Uri "http://localhost:8001/services/place-order-
   -ContentType "application/x-www-form-urlencoded"
 
 Write-Host "✅ place-order-orchestrator setup complete!"
+
 Write-Host "Creating supplier-service..."
 Invoke-RestMethod -Method POST -Uri "http://localhost:8001/services" `
   -Body "name=supplier-service&url=http://supplier-service:3011" `
@@ -269,6 +270,7 @@ Invoke-RestMethod -Method POST -Uri "http://localhost:8001/services/supplier-ser
   -ContentType "application/x-www-form-urlencoded"
 
 Write-Host "✅ supplier-service setup complete!"
+
 Write-Host "Creating order-service..."
 Invoke-RestMethod -Method POST -Uri "http://localhost:8001/services" `
   -Body "name=order-service&url=http://order-service:5001" `

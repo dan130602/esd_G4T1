@@ -11,6 +11,8 @@
 import Navbar from '@/components/navbar.vue';
 import SwiperCarousel from '@/components/SwiperCarousel.vue';
 import ProductList from '@/components/ProductList.vue';
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+
 
 export default {
   name: 'homepage',
@@ -18,6 +20,10 @@ export default {
     Navbar,
     SwiperCarousel,
     ProductList
+  },
+  mounted(){
+    const auth = getAuth();
+    const user = auth.currentUser;
   }
 };
 </script>

@@ -1,17 +1,18 @@
 from app.messaging.kafka.producer import KafkaMessageProducer
 from app.messaging.schemas.payment_events_schemas import PaymentEventSchemas
 import logging
+logger = logging.getLogger('payment-service')
 
 class PaymentEventService:
     """Service for publishing payment-related events to Kafka"""
     
     @staticmethod
-    def publish_payment_completed(payment):
+    def publish_payment_completed(payment_dict):
         """
         Publish a payment.completed event to Kafka
         
         Args:
-            payment: The Payment model instance
+            payment: The Payment dictionary
             
         Returns:
             bool: True if successfully published, False otherwise
@@ -21,24 +22,27 @@ class PaymentEventService:
             producer = KafkaMessageProducer.get_instance()
             
             # Prepare the event payload using the schema
-            event = PaymentEventSchemas.payment_completed(payment)
+            event = PaymentEventSchemas.payment_completed(payment_dict)
+            logger.info(f"event: {event}")
             
             # Use order_id as the message key for partitioning
             # This ensures all events for the same order go to the same partition
-            key = str(payment.order_id)
+            key = str(payment_dict["order_id"])
+            logger.info(f"key: {key}")
             
             # Publish to the payment events topic
             result = producer.publish('payment-events', key, event)
+            logger.info(f"result: {result}")
             
             if result:
-                logging.info(f"Successfully published payment.completed event for order {payment.order_id}")
+                logger.info(f"Successfully published payment.completed event for order {payment_dict['order_id']}")
             else:
-                logging.error(f"Failed to publish payment.completed event for order {payment.order_id}")
+                logger.error(f"Failed to publish payment.completed event for order {payment_dict['order_id']}")
                 
             return result
             
         except Exception as e:
-            logging.error(f"Error publishing payment.completed event: {str(e)}")
+            logger.error(f"Error publishing payment.completed event: {str(e)}")
             return False
     
     @staticmethod
@@ -68,12 +72,12 @@ class PaymentEventService:
             result = producer.publish('payment-events', key, event)
             
             if result:
-                logging.info(f"Successfully published payment.failed event for order {order_id}")
+                logger.info(f"Successfully published payment.failed event for order {order_id}")
             else:
-                logging.error(f"Failed to publish payment.failed event for order {order_id}")
+                logger.error(f"Failed to publish payment.failed event for order {order_id}")
                 
             return result
             
         except Exception as e:
-            logging.error(f"Error publishing payment.failed event: {str(e)}")
+            logger.error(f"Error publishing payment.failed event: {str(e)}")
             return False

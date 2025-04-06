@@ -50,6 +50,23 @@ services:
       - internal_network
 
   #################################
+  # User Database
+  #################################
+  user-db:
+    container_name: user-db
+    build: ./backend/database-user
+    ports:
+      - "5437:5432"  # Host:Container
+    volumes:
+      - user_pgdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: user_db
+    networks:
+      - internal_network
+
+  #################################
   # Redis Service
   #################################
   redis:
@@ -87,14 +104,14 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      - commerce-db
+      - user-db
     environment:
       - NODE_ENV=production
-      - DB_HOST=commerce-db
+      - DB_HOST=user-db
       - DB_PORT=5432
       - DB_USER=user
       - DB_PASSWORD=password
-      - DB_NAME=commerce_db
+      - DB_NAME=user_db
     volumes:
       - ./backend/login-service/firebase-service-account.json:/usr/src/app/firebase-service-account.json
     networks:
@@ -184,7 +201,7 @@ services:
       - internal_network
 
   #################################
-  # Transaction Microservice
+  # Refund Orchestrator
   #################################
   refund-orchestrator:
     container_name: refund-orchestrator
@@ -312,8 +329,38 @@ services:
     depends_on:
       - commerce-db
       - error-db
+      - kafka
     env_file:
       - ./backend/payment-service/.env
+    networks:
+      - internal_network
+
+  #################################
+  # Place An Order Orchestrator
+  #################################
+  place-order-orchestrator:
+    container_name: place-order-orchestrator
+    build: ./Backend/PlaceAnOrderOrchestrator
+    ports:
+      - "5004:5004"  
+    depends_on:
+      - order-service
+      - shop-service
+      - payment-service
+      - cart-service
+      - transaction-service
+      - transaction-db
+      - kafka
+    environment:
+      - server.port=5004
+      - spring.kafka.bootstrap-servers=kafka:29092
+      - spring.kafka.consumer.group-id=orchestrator-group
+      - spring.kafka.consumer.auto-offset-reset=earliest
+      - service.order.url=http://order-service:5001
+      - service.shop.url=http://shop-service:3006
+      - service.payment.url=http://payment-service:5002
+      - service.transaction.url=http://transaction-service:3009
+      - service.cart.url=http://cart-service:3007
     networks:
       - internal_network
   
@@ -323,6 +370,8 @@ volumes:
   error_pgdata:
     driver: local
   transaction_pgdata:
+    driver: local
+  user_pgdata:
     driver: local
   redis-data:
     driver: local

@@ -29,7 +29,7 @@ class OrderService:
     def create_order(self, data):
         try:
             new_order = Order(
-                user_id = data.get('userId'),
+                user_id = data.get('user_id'),
                 total_amount = 0.0,
                 status = 'NEW'
             )
@@ -39,13 +39,13 @@ class OrderService:
             
             total_amount = 0.0
             
-            items_data = data.get('item', [])
+            items_data = data.get('items', [])
             if isinstance(items_data, dict): 
                 items_data = [items_data]
             
             for item_data in items_data:
-                if 'item_id' not in item_data or 'price' not in item_data or 'quantity' not in item_data:
-                    raise ValueError(f"{item_data.get('item_name', 'Item')} has missing required item fields (id, price, quantity)")
+                if 'item_id' not in item_data or 'item_price' not in item_data or 'quantity' not in item_data:
+                    raise ValueError(f"{item_data.get('item_name', 'Item')} has missing required item fields (item_id, item_price, quantity)")
 
                 # Get and validate quantity
                 quantity = item_data.get('quantity')
@@ -62,20 +62,20 @@ class OrderService:
                 
                 # Get and validate price
                 try:
-                    unit_price = float(item_data.get('price'))
-                    if unit_price < 0:
+                    item_price = float(item_data.get('item_price'))
+                    if item_price < 0:
                         raise ValueError(f"Price for {item_data.get('item_name', 'Item')} cannot be negative")
                 except (ValueError, TypeError):
                     raise ValueError(f"Price for {item_data.get('item_name', 'Item')} must be a valid number")
                 
-                order_item_subtotal = quantity * unit_price
+                order_item_subtotal = quantity * item_price
                 
                 order_item = Order_Item(
                     order_id = new_order.order_id,
-                    product_id = item_data.get('item_id'),
-                    product_name = item_data.get('item_name', 'Unknown Product'),
+                    item_id = item_data.get('item_id'),
+                    item_name = item_data.get('item_name', 'Unknown Product'),
                     quantity = quantity,
-                    unit_price = unit_price,
+                    item_price = item_price,
                     order_item_subtotal = order_item_subtotal
                 )
                 

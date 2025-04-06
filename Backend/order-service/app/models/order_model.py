@@ -6,7 +6,7 @@ class Order(db.Model):
     __tablename__ = 'orders'
 
     order_id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, nullable=False)
+    user_id = db.Column(db.String(129), nullable=False)
     total_amount = db.Column(db.Numeric(10, 2), nullable=False)
     status = db.Column(db.String(10), nullable=False)
     created = db.Column(db.DateTime, nullable=False, default=datetime.now)
@@ -30,12 +30,12 @@ class Order_Item(db.Model):
     __tablename__ = 'order_item'
 
     id = db.Column(db.Integer, primary_key=True)
-    product_id = db.Column(db.Integer, nullable=False)
-    product_name = db.Column(db.String(255), nullable=False)
+    item_id = db.Column(db.Integer, nullable=False)
+    item_name = db.Column(db.String(255), nullable=False)
     order_id = db.Column(db.ForeignKey(
         'orders.order_id', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, index=True)
     quantity = db.Column(db.Integer, nullable=False)
-    unit_price = db.Column(db.Numeric(10, 2), nullable=False)
+    item_price = db.Column(db.Numeric(10, 2), nullable=False)
     order_item_subtotal = db.Column(db.Numeric(10, 2), nullable=False)
 
     order = db.relationship('Order', back_populates='items')
@@ -44,11 +44,11 @@ class Order_Item(db.Model):
     def to_dict(self):
         return {
             'id': self.id, 
-            'product_id': self.product_id,
-            'product_name': self.product_name,
+            'item_id': self.item_id,
+            'item_name': self.item_name,
             'order_id': self.order_id, 
             'quantity': self.quantity, 
-            'unit_price': self.unit_price,
+            'item_price': self.item_price,
             'order_item_subtotal': self.order_item_subtotal
         }
         

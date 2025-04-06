@@ -43,8 +43,8 @@ class Payment(db.Model):
             "payment_method": self.payment_method,
             "stripe_payment_intent_id": self.stripe_payment_intent_id,
             "stripe_session_id": self.stripe_session_id,
-            "created_at": self.created_at,
-            "updated_at": self.updated_at
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }
 
 class PaymentItem(db.Model):
@@ -52,11 +52,11 @@ class PaymentItem(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     payment_id = db.Column(db.Integer, db.ForeignKey('payment.payment_id'), nullable=False)
-    product_id = db.Column(db.String(100), nullable=True)  # External product reference
+    item_id = db.Column(db.String(100), nullable=True)  # External product reference
     name = db.Column(db.String(255), nullable=False)
     description = db.Column(db.Text, nullable=True)
     quantity = db.Column(db.Integer, nullable=False, default=1)
-    unit_price = db.Column(db.Float, nullable=False)
+    item_price = db.Column(db.Float, nullable=False)
     total_price = db.Column(db.Float, nullable=False)  # unit_price * quantity
     
     # Stripe specific fields
@@ -74,11 +74,11 @@ class PaymentItem(db.Model):
         return {
             "id": self.id,
             "payment_id": self.payment_id,
-            "product_id": self.product_id,
+            "item_id": self.item_id,
             "name": self.name,
             "description": self.description,
             "quantity": self.quantity,
-            "unit_price": self.unit_price,
+            "item_price": self.item_price,
             "total_price": self.total_price,
             "stripe_price_id": self.stripe_price_id,
             "stripe_product_id": self.stripe_product_id,

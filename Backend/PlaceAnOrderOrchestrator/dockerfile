@@ -1,0 +1,11 @@
+# Choose Java version - specify 21 if you built with Java 21
+FROM eclipse-temurin:21-jdk
+
+# Set working directory
+WORKDIR /app
+
+# Copy the JAR file (adjust the file name to match your JAR)
+COPY target/PlaceAnOrderOrchestrator-0.0.1-SNAPSHOT.jar app.jar
+
+# Command to run the application
+ENTRYPOINT ["java", "-jar", "app.jar"]

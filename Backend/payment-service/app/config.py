@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class Config: 
-    ORCHESTRATOR_SERVICE_URL = os.getenv('ORCHESTRATOR_SERVICE_URL', 'http://orchestrator-service:5004')
+    ORCHESTRATOR_SERVICE_URL = os.getenv('ORCHESTRATOR_SERVICE_URL', 'http://place-order-orchestrator:5004')
     
     STRIPE_API_KEY = os.getenv('STRIPE_API_KEY', 'sk_test_yourTestKeyHere')
     STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET', 'whsec_yourTestKeyHere')
@@ -31,7 +31,7 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # Kafka Configuration
-    KAFKA_BOOTSTRAP_SERVERS = os.getenv('KAFKA_BOOTSTRAP_SERVERS', 'localhost:9092')
+    KAFKA_BOOTSTRAP_SERVERS = os.getenv('KAFKA_BOOTSTRAP_SERVERS', 'kafka:29092')
     KAFKA_CLIENT_ID = os.getenv('KAFKA_CLIENT_ID', 'payment-service')
     
     # Define whether to use Kafka or HTTP for inter-service communication

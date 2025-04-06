@@ -11,14 +11,27 @@
           <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/7fd684adc611365d7308647bd9dc358ae5124183bb73acd2e565687394b2b56c" class="dropdown-arrow" alt="Dropdown arrow" /> -->
         </div>
       </div>
-      <div class="user-section">
-        <div class="user-placeholder"></div>
-        <div class="profile-link">
-          <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/9423b7a1e50c530ed32b04debed661499212d253fcafd6ec660b8c3ae4d217b4" class="profile-icon" alt="Profile icon" />
-          <span>My profile</span>
+      <div class="profile-wrapper">
+        <div class="user-section">
+          <div class="user-placeholder"></div>
+
+          <button class="profile-link" @click.stop="toggleDropdown">
+            <img
+              src="https://cdn.builder.io/api/v1/image/assets/TEMP/9423b7a1e50c530ed32b04debed661499212d253fcafd6ec660b8c3ae4d217b4"
+              class="profile-icon"
+              alt="Profile icon"
+            />
+            <span>My profile</span>
+          </button>
+        </div>
+
+        <!-- Keep this inside profile-wrapper so it positions correctly -->
+        <div v-if="showDropdown" class="custom-dropdown-menu">
+          <button class="logout-button" @click="handleLogout">Logout</button>
         </div>
       </div>
-    </div>
+
+      </div>
     <div class="main-nav">
       <div class="logo-container">
         <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/118c29b5408696791199f48dac9da4393149099f78b1f8facb2795216aae3b4a" class="logo-image" alt="E-Comm logo" />
@@ -32,6 +45,9 @@
         <router-link to="/cart">
           <div class="cart-section">
             <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/4c7960eeae22471aea522fff537b3c3a85b04b00ddc7584ec217757c8135ac11" class="cart-icon" alt="Shopping cart" />
+            <span class="cart-badge" v-if="cartState.totalQuantity > 0">
+              {{ cartState.totalQuantity }}
+            </span>
           </div>
         </router-link>
       </nav>
@@ -52,8 +68,20 @@
 </template>
 
 <script>
+import { getAuth, signOut } from "firebase/auth";
+import { reactive } from 'vue';
+
+export const cartState = reactive({
+  totalQuantity: 0
+});
+
 export default {
   name: "Navbar",
+  data() {
+    return {
+      showDropdown: false,
+    };
+  },
   computed: {
     breadcrumbs() {
       // Split the current route path to create breadcrumb items
@@ -85,7 +113,20 @@ export default {
         // Add more mapping as needed
       };
       return breadcrumbMap[part] || part.charAt(0).toUpperCase() + part.slice(1); // Default to the URL part if no match
-    }
+    },
+    toggleDropdown() {
+      this.showDropdown = !this.showDropdown;
+    },
+    async handleLogout() {
+      const auth = getAuth();
+      try {
+        console.log("Logging out...");
+        await signOut(auth);
+        this.$router.push("/login");
+      } catch (error) {
+        console.error("Logout failed:", error);
+      }
+    },
   }
 };
 </script>
@@ -194,6 +235,7 @@ export default {
       align-items: stretch;
       gap: 35px;
       color: #262626;
+      position: relative;
     }
   
     .user-placeholder {
@@ -205,11 +247,21 @@ export default {
     }
   
     .profile-link {
-      align-self: start;
       display: flex;
-      margin-top: 9px;
-      align-items: stretch;
+      align-items: center;
       gap: 7px;
+      background: none;
+      border: none;
+      font-size: 16px;
+      color: #262626;
+      cursor: pointer;
+      padding: 6px 10px;
+      border-radius: 6px;
+      transition: background-color 0.2s ease;
+    }
+
+    .profile-link:hover {
+      background-color: #f1f1f1;
     }
   
     .profile-icon {
@@ -412,6 +464,36 @@ export default {
         Helvetica,
         sans-serif;
       font-weight: 500;
+    }
+
+    .custom-dropdown-menu {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background: white;
+      border: 1px solid #ddd;
+      padding: 10px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      z-index: 10;
+    }
+
+    .logout-button {
+      background: none;
+      border: none;
+      color: #e63946;
+      font-weight: 500;
+      cursor: pointer;
+      padding: 5px 10px;
+      font-size: 14px;
+    }
+
+    .logout-button:hover {
+      background-color: #f8d7da;
+      border-radius: 4px;
+    }
+    .profile-wrapper {
+      position: relative;
+      display: inline-block;
     }
   </style>
   

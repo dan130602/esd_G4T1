@@ -1,5 +1,11 @@
 <template>
   <main class="cart">
+    <div
+      v-if="notification.show"
+      :class="['notification', `notification-${notification.type}`]"
+    >
+      {{ notification.message }}
+    </div>
     <section class="cart-container">
       <header class="cart-header">
         <h2 class="product-label">Product</h2>
@@ -65,6 +71,11 @@ export default {
       cartItems: [],
       subtotal: 0,
       shipping: 20,
+      notification: {
+        show: false,
+        message: "",
+        type: "error"
+      }
     };
   },
   async mounted() {
@@ -140,6 +151,17 @@ export default {
     }
   },
 
+  showNotification(message, type = "error") {
+    this.notification.show = true;
+    this.notification.message = message;
+    this.notification.type = type;
+    
+    // Auto-hide after 3 seconds
+    setTimeout(() => {
+      this.notification.show = false;
+    }, 3000);
+  },
+
   async initiateCheckout() {
     try {
       const userId = this.userId;
@@ -151,14 +173,37 @@ export default {
 
       console.log(response.data);
 
+      // Check if the request was successful
+      if (response.data.success === false) {
+        let errorMessage = "Checkout failed";
+        
+        // Map of error codes 
+        const errorMessages = {
+          400: "Insufficient stock for items in your cart",
+          401: "Unauthorized access",
+          403: "Forbidden",
+          404: "Service not found",
+          500: "Internal server error"
+        };
+        
+        if (response.data.code && errorMessages[response.data.code]) {
+          errorMessage = errorMessages[response.data.code];
+        }
+        
+        // Show notification
+        this.showNotification(errorMessage);
+        return;
+      }
+
       if (response.data.checkout_url) {
         // Redirect to the Stripe checkout page
         window.location.href = response.data.checkout_url;
       } else {
-        console.error('No checkout URL received');
+        console.error('Checkout error, missing Stripe URL', response.data.message);
       }
     } catch (err) {
       console.error('Error processing checkout:', err);
+      this.showNotification("Error connecting to checkout service");
     }
   },
   updateCartQuantity() {
@@ -317,5 +362,40 @@ export default {
 .checkout-text {
   position: relative;
   z-index: 1;
+}
+
+.notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 15px 20px;
+  border-radius: 4px;
+  color: white;
+  font-weight: 500;
+  z-index: 1000;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  animation: slide-in 0.3s ease-out, fade-out 0.5s ease-out 2.5s forwards;
+}
+
+.notification-error {
+  background-color: #f44336;
+}
+
+.notification-success {
+  background-color: #4CAF50;
+}
+
+.notification-warning {
+  background-color: #ff9800;
+}
+
+@keyframes slide-in {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
 }
 </style>

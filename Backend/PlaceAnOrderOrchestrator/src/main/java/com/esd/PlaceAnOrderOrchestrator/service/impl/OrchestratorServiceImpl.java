@@ -87,16 +87,13 @@ public class OrchestratorServiceImpl implements OrchestratorService {
                 boolean updateItemQuantityResponse = updateStock(orderResponse); 
                 
                 if (!updateItemQuantityResponse) {
-                    updateOrderStatus(orderResponse, OrderStatus.PAID);
+                    updateOrderStatus(orderResponse, OrderStatus.PAYMENT_FAILED);
                     return createFailedResponse(400, "STOCK_UPDATE_FAILED");
                 }
 
                 // 4. Initiate payment in Payment service
                 PaymentResponse paymentResponse = initiatePayment(orderResponse);
                 log.info("Payment initiated, checkout URL: {}", paymentResponse.getCheckout_url());
-
-                //Update order status
-                // updateOrderStatus(orderResponse, OrderStatus.PAID);
 
                 return paymentResponse;
             } else { // 2.2 if not, reject order
@@ -258,15 +255,41 @@ public class OrchestratorServiceImpl implements OrchestratorService {
         boolean allUpdatesSuccessful = true;
 
         for (OrderItemDto item : orderResponse.getItems()) {
-            String putItemFromShopURL = shopServiceUrl + "/shop/" + item.getItem_id();
-            
-            StockUpdateRequest updateRequest = new StockUpdateRequest();
-            updateRequest.setItem_quantity(item.getQuantity());
-
             try {
-                restTemplate.put(putItemFromShopURL, updateRequest);
+                // 1. Get current stock quantity
+                String getItemUrl = shopServiceUrl + "/shop/" + item.getItem_id();
+                ItemResponse itemResponse = restTemplate.getForObject(getItemUrl, ItemResponse.class);
+
+                if (itemResponse == null) {
+                    log.error("Failed to retrieve current stock for item id: {}", item.getItem_id());
+                    allUpdatesSuccessful = false;
+                    return false;
+                }
+
+                // 2. Calculate new quantity
+                int currentQuantity = itemResponse.getItem_stock_quantity();
+                int orderQuantity = item.getQuantity();
+                int newQuantity = currentQuantity - orderQuantity;
+
+                if (newQuantity < 0) {
+                    log.error("Calculated negative stock for item id: {}", item.getItem_id());
+                    allUpdatesSuccessful = false;
+                    return false;
+                }
+
+                // 3. Update with new quantity
+                String putItemUrl = shopServiceUrl + "/shop/" + item.getItem_id();
+
+                // Create a map that matches the shop service's model field names
+                Map<String, Object> updateRequest = new HashMap<>();
+                updateRequest.put("quantity", newQuantity);
+
+                restTemplate.put(putItemUrl, updateRequest);
+                log.info("Updated item name: {} id: {} stock from {} to {}",
+                        item.getItem_name(), item.getItem_id(), currentQuantity, newQuantity);
             } catch (Exception e) {
-                log.warn("Failed to update item name: {} id: {}.", item.getItem_name(), item.getItem_id());
+                log.warn("Failed to update item name: {} id: {}. Error: {}",
+                        item.getItem_name(), item.getItem_id(), e.getMessage());
                 allUpdatesSuccessful = false;
             }
         }
@@ -414,7 +437,7 @@ public class OrchestratorServiceImpl implements OrchestratorService {
         }
 
         try {
-            String emailAdd = "danielleong04@gmail.com"; 
+            String emailAdd = "danielleong02@gmail.com"; 
 
             // Try to get user email from login service
             try {

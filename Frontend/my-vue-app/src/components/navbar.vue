@@ -35,19 +35,16 @@
     <div class="main-nav">
       <div class="logo-container">
         <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/118c29b5408696791199f48dac9da4393149099f78b1f8facb2795216aae3b4a" class="logo-image" alt="E-Comm logo" />
-        <span class="logo-text">Shoplio</span>
+        <span class="logo-text">SHOPLIO</span>
       </div>
       <nav class="navigation">
         <div class="nav-links">
           <router-link to="/homepage" class="nav-link" active-class="active">HOME</router-link>
-          <router-link to="/orders" class="nav-link" active-class="active">ORDERS</router-link>
+          <router-link to="/orders" class="nav-link" active-class="active">ORDER HISTORY</router-link>
         </div>
         <router-link to="/cart">
           <div class="cart-section">
             <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/4c7960eeae22471aea522fff537b3c3a85b04b00ddc7584ec217757c8135ac11" class="cart-icon" alt="Shopping cart" />
-            <!-- <span class="cart-badge" v-if="cartState.totalQuantity > 0">
-              {{ cartState.totalQuantity }}
-            </span> -->
           </div>
         </router-link>
       </nav>

@@ -66,17 +66,54 @@ const removeItemFromCart = async (userId, itemId, decreaseBy) => {
     }
 };
 
+// const sendToOrder = async (userId) => {
+//     try {
+//         const cartKey = `cart:${userId}`;
+//         let cart = await client.get(cartKey);
+//         cart = cart ? JSON.parse(cart) : [];
+//         let cartJson = cart[0]
+//         console.log(cartJson)
+
+//         // Send cart to order service
+//         const response = await axios.post('http://order-service:5001/api/order', { user_id: userId, items: cartJson });
+//         console.log(response.data)
+//         // Clear the cart after sending
+//         await client.del(cartKey);
+
+//         return response.data;
+//     } catch (err) {
+//         console.error("Error in sendToOrder:", err);
+//         return false;
+//     }
+// }
+
 const sendToOrder = async (userId) => {
     try {
         const cartKey = `cart:${userId}`;
         let cart = await client.get(cartKey);
         cart = cart ? JSON.parse(cart) : [];
-        let cartJson = cart[0]
-        console.log(cartJson)
 
-        // Send cart to order service
-        const response = await axios.post('http://order-service:5001/api/order', { userId: userId, item: cartJson });
-        console.log(response.data)
+        // Make sure we have items in the cart
+        if (cart.length === 0) {
+            return { error: "Cart is empty" };
+        }
+
+        // Modify the cart items to match the order service's expected format
+        const formattedCart = cart.map(item => ({
+            item_id: item.item_id,
+            item_name: item.item_name,
+            item_price: item.price,  // Rename price to item_price if needed
+            quantity: item.quantity
+        }));
+
+        // Send cart to order service (properly formatted as an array)
+        const response = await axios.post('http://order-service:5001/api/order', {
+            user_id: userId,
+            items: formattedCart  // Send the entire array, not just the first item
+        });
+
+        console.log(response.data);
+
         // Clear the cart after sending
         await client.del(cartKey);
 

@@ -60,7 +60,8 @@ export const addToOrder = async (req, res) => {
 
 
 		const updatedCart = await sendToOrder(userId);
-		res.json({ success: true, cart: updatedCart });
+		// res.json({ success: true, cart: updatedCart });
+		res.json(updatedCart);
 	} catch (error) {
 		console.error("Error adding to cart:", error);
 		res.status(500).json({ error: "Internal Server Error" });

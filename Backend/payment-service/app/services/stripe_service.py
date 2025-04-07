@@ -29,7 +29,7 @@ class StripeService:
     #         print(f"Error logging failed: {str(log_error)}")
     #     finally:
     #         error_session.close()
-
+ 
     @staticmethod
     def _log_error(exception, module="Payment - Stripe Service", event_type=None, event_id=None, additional_info=None):
         """Unified error logging for all Stripe service errors"""
@@ -65,7 +65,44 @@ class StripeService:
                 logging.error(f"Event type: {event_type}, Event ID: {event_id}")
         finally:
             error_session.close()
+    
+    #Fallback HTTP method if Kafka does not send event.
+    @staticmethod
+    def _notify_orchestrator(payment_dict):
+        try: 
+            import requests
+            orch_url = Config.ORCHESTRATOR_SERVICE_URL
+            webhook_endpoint = f"{orch_url}/api/place-an-order/payment-webhook"
             
+            # Payload similar to Kafka event schema
+            payload = {
+                "event_type": "payment.completed",
+                "data" : {
+                    "payment_id" : payment_dict["payment_id"],
+                    "order_id" : payment_dict["order_id"],
+                    "status" : "succeeded"
+                }
+            }
+            
+            #Send POST request to orch
+            response = requests.post(
+                webhook_endpoint,
+                json=payload,
+                headers={'Content-Type': 'application/json'},
+                timeout=5
+            )
+            
+            if response.status_code == 200:
+                logging.info(f"Successfully notified place-order-orchestrator via HTTP for order {payment_dict['order_id']}")
+                return True
+            else:
+                logging.error(f"Failed to notify place-order-orchestrator via HTTP. Status code: {response.status_code}.")
+                return False
+            
+        except Exception as e:
+            logging.error(f"Error notifying place-order-orchestrator via HTTP. {str(e)}")
+            return False
+           
     # @staticmethod
     # def create_payment_intent(data): 
     #     try:
@@ -102,16 +139,16 @@ class StripeService:
             if 'items' in data and isinstance(data['items'], list):
                 for item in data['items']:
                     product = stripe.Product.create(
-                        name=item['name'],
+                        name=item['item_name'],
                     )
                     
                     price = stripe.Price.create(
                         product=product.id,
-                        unit_amount=int(float(item['unit_price'])*100),
+                        unit_amount=int(float(item['item_price'])*100),
                         currency="sgd"
                     )
                     
-                    item_id = item.get('id') or str(hash(item['name']))
+                    item_id = item.get('id') or str(hash(item['item_name']))
                     item_stripe_data[item_id] = {
                         'stripe_product_id': product.id,
                         'stripe_price_id': price.id,
@@ -181,17 +218,17 @@ class StripeService:
             # Create payment items model if we have multiple items
             if 'items' in data and isinstance(data['items'], list):
                 for item in data['items']:
-                    item_id = item.get('id') or str(hash(item['name']))
+                    item_id = item.get('id') or str(hash(item['item_name']))
                     stripe_data = item_stripe_data.get(item_id, {})    
                     
                     payment_item = PaymentItem(
                         payment_id=payment.payment_id,
-                        product_id=item.get('product_id'),
-                        name=item['name'],
+                        item_id=item.get('item_id'),
+                        name=item['item_name'],
                         description=item.get('description'),
                         quantity=item.get('quantity', 1),
-                        unit_price=float(item['unit_price']),
-                        total_price=float(item['unit_price']) * item.get('quantity', 1),
+                        item_price=float(item['item_price']),
+                        total_price=float(item['item_price']) * item.get('quantity', 1),
                         stripe_price_id=stripe_data.get('stripe_price_id'),  # From your Stripe price creation
                         stripe_product_id=stripe_data.get('stripe_product_id')  # From your Stripe product creation
                     )
@@ -228,23 +265,17 @@ class StripeService:
             
             if event_type == 'checkout.session.completed':
                 session = event['data']['object']
-                
-                # print("=== Checkout Session Completed ===")
-                # print(f"Order ID: {session.metadata.get('order_id')}")
-                # print(f"Customer ID: {session.metadata.get('user_id')}")
-                # print(f"Amount: {session.amount_total / 100} {session.currency}")
-                # print(f"Payment Intent: {session.payment_intent}")
-                
+                              
                 logger.info("=== Checkout Session Completed ===")
                 logger.info(f"Order ID: {session.metadata.get('order_id')}")
                 logger.info(f"User ID: {session.metadata.get('user_id')}")
                 logger.info(f"Amount: {session.amount_total / 100} {session.currency}")
                 
-                '''print("\nOrchestrator would:")
-                print("1. Update order status to 'paid'")
-                print("2. Finalize inventory in shop service")
-                print("3. Send payment confirmation email")
-                print("4. Record transaction in transaction service")'''
+                '''Orchestrator would:
+                1. Update order status to 'paid'
+                2. Finalize inventory in shop service
+                3. Send payment confirmation email"
+                4. Record transaction in transaction service'''
 
                 order_id = session.metadata.get('order_id')
                 user_id = session.metadata.get('user_id')
@@ -265,17 +296,17 @@ class StripeService:
                 
                     # print(f"Payment status updated to completed for session: {session.id}")
                     logger.info(f"Payment status updated to completed for session: {session.id}")
-                    return True
+                    # return True
                 
-                # Check for duplicate payment
-                existing_payment = Payment.query.filter_by(
-                    stripe_payment_intent_id=session.payment_intent
-                ).first()
+                # # Check for duplicate payment
+                # existing_payment = Payment.query.filter_by(
+                #     stripe_payment_intent_id=session.payment_intent
+                # ).first()
             
-                if existing_payment:
-                    # print(f"Payment already processed: {session.payment_intent}")
-                    logger.info(f"Payment already processed: {session.payment_intent}")
-                    return True
+                # if existing_payment:
+                #     # print(f"Payment already processed: {session.payment_intent}")
+                #     logger.info(f"Payment already processed: {session.payment_intent}")
+                #     return True
                 
                 try: 
                     payment = Payment(
@@ -296,14 +327,26 @@ class StripeService:
                     
                     #publish event to Kafka to alert Orchestrator
                     if Config.USE_MESSAGING:
+                        logger.info(f"Trying to push event via kafka.")
+                        
+                        from app.messaging.kafka.producer import KafkaMessageProducer
+                        logger.info(f"USE_MESSAGING: {Config.USE_MESSAGING}")
+                        kafka_producer = KafkaMessageProducer.get_instance()
+                        logger.info(f"Kafka producer initialized. Connected: {kafka_producer.connected}")
+                        
                         from app.messaging.payment_events import PaymentEventService
                         
                         # Publish the payment completed event
-                        PaymentEventService.publish_payment_completed(payment)
+                        result = PaymentEventService.publish_payment_completed(payment.to_dict())
+                        logger.info(f"Result: {result}")
+                        logger.info(f"Event pushed to Kafka.")
                     else:
                         # HTTP notification for backward compatibility
                         if hasattr(Config, 'ORCHESTRATOR_SERVICE_URL'):
-                            StripeService._notify_orchestrator(payment)
+                            StripeService._notify_orchestrator(payment.to_dict())
+                            logger.info(f"Event pushed via HTTP to place-order-orchestrator.")
+                        else:
+                            logger.info(f"Event not pushed via any means.")
                 except Exception as db_error:
                     StripeService._log_error(
                         db_error,
@@ -315,7 +358,7 @@ class StripeService:
                             "order_id": order_id
                         }
                     )
-                    raise
+                    logger.error(f"Error: {db_error}")
                 return True
             
             elif event_type == 'payment_intent.payment_failed':

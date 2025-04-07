@@ -9,29 +9,29 @@ class PaymentEventSchemas:
         Schema for payment.completed event
         
         Args:
-            payment: The Payment model instance
+            payment: The Payment dictionary
             
         Returns:
             dict: Standardized event payload
         """
         return {
-            'event_id': f"pmt-{payment.payment_id}-{int(datetime.now().timestamp())}",
+            'event_id': f"pmt-{payment['payment_id']}-{int(datetime.now().timestamp())}",
             'event_type': 'payment.completed',
             'event_version': '1.0',
             'occurred_at': datetime.now().isoformat(),
             'data': {
-                'payment_id': payment.payment_id,
-                'order_id': payment.order_id,
-                'customer_id': payment.customer_id,
-                'amount': float(payment.amount),
-                'currency': payment.currency,
-                'status': payment.status,
-                'payment_method': payment.payment_method,
-                'created_at': payment.created_at.isoformat() if payment.created_at else None
+                'payment_id': payment['payment_id'],
+                'order_id': payment['order_id'],
+                'user_id': payment['user_id'],
+                'amount': float(payment['amount']),
+                'currency': payment['currency'],
+                'status': payment['status'],
+                'payment_method': payment['payment_method'],
+                'created_at': payment['created_at'].isoformat() if isinstance(payment['created_at'], datetime) else payment['created_at']
             },
             'metadata': {
                 'source': 'payment_service',
-                'correlation_id': str(payment.order_id)
+                'correlation_id': str(payment['order_id'])
             }
         }
     

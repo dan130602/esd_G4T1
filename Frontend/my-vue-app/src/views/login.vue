@@ -18,7 +18,7 @@
     </button>
 
     <p class="toggle-text">
-      <span v-if="!isRegister">Don't have an account?</span>
+      <span v-if="!isRegister">Don’t have an account?</span>
       <span v-else>Already have an account?</span>
       <a href="#" @click.prevent="toggleMode">
         {{ isRegister ? "Login here" : "Register here" }}
@@ -55,24 +55,18 @@ export default {
     async handleLogin() {
       this.error = "";
       if (!this.email || !this.password) {
-        this.error = "Email and password are required.";
+        this.error = "Both fields are required.";
         return;
       }
 
       this.isLoading = true;
       try {
-        const userCredential = await signInWithEmailAndPassword(
-          auth,
-          this.email,
-          this.password
-        );
+        const userCredential = await signInWithEmailAndPassword(auth, this.email, this.password);
         const token = await userCredential.user.getIdToken();
 
         const response = await fetch("http://localhost:8000/login-service/login", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ token })
         });
 
@@ -95,27 +89,15 @@ export default {
 
       this.isLoading = true;
       try {
-        const userCredential = await createUserWithEmailAndPassword(
-          auth,
-          this.email,
-          this.password
-        );
-
-        await updateProfile(userCredential.user, {
-          displayName: this.fullName
-        });
+        const userCredential = await createUserWithEmailAndPassword(auth, this.email, this.password);
+        await updateProfile(userCredential.user, { displayName: this.fullName });
 
         const token = await userCredential.user.getIdToken();
 
         const response = await fetch("http://localhost:8000/login-service/register", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            token,
-            full_name: this.fullName
-          })
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token, full_name: this.fullName, email: this.email })
         });
 
         const data = await response.json();
@@ -139,8 +121,7 @@ export default {
   border-radius: 10px;
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
   width: 300px;
-  margin: auto;
-  margin-top: 100px;
+  margin: 100px auto;
 }
 
 .login-container h2 {
@@ -165,7 +146,6 @@ export default {
   border-radius: 5px;
   font-size: 16px;
   cursor: pointer;
-  transition: background 0.3s ease;
 }
 
 .login-container button:hover:enabled {

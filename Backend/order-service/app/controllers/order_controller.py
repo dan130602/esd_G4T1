@@ -12,8 +12,8 @@ class OrderController:
         if not data: 
             return jsonify({"error": "Invalid JSON payload"}), 400
         
-        if 'userId' not in data or 'item' not in data:
-            return jsonify({"error": "Missing required fields (userId or item)"}), 400
+        if 'user_id' not in data or 'items' not in data:
+            return jsonify({"error": "Missing required fields (user_id or items)"}), 400
         
         try:    
             order_creation = self.order_service.create_order(data)

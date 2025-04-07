@@ -135,10 +135,10 @@ VALUES
     (2, 'Smartphone', 2, 1, 500.00, 500.00),
     (3, 'Headphones', 2, 2, 150.00, 300.00);
 
--- Order 3: Customer 2's processing order
-INSERT INTO order_item (item_id, item_name, order_id, quantity, item_price, order_item_subtotal)
-VALUES 
-    (3, 'Headphones', 2, 2, 150.00, 300.00);
+-- -- Order 3: Customer 2's processing order
+-- INSERT INTO order_item (item_id, item_name, order_id, quantity, item_price, order_item_subtotal)
+-- VALUES 
+--     (3, 'Headphones', 2, 2, 150.00, 300.00);
 
 -- Order 4: Customer 3's shipped order
 INSERT INTO order_item (item_id, item_name, order_id, quantity, item_price, order_item_subtotal)

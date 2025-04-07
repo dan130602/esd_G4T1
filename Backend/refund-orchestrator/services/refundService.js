@@ -2,7 +2,7 @@ import axios from 'axios';
 import { API_URLS } from '../urls/apiUrls.js'; // Import API URLs
 import { sendTransaction } from '../kafka/producer.js'; // Import Kafka producer
 
-export const processRefund = async (userId, orderId, refundAmount, reason) => {
+export const processRefund = async (userId, orderId, reason, itemIds) => {
     try {
         // Step 1: Check if the order is valid
         let url = `${API_URLS.orderService}/user/${userId}/order/${orderId}`
@@ -12,16 +12,21 @@ export const processRefund = async (userId, orderId, refundAmount, reason) => {
         if (orderResponse.status !== 200) {
             return { success: false, message: 'Invalid order ID' };
         }
+        const itemsToRefund = orderItems.filter(item => itemIds.includes(item.item_id));
+
+        if (itemsToRefund.length === 0) {
+          return { success: false, message: 'No valid items to refund' };
+        }
         // Step 2: Verify with the supplier service
         try {
           const supplierUrl = `${API_URLS.supplierService}/create`;
-          for (let i = 0; i < orderItems.length; i++) {
+          for (let i = 0; i < itemsToRefund.length; i++) {
             const item = orderItems[i];
-            const item_id = item.product_id
+            const item_id = item.item_id
             const user_id = userId
             const orderDataJSON = {
                 order_id: orderId,
-                item_id,
+                item_id: item_id,
                 user_id,
                 state_of_good: "used",
                 return_status: "PENDING",

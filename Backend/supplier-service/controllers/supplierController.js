@@ -52,7 +52,6 @@ export const rejectReturnRequestController = async (req, res) => {
         await sendRefundStatus({
             returnId: return_id,
             status: 'rejected',
-            reason: reason,
             timestamp: new Date().toISOString()
           });
 

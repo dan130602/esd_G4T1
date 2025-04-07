@@ -13,6 +13,7 @@
         <thead class="table-dark">
           <tr>
             <th>Refund</th>
+            <th>Product ID</th>
             <th>Product Name</th>
             <th>Quantity</th>
             <th>Subtotal ($)</th>
@@ -21,14 +22,25 @@
         <tbody>
           <tr v-for="item in order.items" :key="item.id">
             <td>
-              <input type="checkbox" v-model="item.selectedForRefund" />
+              <input type="checkbox" v-model="item.selectedForRefund" :disabled="item.refunded || order.status === 'processing'"/>
             </td>
-            <td>{{ item.product_name }}</td>
+            <td>{{ item.item_id }}</td>  
+            <td>{{ item.item_name }}</td>
             <td>{{ item.quantity }}</td>
             <td>{{ item.order_item_subtotal }}</td>
+            <td>
+              <button
+                class="btn btn-sm btn-warning"
+                @click="openItemRefundModal(order, item)"
+                :disabled="item.refunded || order.status === 'processing'"
+              >
+                {{ item.refunded ? "Refunded" : "Refund" }}
+              </button>
+            </td>
+
           </tr>
           <tr :class="order.status === 'processing' ? 'table-success' : 'table-primary'">
-            <td colspan="2"><strong>Status:</strong> {{ order.status }}</td>
+            <td colspan="3"><strong>Status:</strong> {{ order.status }}</td>
             <td><strong>Total:</strong></td>
             <td><strong>{{ order.total_amount }} $</strong></td>
           </tr>
@@ -55,6 +67,31 @@
     </div>
   </div>
   </section>
+
+
+  <div class="modal fade" id="refundModal" tabindex="-1" aria-labelledby="refundModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="refundModalLabel">Refund Reason</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <input
+            type="text"
+            class="form-control"
+            v-model="selectedItemReason"
+            placeholder="Enter reason for refund"
+          />
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-danger" @click="confirmItemRefund">Submit Refund</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </template>
 
 
@@ -62,70 +99,82 @@
 <script>
 import { auth } from "../firebase.js";
 import { onAuthStateChanged } from "firebase/auth";
+import * as bootstrap from 'bootstrap/dist/js/bootstrap.bundle.min.js';
+window.bootstrap = bootstrap;
 
 export default {
   name: "orders",
   data() {
     return {
       orders: [],
-      userId: null
+      userId: null,
+      loading: true,
+      selectedOrder: null,
+      selectedItem: null,
+      selectedItemReason: ""
+
     };
   },
   mounted() {
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         this.userId = user.uid;
+        console.log(this.userId)
         await this.fetchOrders();
       }
     });
   },
   methods: {
     async fetchOrders() {
-      this.loading = true;
       try {
         const response = await fetch(`http://localhost:8000/api/order/user/${this.userId}`);
         const data = await response.json();
 
         // Add reactive fields
         this.orders = data.orders.map(order => ({
-          ...order,
-          refundReason: "",
-          refundProcessing: false,
-          refundSent: false,
-          items: order.items.map(item => ({
-            ...item,
-            selectedForRefund: false
-          }))
-        }));
+            ...order,
+            refundReason: "",
+            refundProcessing: false,
+            refundSent: false,
+            items: order.items.map(item => ({
+              ...item,
+              selectedForRefund: false,
+              refunded: false 
+            }))
+          }));
+
         this.loading = false;
 
       } catch (error) {
         console.error("Failed to fetch orders:", error);
       }
     },
-    async requestRefund(order) {
-      const selectedItems = order.items.filter(item => item.selectedForRefund);
-      if (selectedItems.length === 0) {
-        alert("Please select at least one item to refund.");
-        return;
+    openItemRefundModal(order, item) {
+      this.selectedOrder = order;
+      this.selectedItem = item;
+      this.selectedItemReason = "";
+
+      const modalEl = document.getElementById("refundModal");
+      if (window.bootstrap && modalEl) {
+        const modal = new window.bootstrap.Modal(modalEl);
+        modal.show();
+      } else {
+        alert("Bootstrap modal library not found.");
       }
-      if (!order.refundReason.trim()) {
+    },
+
+    async confirmItemRefund() {
+      if (!this.selectedItemReason.trim()) {
         alert("Please enter a reason for refund.");
         return;
       }
 
-      const refundAmount = selectedItems.reduce((sum, item) => {
-        return sum + parseFloat(item.order_item_subtotal);
-      }, 0);
-
       const payload = {
         userId: this.userId,
-        orderId: order.order_id,
-        refundAmount,
-        reason: order.refundReason
+        orderId: this.selectedOrder.order_id,
+        itemIds: [this.selectedItem.item_id],
+        reason: this.selectedItemReason
       };
-      console.log(payload)
-      order.refundProcessing = true;
 
       try {
         const res = await fetch("http://localhost:8000/refunds/refunds", {
@@ -136,37 +185,29 @@ export default {
           body: JSON.stringify(payload)
         });
 
-        const data = await res.json();
-
         if (res.ok) {
-          order.refundReason = "";
-          order.items.forEach(item => (item.selectedForRefund = false));
-          order.refundSent = true;
+          this.selectedItem.refunded = true;
+          this.selectedItem.selectedForRefund = false;
+          this.selectedItemReason = "";
+          const updateOrderStatus = await fetch(`http://localhost:8000/api/order/${this.selectedOrder.order_id}/status`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ status: "processing" })
+          });
+          if (updateOrderStatus.ok) {
+            console.log("Order status updated to processing.");
+          }
+          const modalEl = document.getElementById("refundModal");
+          bootstrap.Modal.getInstance(modalEl).hide();
         } else {
-          alert(data.message || "Refund failed.");
+          alert("Failed to refund item.");
         }
-
-        const orderPayload = {
-          status: "processing",
-        } 
-        console.log(orderPayload)
-        let orderUrl = `http://localhost:8000/api/order/${order.order_id}/status`;
-        const updateOrder = await fetch(orderUrl, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(orderPayload)
-        });
-        const orderData = await updateOrder.json();
       } catch (err) {
-        console.error("Refund error:", err);
-        alert("Something went wrong.");
-      } finally {
-        order.refundProcessing = false;
-
+        console.error("Item refund failed:", err);
+        alert("An error occurred.");
       }
     }
+
 
 
   }

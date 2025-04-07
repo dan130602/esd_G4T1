@@ -1,5 +1,9 @@
 <template>
+  
   <section class="returns-container">
+    <div class="supplier-header">
+      <h2>Supplier Returns</h2>
+    </div>
     <div class="returns-wrapper">
       <div v-if="loading" class="spinner-container">
         <div class="spinner"></div>
@@ -15,11 +19,12 @@
               <p><strong>User ID:</strong> {{ item.user_id }}</p>
               <p><strong>State of Good:</strong> {{ item.state_of_good }}</p>
               <p><strong>Status:</strong> {{ item.return_status }}</p>
+              <p><strong>Reason:</strong> {{ item.reason }}</p>
               <p><strong>Created At:</strong> {{ formatDate(item.created_at) }}</p>
             </div>
           </div>
           <div class="return-actions">
-            <button class="accept-button" @click="handleAccept(item.return_id)">Approve</button>
+            <button class="accept-button" @click="handleAccept(item.return_id, item.item_id)">Approve</button>
             <button class="deny-button" @click="handleDeny(item.return_id)">Deny</button>
           </div>
         </div>
@@ -41,13 +46,13 @@ export default {
     formatDate(dateString) {
       return new Date(dateString).toLocaleString();
     },
-    async handleAccept(returnId) {
-      await this.updateReturnStatus(returnId, "approved");
+    async handleAccept(returnId, itemId) {
+      await this.updateReturnStatus(returnId, "approved", itemId);
     },
     async handleDeny(returnId) {
       await this.updateReturnStatus(returnId, "rejected");
     },
-    async updateReturnStatus(returnId, status) {
+    async updateReturnStatus(returnId, status, itemId) {
       try {
         if (status == "approved"){
           const res = await fetch(`http://localhost:8000/supplier/approve/${returnId}`, {
@@ -55,7 +60,7 @@ export default {
             headers: {
               'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ return_status: status })
+            body: JSON.stringify({ return_status: status, item_id: itemId })
           });
           console.log(res)
           if (!res.ok) throw new Error(`Failed to update return status`);
@@ -64,6 +69,7 @@ export default {
           console.log("Updated return:", updated);
           this.fetchReturns(); // Refresh the list
         }else if (status == "rejected"){
+          console.log(status)
           const res = await fetch(`http://localhost:8000/supplier/reject/${returnId}`, {
             method: 'PUT',
             headers: {
@@ -82,15 +88,24 @@ export default {
       } catch (err) {
         console.error(`Error updating return ${returnId}:`, err);
       }
-    }
+    },
+    async fetchReturns() {
+      try {
+        this.loading = false;
+        const res = await fetch("http://localhost:8000/supplier");
+        if (!res.ok) throw new Error("Failed to fetch returns");
+        const data = await res.json();
+        this.returns = data; // array of orders
+      } catch (err) {
+        console.error("Failed to fetch returns:", err);
+      }
+    },
 
   },
+  
   async mounted() {
     try {
-      const res = await fetch("http://localhost:8000/supplier");
-      const data = await res.json();
-      this.loading = false;
-      this.returns = data; // array of orders
+      await this.fetchReturns();
     } catch (err) {
       console.error("Failed to fetch orders:", err);
     }
@@ -98,6 +113,20 @@ export default {
 };
 </script>
 <style scoped>
+
+.supplier-header {
+  border-bottom: 2px solid #007bff;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.supplier-header h2 {
+  color: #007bff;
+  font-weight: 600;
+  font-size: 28px;
+  margin: 0;
+}
 
 .spinner-container {
   display: flex;

@@ -45,9 +45,9 @@
         <router-link to="/cart">
           <div class="cart-section">
             <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/4c7960eeae22471aea522fff537b3c3a85b04b00ddc7584ec217757c8135ac11" class="cart-icon" alt="Shopping cart" />
-            <span class="cart-badge" v-if="cartState.totalQuantity > 0">
+            <!-- <span class="cart-badge" v-if="cartState.totalQuantity > 0">
               {{ cartState.totalQuantity }}
-            </span>
+            </span> -->
           </div>
         </router-link>
       </nav>
@@ -69,12 +69,6 @@
 
 <script>
 import { getAuth, signOut } from "firebase/auth";
-import { reactive } from 'vue';
-
-export const cartState = reactive({
-  totalQuantity: 0
-});
-
 export default {
   name: "Navbar",
   data() {

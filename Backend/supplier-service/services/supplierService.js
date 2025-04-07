@@ -57,12 +57,9 @@ const approveReturnRequest = async (return_id,item_id) => {
 
 }
 
-const rejectReturnRequest = async (return_id, givenReason) => {
-    if (!givenReason) {
-        throw new Error("Rejection reason is required.");
-    }
+const rejectReturnRequest = async (return_id) => {
     return await Supplier.update(
-        { return_status: "rejected" , reason: givenReason, updated_at: new Date() },   
+        { return_status: "rejected" , updated_at: new Date() },   
         { where: { return_id }, returning: true }
     );
 }

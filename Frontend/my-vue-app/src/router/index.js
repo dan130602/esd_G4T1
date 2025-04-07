@@ -51,7 +51,7 @@ const router = createRouter({
       path: '/supplier',
       name: 'supplier',
       component: supplier,
-      // meta: { requiresAuth: true, hideNavbar: true }
+      meta: { hideNavbar: true }
     },
     {
       path: '/login',

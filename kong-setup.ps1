@@ -175,14 +175,15 @@ Invoke-RestMethod -Method POST -Uri "http://localhost:8001/services" `
 
 Write-Host "Creating GET and POST route for /api/order..."
 Invoke-RestMethod -Method POST -Uri "http://localhost:8001/services/order-service/routes" `
-  -Body "name=order-route&paths=/api/order&strip_path=false&methods=GET&methods=POST" `
+  -Body "name=order-route&paths=/api/order&strip_path=false&methods=GET&methods=POST&methods=PUT&methods=DELETE" `
   -ContentType "application/x-www-form-urlencoded"
 
 Write-Host "Enabling CORS for order-service..."
 $ordersPluginBody = @"
 name=cors&
 config.origins=* &
-config.methods=GET&config.methods=POST&
+config.methods=GET&config.methods=POST&config.methods=PUT&
+config.methods=DELETE&
 config.headers=Accept&config.headers=Authorization&config.headers=Content-Type
 "@ -replace "\s+", ""
 

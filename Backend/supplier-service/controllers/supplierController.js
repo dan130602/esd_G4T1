@@ -45,8 +45,7 @@ export const approveReturnRequestController  = async (req, res) => {
 export const rejectReturnRequestController = async (req, res) => {
     try {
         const { return_id } = req.params;
-        const { reason } = req.body;
-        const updatedReturnRequest = await rejectReturnRequest(return_id, reason);
+        const updatedReturnRequest = await rejectReturnRequest(return_id);
         if (!updatedReturnRequest)
             return res.status(404).json({ error: "Return request not found" });
 

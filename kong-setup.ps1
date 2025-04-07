@@ -115,7 +115,8 @@ $loginRouteBody = @"
 name=login-route&
 paths=/login-service&
 methods=POST&
-methods=OPTIONS
+methods=OPTIONS&
+methods=GET
 "@ -replace "\s+", ""
 
 Invoke-RestMethod -Method POST -Uri "http://localhost:8001/services/login-service/routes" `

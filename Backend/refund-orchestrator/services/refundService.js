@@ -60,7 +60,7 @@ export const handleRefundStatus = async (status, user_id, item_id, refundAmount,
     }
 
     // Step 5: Send email
-    const emailResult = await sendRefundEmail();
+    const emailResult = await sendRefundEmail(user_id);
     if (!emailResult.success) {
       return emailResult; 
     }
@@ -103,13 +103,18 @@ async function processRefundToStripe(orderId, refundAmount) {
   }
 }
 
-async function sendRefundEmail() {
+async function sendRefundEmail(user_id) {
   try {
+    // get email
+    let findEmailUrl = `${API_URLS.loginService}/user-info/${user_id}`;
+    const findEmailResponse = await axios.get(findEmailUrl);
+    const email = findEmailResponse.data.user.email; 
+
     let emailUrl = `${API_URLS.emailService}`;
     const emailResponse = await axios.post(emailUrl, {
-      email_address: "danielleong02@gmail.com", // New field for email address
-      subject: "Refund Successful",
-      message: "Refund successful!",
+      email_address: email, // New field for email address
+      subject: "Refund Successful", 
+      content: "Refund is successful!",
     });
     if (emailResponse.status !== 200) {
       return { success: false, message: 'Failed to send email' };

@@ -41,10 +41,8 @@ import axios from 'axios';
 import { auth } from "../firebase.js";
 import { onAuthStateChanged } from "firebase/auth";
 import { reactive } from 'vue';
+import { cartState } from '../cartState.js'; // adjust the path if needed
 
-export const cartState = reactive({
-  totalQuantity: 0
-});
 
 export default {
   name: 'ProductList',

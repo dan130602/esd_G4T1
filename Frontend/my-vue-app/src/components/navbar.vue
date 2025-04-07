@@ -43,8 +43,15 @@
           <router-link to="/orders" class="nav-link" active-class="active">ORDER HISTORY</router-link>
         </div>
         <router-link to="/cart">
-          <div class="cart-section">
+          <div class="cart-section position-relative">
             <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/4c7960eeae22471aea522fff537b3c3a85b04b00ddc7584ec217757c8135ac11" class="cart-icon" alt="Shopping cart" />
+            <span
+      v-if="cartQuantity > 0"
+      class="cart-badge position-absolute top-0 start-100 translate-middle badge rounded-pill bg-info"
+      style="font-size: 0.75rem;"
+    >
+      {{ cartQuantity }}
+    </span>
           </div>
         </router-link>
       </nav>
@@ -66,6 +73,8 @@
 
 <script>
 import { getAuth, signOut } from "firebase/auth";
+import { cartState } from '../cartState.js';
+
 export default {
   name: "Navbar",
   data() {
@@ -91,7 +100,10 @@ export default {
       
 
       return breadcrumbs;
-    }
+    },
+    cartQuantity() {
+    return cartState.totalQuantity;
+  }
   },
   methods: {
     getBreadcrumbText(part) {
@@ -113,6 +125,11 @@ export default {
       try {
         console.log("Logging out...");
         await signOut(auth);
+        // ✅ Reset cart state
+    cartState.totalQuantity = 0;
+
+// ✅ Clear localStorage (if you're persisting cart data)
+localStorage.removeItem('cartQuantity');
         this.$router.push("/login");
       } catch (error) {
         console.error("Logout failed:", error);

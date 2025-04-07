@@ -80,11 +80,8 @@ import { reactive } from 'vue';
 import Navbar from '@/components/navbar.vue';
 import SwiperCarousel from '@/components/SwiperCarousel.vue';
 import ProductList from '@/components/ProductList.vue';
+import { cartState } from '../cartState.js'; // adjust the path if needed
 
-// Shared reactive cart state
-export const cartState = reactive({
-  totalQuantity: 0
-});
 
 export default {
   name: 'ProductList',

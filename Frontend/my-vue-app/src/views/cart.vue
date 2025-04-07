@@ -55,6 +55,8 @@
 import axios from 'axios';
 import { auth } from "../firebase.js";
 import { onAuthStateChanged } from "firebase/auth";
+import { cartState } from '../cartState.js';
+
 
 export default {
   name: "cart",
@@ -71,6 +73,8 @@ export default {
         this.userId = user.uid;
         const res = await axios.get(`http://localhost:8000/cart-api/cart/${this.userId}`);
         this.cartItems = res.data.cart;
+        this.updateCartQuantity();
+
         this.calculateSubtotal();
       }
     });
@@ -101,7 +105,11 @@ export default {
       });
 
       product.quantity += 1;
+      
+
       this.calculateSubtotal();
+      this.updateCartQuantity();
+
     } catch (err) {
       console.error('Error increasing quantity:', err);
     }
@@ -125,6 +133,8 @@ export default {
       }
 
       this.calculateSubtotal();
+      this.updateCartQuantity();
+
     } catch (err) {
       console.error('Error decreasing quantity:', err);
     }
@@ -150,7 +160,11 @@ export default {
     } catch (err) {
       console.error('Error processing checkout:', err);
     }
-  }
+  },
+  updateCartQuantity() {
+  const items = this.cartItems || [];
+  cartState.totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
+}
 }
 
 };

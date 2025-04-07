@@ -42,6 +42,34 @@
       </div>
     </div>
   </div>
+  <!-- Toast Notification -->
+<div
+  class="toast-container position-fixed top-0 end-0 p-3"
+  style="z-index: 1100"
+>
+  <div
+    id="cartToast"
+    class="toast align-items-center text-white bg-info border-0"
+    role="alert"
+    aria-live="assertive"
+    aria-atomic="true"
+    ref="cartToast"
+  >
+    <div class="d-flex">
+      <div class="toast-body" ref="toastBody">
+        Product added to cart!
+      </div>
+      <button
+        type="button"
+        class="btn-close btn-close-white me-2 m-auto"
+        data-bs-dismiss="toast"
+        aria-label="Close"
+      ></button>
+    </div>
+  </div>
+</div>
+
+
 </template>
 
 <script>
@@ -119,6 +147,37 @@ export default {
 
         if (res.data.success) {
           cartState.totalQuantity += item.quantity;
+
+          const toastBody = this.$refs.toastBody;
+
+  // Clear previous content
+  toastBody.textContent = '';
+
+  // Build message using DOM nodes
+  toastBody.append(
+    document.createTextNode('Added '),
+
+    (() => {
+      const qtySpan = document.createElement('span');
+      qtySpan.textContent = `${item.quantity}× `;
+      qtySpan.style.fontWeight = 'bold';
+      return qtySpan;
+    })(),
+
+    (() => {
+      const nameSpan = document.createElement('span');
+      nameSpan.textContent = `"${item.item_name}"`;
+      nameSpan.style.fontWeight = 'bold';
+      return nameSpan;
+    })(),
+
+    document.createTextNode(' to cart.')
+  );
+
+      // Show toast notification
+      const toastEl = this.$refs.cartToast;
+      const toast = new bootstrap.Toast(toastEl);
+      toast.show();
         } else {
           console.error('Failed to add item.');
         }

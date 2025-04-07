@@ -18,9 +18,9 @@
       return {
         modules: [Navigation, Pagination, Autoplay],
         slides: [
-          { image: '/Images/JETech Magnetic Case for iPhone 14 6.1-Inch (Black) $16.99.jpg', text: 'Magnetic Case for iPhone 14' },
-          { image: '/Images/Men\'s Casual Sports Shoes Soft Breathable Running Shoes $28.75.webp', text: 'Men\'s Casual Sports Shoes' },
-          { image: '/Images/Sports Tee Workout Tops $6.5.webp', text: 'Sports Tee' }
+          { image: '../public/images/headphones.jpg' , text: 'Headphones' },
+          { image: '../public/images/laptop.jpg', text: 'Laptop' },
+          { image: '../public/images/smartphone.jpg', text: 'Smartphone' }
         ]
       }
     }

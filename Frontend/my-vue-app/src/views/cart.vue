@@ -61,6 +61,8 @@
 
 <script>
 import axios from 'axios';
+import { auth } from "../firebase.js";
+import { onAuthStateChanged } from "firebase/auth";
 
 export default {
   name: "cart",
@@ -72,14 +74,14 @@ export default {
     };
   },
   async mounted() {
-    try {
-      const userId = 4; // Example; replace with actual logic
-      const res = await axios.get(`http://localhost:8000/cart-api/cart/${userId}`);
-      this.cartItems = res.data.cart;
-      this.calculateSubtotal();
-    } catch (err) {
-      console.error("Error loading cart:", err);
-    }
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        this.userId = user.uid;
+        const res = await axios.get(`http://localhost:8000/cart-api/cart/${this.userId}`);
+        this.cartItems = res.data.cart;
+        this.calculateSubtotal();
+      }
+    });
   },
   methods: {
   calculateSubtotal() {
@@ -92,7 +94,7 @@ export default {
 
   async increaseQuantity(product) {
     try {
-      const userId = 4;
+      const userId = this.userId
       const item = {
         item_id: product.item_id,
         item_name: product.product_name,
@@ -115,7 +117,7 @@ export default {
 
   async decreaseQuantity(product) {
     try {
-      const userId = 4;
+      const userId = this.userId;
 
       await axios.post('http://localhost:8000/cart-api/remove-from-cart', {
         userId,

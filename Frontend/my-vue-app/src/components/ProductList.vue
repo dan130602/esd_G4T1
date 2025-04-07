@@ -101,13 +101,13 @@ export default {
         });
 
         if (res.data.success) {
-          alert(`Added ${item.quantity} x ${item.item_name} to cart!`);
+          // Increment cartState total quantity
+          cartState.totalQuantity += item.quantity;
         } else {
-          alert('Failed to add item.');
+          console.error('Failed to add item.');
         }
       } catch (err) {
         console.error('Add to cart error:', err);
-        alert('Something went wrong.');
       }
     },
     getProductImage(product) {

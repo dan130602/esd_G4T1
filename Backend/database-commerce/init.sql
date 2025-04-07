@@ -43,6 +43,7 @@ CREATE TABLE order_item (
     quantity INTEGER NOT NULL,
     item_price NUMERIC(10, 2) NOT NULL,
     order_item_subtotal NUMERIC(10, 2) NOT NULL,
+    refund boolean DEFAULT false,
     FOREIGN KEY (item_id) REFERENCES items(item_id)
 );
 
@@ -124,16 +125,16 @@ VALUES
 
 -- Insert order items for each order
 -- Order 1: Customer 1's new order
-INSERT INTO order_item (item_id, item_name, order_id, quantity, item_price, order_item_subtotal)
+INSERT INTO order_item (item_id, item_name, order_id, quantity, item_price, order_item_subtotal, refund)
 VALUES 
-    (1, 'Laptop', 1, 1, 1000.00, 1000.00),
-    (3, 'Headphones', 1, 1, 150.00, 150.00);
+    (1, 'Laptop', 1, 1, 1000.00, 1000.00, false),
+    (3, 'Headphones', 1, 1, 150.00, 150.00, false);
 
 -- Order 2: Customer 1's paid order
-INSERT INTO order_item (item_id, item_name, order_id, quantity, item_price, order_item_subtotal)
+INSERT INTO order_item (item_id, item_name, order_id, quantity, item_price, order_item_subtotal, refund)
 VALUES 
-    (2, 'Smartphone', 2, 1, 500.00, 500.00),
-    (3, 'Headphones', 2, 2, 150.00, 300.00);
+    (2, 'Smartphone', 2, 1, 500.00, 500.00, false),
+    (3, 'Headphones', 2, 2, 150.00, 300.00, false);
 
 -- -- Order 3: Customer 2's processing order
 -- INSERT INTO order_item (item_id, item_name, order_id, quantity, item_price, order_item_subtotal)
@@ -141,23 +142,23 @@ VALUES
 --     (3, 'Headphones', 2, 2, 150.00, 300.00);
 
 -- Order 4: Customer 3's shipped order
-INSERT INTO order_item (item_id, item_name, order_id, quantity, item_price, order_item_subtotal)
+INSERT INTO order_item (item_id, item_name, order_id, quantity, item_price, order_item_subtotal, refund)
 VALUES 
-    (2, 'Smartphone', 3, 1, 500.00, 500.00);
+    (2, 'Smartphone', 3, 1, 500.00, 500.00, false);
 
 -- Order 5: Customer 3's delivered order
-INSERT INTO order_item (item_id, item_name, order_id, quantity, item_price, order_item_subtotal)
+INSERT INTO order_item (item_id, item_name, order_id, quantity, item_price, order_item_subtotal, refund)
 VALUES 
-    (1, 'Laptop', 3, 1, 1000.00, 1000.00);
+    (1, 'Laptop', 3, 1, 1000.00, 1000.00, false);
 
 -- order 5: 
-INSERT INTO order_item (item_id, item_name, order_id, quantity, item_price, order_item_subtotal)
+INSERT INTO order_item (item_id, item_name, order_id, quantity, item_price, order_item_subtotal, refund)
 VALUES 
-    (1, 'Laptop', 5, 2, 1000.00, 1000.00);
+    (1, 'Laptop', 5, 2, 1000.00, 1000.00, false);
 
-INSERT INTO order_item (item_id, item_name, order_id, quantity, item_price, order_item_subtotal)
+INSERT INTO order_item (item_id, item_name, order_id, quantity, item_price, order_item_subtotal, refund)
 VALUES 
-    (2, 'Smartphone', 4, 1, 500.00, 500.00);
+    (2, 'Smartphone', 4, 1, 500.00, 500.00, false);
 
 
 -- Payment table testing data

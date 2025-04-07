@@ -37,6 +37,7 @@ class Order_Item(db.Model):
     quantity = db.Column(db.Integer, nullable=False)
     item_price = db.Column(db.Numeric(10, 2), nullable=False)
     order_item_subtotal = db.Column(db.Numeric(10, 2), nullable=False)
+    refund = db.Column(db.Boolean, nullable=False, default=False)
 
     order = db.relationship('Order', back_populates='items')
 
@@ -49,7 +50,8 @@ class Order_Item(db.Model):
             'order_id': self.order_id, 
             'quantity': self.quantity, 
             'item_price': self.item_price,
-            'order_item_subtotal': self.order_item_subtotal
+            'order_item_subtotal': self.order_item_subtotal,
+            'refund': self.refund
         }
         
 class Order_Error(db.Model):

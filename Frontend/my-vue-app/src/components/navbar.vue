@@ -35,7 +35,7 @@
     <div class="main-nav">
       <div class="logo-container">
         <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/118c29b5408696791199f48dac9da4393149099f78b1f8facb2795216aae3b4a" class="logo-image" alt="E-Comm logo" />
-        <span class="logo-text">E-Comm</span>
+        <span class="logo-text">Shoplio</span>
       </div>
       <nav class="navigation">
         <div class="nav-links">

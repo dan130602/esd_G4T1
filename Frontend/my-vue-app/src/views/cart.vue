@@ -36,12 +36,14 @@
           <div class="total-container">
             <h4 class="total-label">Total: ${{ subtotal }}</h4>
           </div>
-          <router-link to="/payment">
-            <button class="checkout-button">
-              <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/b1666fd7f55ef234c2e69ee00a809da2536067b72809a56a84141179f90e5508?placeholderIfAbsent=true" alt="Checkout" class="checkout-button-bg" />
-              <span class="checkout-text">Check out</span>
-            </button>
-          </router-link>
+          <!-- <router-link to="/payment"> -->
+          <button class="checkout-button" @click="initiateCheckout()">
+            
+            <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/b1666fd7f55ef234c2e69ee00a809da2536067b72809a56a84141179f90e5508?placeholderIfAbsent=true" alt="Checkout button background" class="checkout-button-bg" />
+            
+            <span class="checkout-text">Check out</span>
+          </button>
+          <!-- </router-link> -->
         </div>
       </section>
     </section>
@@ -125,6 +127,28 @@ export default {
       this.calculateSubtotal();
     } catch (err) {
       console.error('Error decreasing quantity:', err);
+    }
+  },
+
+  async initiateCheckout() {
+    try {
+      const userId = this.userId;
+
+      const response = await axios.post('http://localhost:8000/place-order/checkout', 
+        {user_id : userId },
+        { headers : {'Content-Type' : 'application/json'}}
+      );
+
+      console.log(response.data);
+
+      if (response.data.checkout_url) {
+        // Redirect to the Stripe checkout page
+        window.location.href = response.data.checkout_url;
+      } else {
+        console.error('No checkout URL received');
+      }
+    } catch (err) {
+      console.error('Error processing checkout:', err);
     }
   }
 }

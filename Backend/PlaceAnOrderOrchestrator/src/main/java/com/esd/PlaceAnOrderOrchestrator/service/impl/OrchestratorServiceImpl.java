@@ -55,6 +55,9 @@ public class OrchestratorServiceImpl implements OrchestratorService {
     @Value("${service.email.url:}") 
     private String emailServiceUrl;
 
+    @Value("${service.login.url:}")
+    private String loginServiceUrl;
+
     public OrchestratorServiceImpl(RestTemplate restTemplate, TransactionEventProducer transactionEventProducer) {
         this.restTemplate = restTemplate;
         this.transactionEventProducer = transactionEventProducer;
@@ -411,10 +414,27 @@ public class OrchestratorServiceImpl implements OrchestratorService {
         }
 
         try {
-            String url = emailServiceUrl + "/api/email/order-confirmation";
+            String emailAdd = "danielleong04@gmail.com"; 
+
+            // Try to get user email from login service
+            try {
+                String userInfoUrl = loginServiceUrl + "/user-info/" + userId;
+                HashMap<String, Object> userInfo = restTemplate.getForObject(userInfoUrl, HashMap.class);
+
+                // Only update email if we successfully got user info with an email
+                if (userInfo != null && userInfo.get("user") != null) {
+                    @SuppressWarnings("unchecked")
+                    HashMap<String, Object> user = (HashMap<String, Object>) userInfo.get("user");
+                    if (user.get("email") != null) {
+                        emailAdd = (String) user.get("email");
+                    }
+                }
+            } catch (Exception ex) {
+                // Log but continue with default email
+                log.warn("Could not retrieve user email from login service: {}", ex.getMessage());
+            }        
 
             String content = String.format("Order ID: %d has been paid and pending shipping", orderId);
-            String emailAdd = "danielleong04@gmail.com";
             String subject = String.format("Order Confirmation for Order ID: %d", orderId);
 
             Map<String, Object> emailRequest = new HashMap<>();
@@ -422,7 +442,7 @@ public class OrchestratorServiceImpl implements OrchestratorService {
             emailRequest.put("subject", subject);
             emailRequest.put("content", content);
 
-            restTemplate.postForObject(url, emailRequest, Object.class);
+            restTemplate.postForObject(emailServiceUrl, emailRequest, Object.class);
             log.info("Order confirmation email request sent for user: {}, order: {}", userId, orderId);
         } catch (Exception e) {
             // Log but don't fail the process

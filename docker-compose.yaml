@@ -361,6 +361,8 @@ services:
       - service.payment.url=http://payment-service:5002
       - service.transaction.url=http://transaction-service:3009
       - service.cart.url=http://cart-service:3007
+      - service.email.url=https://personal-qudnugcq.outsystemscloud.com/SendEmail2/rest/SendEmailAPI/SendEmail
+      - service.login.url=http://login-service:3000
     networks:
       - internal_network
   

@@ -102,7 +102,7 @@ const sendToOrder = async (userId) => {
         const formattedCart = cart.map(item => ({
             item_id: item.item_id,
             item_name: item.item_name,
-            item_price: item.price,  // Rename price to item_price if needed
+            item_price: item.unit_price,  // Rename price to item_price if needed
             quantity: item.quantity
         }));
 

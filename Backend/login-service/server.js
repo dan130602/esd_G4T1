@@ -99,6 +99,27 @@ app.post('/login', async (req, res) => {
   }
 });
 
+// Get user info by user ID
+app.get('/user-info/:userId', async (req, res) => {
+  const userId = req.params.userId;
+
+  try {
+    const result = await pool.query('SELECT * FROM users WHERE user_id = $1', [userId]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    return res.status(200).json({
+      user: result.rows[0]
+    });
+
+  } catch (error) {
+    console.error('❌ User info lookup failed:', error.message);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
 // Ping route
 app.get("/", (req, res) => {
   res.send("Hello from the login service!");

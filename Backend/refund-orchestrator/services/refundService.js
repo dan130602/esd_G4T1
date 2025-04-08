@@ -73,8 +73,7 @@ export const handleRefundStatus = async (status, user_id, item_id, refundAmount,
     // Maybe notify user or log the reason
     console.log(status,user_id,item_id,refundAmount,orderId + " line 74")
     console.log("processing rejection")
-    console.log(`[Orchestrator] Refund ${returnId} rejected: ${reason}`);
-    const emailResult = await sendRefundEmail(user_id, item_id, refundAmount, orderId, status);
+    const emailResult = await sendRefundEmail(user_id, item_id, 0, orderId, status);
     if (!emailResult.success) {
       return emailResult; 
     }

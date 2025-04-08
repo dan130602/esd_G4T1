@@ -74,9 +74,6 @@ export const handleRefundStatus = async (status, user_id, item_id, refundAmount,
     console.log(status,user_id,item_id,refundAmount,orderId + " line 74")
     console.log("processing rejection")
     const emailResult = await sendRefundEmail(user_id, item_id, 0, orderId, status);
-    if (!emailResult.success) {
-      return emailResult; 
-    }
     return { success: false, message: 'Refund rejected' };
   }
 }

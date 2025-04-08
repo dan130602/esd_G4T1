@@ -78,7 +78,7 @@ export default {
             headers: {
               'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ return_status: status })
+            body: JSON.stringify({ return_status: status, item_id: itemId })
           });
 
           if (!res.ok) throw new Error(`Failed to update return status`);

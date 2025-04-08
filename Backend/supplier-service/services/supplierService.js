@@ -59,7 +59,7 @@ const approveReturnRequest = async (return_id,item_id) => {
 
 }
 
-const rejectReturnRequest = async (return_id) => {
+const rejectReturnRequest = async (return_id,item_id) => {
     const [updatedCount, updatedReturns] = await Supplier.update(
         { return_status: "rejected", reason: null , updated_at: new Date() },
         { where: { return_id }, returning: true }
@@ -69,7 +69,7 @@ const rejectReturnRequest = async (return_id) => {
         status: "rejected",
         user_id: updatedReturns[0].user_id,
         item_id: item_id,
-        refundAmount: response.data.price,
+        // refundAmount: response.data.price,
         orderId: updatedReturns[0].order_id
     })
     return updatedReturns[0];

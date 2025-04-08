@@ -5,7 +5,7 @@ const kafka = new Kafka({
   brokers: ['kafka:29092'], // Docker service name + port need to change when dockerised!!!!!!!
 });
 
-const consumer = kafka.consumer({ groupId: 'refund-orchestrator-group' });
+const consumer = kafka.consumer({ groupId: 'refund-orchestrator-group', autoOffsetReset: 'latest', });
 
 export const startRefundStatusConsumer  = async () => {
   await consumer.connect();

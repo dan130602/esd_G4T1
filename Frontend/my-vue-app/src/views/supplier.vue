@@ -26,7 +26,7 @@
           </div>
           <div class="return-actions">
             <button class="accept-button" @click="handleAccept(item.return_id, item.item_id)" :disabled="item.returnStatusInProgress">Approve</button>
-            <button class="deny-button" @click="handleDeny(item.return_id)" :disabled="item.returnStatusInProgress">Deny</button>
+            <button class="deny-button" @click="handleDeny(item.return_id, item.item_id)" :disabled="item.returnStatusInProgress">Deny</button>
           </div>
         </div>
       </article>
@@ -50,8 +50,8 @@ export default {
     async handleAccept(returnId, itemId) {
       await this.updateReturnStatus(returnId, "approved", itemId);
     },
-    async handleDeny(returnId) {
-      await this.updateReturnStatus(returnId, "rejected");
+    async handleDeny(returnId, itemId) {
+      await this.updateReturnStatus(returnId, "rejected", itemId);
     },
     async updateReturnStatus(returnId, status, itemId) {
       try {

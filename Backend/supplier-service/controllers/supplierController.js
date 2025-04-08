@@ -49,12 +49,6 @@ export const rejectReturnRequestController = async (req, res) => {
         if (!updatedReturnRequest)
             return res.status(404).json({ error: "Return request not found" });
 
-        await sendRefundStatus({
-            returnId: return_id,
-            status: 'rejected',
-            timestamp: new Date().toISOString()
-          });
-
         res.status(200).json(updatedReturnRequest);
     } catch (error) {
         res.status(500).json({ error: "Failed to reject return request" });

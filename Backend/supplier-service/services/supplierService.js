@@ -60,10 +60,20 @@ const approveReturnRequest = async (return_id,item_id) => {
 }
 
 const rejectReturnRequest = async (return_id) => {
-    return await Supplier.update(
-        { return_status: "rejected" , updated_at: new Date() },   
+    const [updatedCount, updatedReturns] = await Supplier.update(
+        { return_status: "rejected", reason: null , updated_at: new Date() },
         { where: { return_id }, returning: true }
     );
+
+    const refundtoOrchestrator = await sendRefundStatus({
+        status: "rejected",
+        user_id: updatedReturns[0].user_id,
+        item_id: item_id,
+        refundAmount: response.data.price,
+        orderId: updatedReturns[0].order_id
+    })
+    return updatedReturns[0];
+
 }
 
 export { getAllPendingRequest, approveReturnRequest, rejectReturnRequest, createReturnRequest };

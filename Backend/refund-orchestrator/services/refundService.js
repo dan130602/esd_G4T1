@@ -49,6 +49,8 @@ export const processRefund = async (userId, orderId, reason, itemIds) => {
 export const handleRefundStatus = async (status, user_id, item_id, refundAmount, orderId) => {
   if (status === 'approved') {
     // Step 3: Process transaction
+    console.log(status,user_id,item_id,refundAmount,orderId)
+    console.log("processing transaction")
     const transactionResult = await processTransaction({ user_id, item_id, refundAmount });
     if (!transactionResult.success) {
       return transactionResult; 
@@ -59,7 +61,7 @@ export const handleRefundStatus = async (status, user_id, item_id, refundAmount,
     if (!paymentResult.success) {
       return paymentResult; 
     }
-
+    console.log("send email line 64 refundservice")
     // Step 5: Send email
     const emailResult = await sendRefundEmail(user_id, item_id, refundAmount, orderId, status);
     if (!emailResult.success) {
@@ -69,6 +71,8 @@ export const handleRefundStatus = async (status, user_id, item_id, refundAmount,
     return { success: true, message: 'Refund request processed successfully' };
   } else if (status === 'rejected') {
     // Maybe notify user or log the reason
+    console.log(status,user_id,item_id,refundAmount,orderId + " line 74")
+    console.log("processing rejection")
     console.log(`[Orchestrator] Refund ${returnId} rejected: ${reason}`);
     const emailResult = await sendRefundEmail(user_id, item_id, refundAmount, orderId, status);
     if (!emailResult.success) {

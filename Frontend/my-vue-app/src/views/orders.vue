@@ -10,7 +10,11 @@
         <div class="">No orders yet.</div>
       </div>
     <div v-for="(order, orderIndex) in orders" :key="order.order_id" class="order-block">
-      <h3>Order ID: {{ order.order_id }}</h3>
+      <h3 class="mb-3">
+  Order ID: <span class="badge bg-dark fw-normal">{{ order.order_id }}</span>
+  <!-- Or use bg-primary, bg-light text-dark, etc. -->
+  <!-- fw-normal makes badge text regular weight -->
+</h3>
 
       <table class="table table-bordered table-striped">
         <thead class="table-dark">
@@ -62,14 +66,14 @@
           class="form-control refund-input"
         />
         <button
-          class="btn btn-danger mt-2"
+          class="btn btn-primary mt-2"
           @click="requestRefund(order)"
           :disabled="order.refundProcessing || order.refundSent || allItemsRefunded(order)"
         >
           {{ order.refundProcessing ? "Refund in progress..." : order.refundSent ? "Refund Request Sent" : "Request Refund" }}
         </button>
       </div>
-      <br />
+      <br /><hr>
     </div>
   </div>
   </section>

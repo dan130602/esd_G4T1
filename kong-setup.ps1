@@ -180,6 +180,7 @@ Invoke-RestMethod -Method POST -Uri "http://localhost:8001/services/supplier-ser
   -ContentType "application/x-www-form-urlencoded"
 
 Write-Host "✅ supplier-service setup complete!"
+
 Write-Host "Creating order-service..."
 Invoke-RestMethod -Method POST -Uri "http://localhost:8001/services" `
   -Body "name=order-service&url=http://order-service:5001" `
@@ -204,6 +205,32 @@ Invoke-RestMethod -Method POST -Uri "http://localhost:8001/services/order-servic
   -ContentType "application/x-www-form-urlencoded"
 
 Write-Host "✅ order-service setup complete!"
+
+
+Write-Host "Creating transaction-service..."
+Invoke-RestMethod -Method POST -Uri "http://localhost:8001/services" `
+  -Body "name=transaction-service&url=http://transaction-service:3009" `
+  -ContentType "application/x-www-form-urlencoded"
+
+Write-Host "Creating GET and POST route for /transaction..."
+Invoke-RestMethod -Method POST -Uri "http://localhost:8001/services/transaction-service/routes" `
+  -Body "name=transaction-route&paths=/transaction&strip_path=false&methods=GET&methods=POST&methods=PUT&methods=DELETE" `
+  -ContentType "application/x-www-form-urlencoded"
+
+Write-Host "Enabling CORS for transaction-service..."
+$transactionsPluginBody = @"
+name=cors&
+config.origins=* &
+config.methods=GET&config.methods=POST&config.methods=PUT&
+config.methods=DELETE&
+config.headers=Accept&config.headers=Authorization&config.headers=Content-Type
+"@ -replace "\s+", ""
+
+Invoke-RestMethod -Method POST -Uri "http://localhost:8001/services/transaction-service/plugins" `
+  -Body $transactionsPluginBody `
+  -ContentType "application/x-www-form-urlencoded"
+
+Write-Host "✅ transaction-service setup complete!"
 
 # ----------------------------------
 # PlaceAnOrderOrchestrator setup

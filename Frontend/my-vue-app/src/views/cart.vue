@@ -8,11 +8,11 @@
     </div>
     <section class="cart-container">
       <header class="cart-header">
-        <h2 class="product-label">Product</h2>
+        <h2 class="product-label fw-bold">Product</h2>
         <div class="price-details">
-          <h2>Unit Price</h2>
-          <h2>Qty</h2>
-          <h2>Subtotal</h2>
+          <h2 class="fw-bold">Unit Price</h2>
+          <h2 class="fw-bold">Qty</h2>
+          <h2 class="fw-bold">Subtotal</h2>
         </div>
       </header>
 
@@ -32,25 +32,23 @@
             <span class="qty">{{ product.quantity }}</span>
             <button @click="increaseQuantity(product)" class="qty-button">+</button>
           </div>
-          <p class="total-price">${{ product.unit_price * product.quantity }}</p>
+          <p class="total-price fw-bold">${{ product.unit_price * product.quantity }}</p>
         </div>
       </article>
 
       <div class="divider"></div>
 
-      <section class="checkout-section">
-        <div class="total-checkout">
-          <div class="total-container">
-            <h4 class="total-label">Total: ${{ subtotal }}</h4>
+            <section class="row justify-content-end mt-4 pt-4 border-top">
+        <div class="col-md-5 col-lg-4"> <!-- Adjust column size as needed -->
+          <div class="card shadow-sm border-0 rounded-3 p-4"> <!-- Card for styling -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h4 class="mb-0 fw-bold">Total</h4>
+              <h4 class="mb-0 fw-bold">${{ subtotal.toFixed(2) }}</h4>
+            </div>
+            <button class="btn btn-primary btn-lg w-100 fw-semibold text-white" @click="initiateCheckout()">
+              Check out
+            </button>
           </div>
-          <!-- <router-link to="/payment"> -->
-          <button class="checkout-button" @click="initiateCheckout()">
-            
-            <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/b1666fd7f55ef234c2e69ee00a809da2536067b72809a56a84141179f90e5508?placeholderIfAbsent=true" alt="Checkout button background" class="checkout-button-bg" />
-            
-            <span class="checkout-text">Check out</span>
-          </button>
-          <!-- </router-link> -->
         </div>
       </section>
     </section>

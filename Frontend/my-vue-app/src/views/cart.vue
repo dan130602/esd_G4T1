@@ -10,9 +10,9 @@
       <header class="cart-header">
         <h2 class="product-label">Product</h2>
         <div class="price-details">
-          <h2>Price</h2>
-          <h2>Qty</h2>
           <h2>Unit Price</h2>
+          <h2>Qty</h2>
+          <h2>Subtotal</h2>
         </div>
       </header>
 
@@ -25,13 +25,14 @@
           </div>
         </div>
         <div class="product-pricing">
-          <p class="total-price">${{ product.unit_price * product.quantity }}</p>
+          
+          <p class="unit-price">${{ product.unit_price }}</p>
           <div class="qty-controls">
             <button @click="decreaseQuantity(product)" class="qty-button">−</button>
             <span class="qty">{{ product.quantity }}</span>
             <button @click="increaseQuantity(product)" class="qty-button">+</button>
           </div>
-          <p class="unit-price">${{ product.unit_price }}</p>
+          <p class="total-price">${{ product.unit_price * product.quantity }}</p>
         </div>
       </article>
 

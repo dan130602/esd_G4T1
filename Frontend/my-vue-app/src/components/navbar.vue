@@ -21,14 +21,17 @@
               class="profile-icon"
               alt="Profile icon"
             />
-            <span>My profile</span>
+            <span>{{ userDisplayName || 'My profile' }}</span>
+
           </button>
         </div>
 
         <!-- Keep this inside profile-wrapper so it positions correctly -->
         <div v-if="showDropdown" class="custom-dropdown-menu">
           <button class="logout-button" @click="handleLogout">Logout</button>
+          
         </div>
+        
       </div>
 
       </div>
@@ -72,7 +75,7 @@
 </template>
 
 <script>
-import { getAuth, signOut } from "firebase/auth";
+import { getAuth, signOut, onAuthStateChanged } from "firebase/auth";
 import { cartState } from '../cartState.js';
 
 export default {
@@ -80,6 +83,7 @@ export default {
   data() {
     return {
       showDropdown: false,
+      userDisplayName: null, // <-- Add this
     };
   },
   computed: {
@@ -104,6 +108,15 @@ export default {
     cartQuantity() {
     return cartState.totalQuantity;
   }
+  },
+  mounted() {
+    const auth = getAuth();
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        this.userDisplayName = user.displayName || null;
+
+      }
+    });
   },
   methods: {
     getBreadcrumbText(part) {
@@ -135,6 +148,10 @@ localStorage.removeItem('cartQuantity');
         console.error("Logout failed:", error);
       }
     },
+    
+
+
+
   }
 };
 </script>

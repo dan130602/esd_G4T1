@@ -14,8 +14,8 @@ export const getAllPendingRequestController = async (req, res) => {
 
 export const createReturnRequestController = async (req, res) => {
     try {
-        const { order_id, item_id, user_id, state_of_good, return_status, reason } = req.body;
-        const newReturnRequest = await createReturnRequest(order_id, item_id, user_id, state_of_good, return_status, reason);
+        const { order_id, item_id, user_id, state_of_good, return_status, reason, quantity } = req.body;
+        const newReturnRequest = await createReturnRequest(order_id, item_id, user_id, state_of_good, return_status, reason, quantity);
         res.status(201).json(newReturnRequest);
     } catch (error) {
         res.status(500).json({ error: error.message });

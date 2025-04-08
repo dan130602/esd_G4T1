@@ -18,7 +18,7 @@ const getAllPendingRequest = async () => {
     );
 }
 
-const createReturnRequest = async (order_id, item_id, user_id, state_of_good, return_status, reason) => {
+const createReturnRequest = async (order_id, item_id, user_id, state_of_good, return_status, reason, quantity) => {
     return await Supplier.create({
         order_id,
         item_id,
@@ -26,6 +26,7 @@ const createReturnRequest = async (order_id, item_id, user_id, state_of_good, re
         state_of_good,
         return_status,
         reason,
+        quantity
     });   
 }
 
@@ -37,11 +38,12 @@ const approveReturnRequest = async (return_id,item_id) => {
     
     const response = await axios.get(`http://shop-service:3006/shop/${item_id}`)
     const currentQuantity = response.data["quantity"]
+    const refundingQuantity = updatedReturns[0].quantity
     await axios.put(`http://shop-service:3006/shop/${item_id}`, {
         item_id: response.data.item_id,
         item_name: response.data.item_name,
         price: response.data.price,
-        quantity: currentQuantity + 1
+        quantity: currentQuantity + refundingQuantity
       });
 
     console.log("updatedReturns[0].order_id: " + updatedReturns[0].order_id)

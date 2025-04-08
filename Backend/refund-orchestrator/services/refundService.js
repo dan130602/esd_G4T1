@@ -30,7 +30,8 @@ export const processRefund = async (userId, orderId, reason, itemIds) => {
                 user_id,
                 state_of_good: "used",
                 return_status: "PENDING",
-                reason: reason
+                reason: reason,
+                quantity: item.quantity,
             };
             await axios.post(supplierUrl, orderDataJSON);
           }
@@ -60,7 +61,7 @@ export const handleRefundStatus = async (status, user_id, item_id, refundAmount,
     }
 
     // Step 5: Send email
-    const emailResult = await sendRefundEmail(user_id);
+    const emailResult = await sendRefundEmail(user_id, item_id, refundAmount, orderId, status);
     if (!emailResult.success) {
       return emailResult; 
     }
@@ -69,6 +70,10 @@ export const handleRefundStatus = async (status, user_id, item_id, refundAmount,
   } else if (status === 'rejected') {
     // Maybe notify user or log the reason
     console.log(`[Orchestrator] Refund ${returnId} rejected: ${reason}`);
+    const emailResult = await sendRefundEmail(user_id, item_id, refundAmount, orderId, status);
+    if (!emailResult.success) {
+      return emailResult; 
+    }
     return { success: false, message: 'Refund rejected' };
   }
 }
@@ -79,8 +84,8 @@ async function processTransaction({ user_id, item_id, refundAmount }) {
     const transactionResponse = await sendTransaction({
       user_id,
       item_id,
-      amount: refundAmount,
-      status: "completed",
+      amount: refundAmount*-1,
+      status: "refunded",
     });
     return { success: true };
   } catch (error) {
@@ -103,23 +108,44 @@ async function processRefundToStripe(orderId, refundAmount) {
   }
 }
 
-async function sendRefundEmail(user_id) {
+async function sendRefundEmail(user_id, item_id, refundAmount, orderId, status) {
   try {
     // get email
-    let findEmailUrl = `${API_URLS.loginService}/user-info/${user_id}`;
-    const findEmailResponse = await axios.get(findEmailUrl);
-    const email = findEmailResponse.data.user.email; 
-
-    let emailUrl = `${API_URLS.emailService}`;
-    const emailResponse = await axios.post(emailUrl, {
-      email_address: email, // New field for email address
-      subject: "Refund Successful", 
-      content: "Refund is successful!",
-    });
-    if (emailResponse.status !== 200) {
-      return { success: false, message: 'Failed to send email' };
+    if (status === 'approved') {
+      let findEmailUrl = `${API_URLS.loginService}/user-info/${user_id}`;
+      console.log(findEmailUrl)
+      const findEmailResponse = await axios.get(findEmailUrl);
+      const email = findEmailResponse.data.user.email; 
+      console.log(findEmailResponse.data.user)
+      console.log(email)
+      let emailUrl = `${API_URLS.emailService}`;
+      let emailSubject = `Refund Successful for Order ID: ${orderId}`;
+      let message = `Refund successful for item ID: ${item_id} (Order ID: ${orderId}). Amount refunded: $${refundAmount}.`;
+      const emailResponse = await axios.post(emailUrl, {
+        email_address: email, // New field for email address
+        subject: emailSubject, 
+        content: message,
+      });
+      if (emailResponse.status !== 200) {
+        return { success: false, message: 'Failed to send email' };
+      }
+      return { success: true };
+    }else{
+      let findEmailUrl = `${API_URLS.loginService}/user-info/${user_id}`;
+      console.log(findEmailUrl)
+      const findEmailResponse = await axios.get(findEmailUrl);
+      const email = findEmailResponse.data.user.email; 
+      console.log(findEmailResponse.data.user)
+      console.log(email)
+      let emailUrl = `${API_URLS.emailService}`;
+      let emailSubject = `Refund Unsuccessful for Order ID: ${orderId}`;
+      let message = `Refund unsuccessful for item ID: ${item_id} (Order ID: ${orderId}).`;
+      const emailResponse = await axios.post(emailUrl, {
+        email_address: email, // New field for email address
+        subject: emailSubject, 
+        content: message,
+      });
     }
-    return { success: true };
   } catch (error) {
     console.error('Error sending email:', error.message);
     return { success: false, message: "email " + error.message };

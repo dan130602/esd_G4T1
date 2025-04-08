@@ -87,6 +87,7 @@ CREATE TABLE supplier_returns (
     state_of_good VARCHAR(50) NOT NULL, 
     return_status VARCHAR(20) DEFAULT 'PENDING', 
     reason TEXT NULL, 
+    quantity INTEGER NULL,
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW(),
     FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE,
@@ -189,8 +190,8 @@ INSERT INTO payment (
 );
 
 
-INSERT INTO supplier_returns (order_id, item_id, user_id, state_of_good, return_status, reason, created_at, updated_at)
+INSERT INTO supplier_returns (order_id, item_id, user_id, state_of_good, return_status, reason, quantity, created_at, updated_at)
 VALUES
-    (1, 1, 'na63gIAVdkgCb9oDL7nim0UkfhO2', 'new', 'PENDING', NULL, '2025-03-01 10:00:00', '2025-03-01 10:00:00'),
-    (1, 2, 'na63gIAVdkgCb9oDL7nim0UkfhO2', 'used', 'PENDING', NULL, '2025-03-02 12:30:00', '2025-03-02 12:30:00'),
-    (1, 3, 'na63gIAVdkgCb9oDL7nim0UkfhO2', 'damaged', 'REJECTED', 'Item is heavily damaged and not eligible for return.', '2025-03-03 14:00:00', '2025-03-05 09:15:00');
+    (1, 1, 'na63gIAVdkgCb9oDL7nim0UkfhO2', 'new', 'PENDING', NULL, 1, '2025-03-01 10:00:00', '2025-03-01 10:00:00'),
+    (1, 2, 'na63gIAVdkgCb9oDL7nim0UkfhO2', 'used', 'PENDING', NULL, 2, '2025-03-02 12:30:00', '2025-03-02 12:30:00'),
+    (1, 3, 'na63gIAVdkgCb9oDL7nim0UkfhO2', 'damaged', 'REJECTED', 'Item is heavily damaged and not eligible for return.', 1, '2025-03-03 14:00:00', '2025-03-05 09:15:00');

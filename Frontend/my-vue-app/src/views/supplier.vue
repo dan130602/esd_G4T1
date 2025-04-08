@@ -18,14 +18,15 @@
               <p><strong>Item ID:</strong> {{ item.item_id }}</p>
               <p><strong>User ID:</strong> {{ item.user_id }}</p>
               <p><strong>State of Good:</strong> {{ item.state_of_good }}</p>
+              <p><strong>Quantity:</strong> {{ item.quantity }}</p>
               <p><strong>Status:</strong> {{ item.return_status }}</p>
               <p><strong>Reason:</strong> {{ item.reason }}</p>
               <p><strong>Created At:</strong> {{ formatDate(item.created_at) }}</p>
             </div>
           </div>
           <div class="return-actions">
-            <button class="accept-button" @click="handleAccept(item.return_id, item.item_id)">Approve</button>
-            <button class="deny-button" @click="handleDeny(item.return_id)">Deny</button>
+            <button class="accept-button" @click="handleAccept(item.return_id, item.item_id)" :disabled="item.returnStatusInProgress">Approve</button>
+            <button class="deny-button" @click="handleDeny(item.return_id)" :disabled="item.returnStatusInProgress">Deny</button>
           </div>
         </div>
       </article>
@@ -54,6 +55,8 @@ export default {
     },
     async updateReturnStatus(returnId, status, itemId) {
       try {
+        const returnItem = this.returns.find(item => item.return_id === returnId);
+        returnItem.returnStatusInProgress = true;
         if (status == "approved"){
           const res = await fetch(`http://localhost:8000/supplier/approve/${returnId}`, {
             method: 'PUT',

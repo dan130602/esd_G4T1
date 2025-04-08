@@ -1,7 +1,7 @@
 DROP TABLE IF EXISTS transactions;
 DROP TYPE IF EXISTS transaction_status; 
 
-CREATE TYPE transaction_status AS ENUM ('pending', 'completed', 'failed');
+CREATE TYPE transaction_status AS ENUM ('pending', 'completed', 'failed', 'refunded');
 CREATE TABLE transactions (
     transaction_id SERIAL PRIMARY KEY,      
     -- user_id BIGINT NOT NULL,

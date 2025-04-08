@@ -33,6 +33,10 @@ const Supplier = sequelize.define(
             type: DataTypes.STRING,
             allowNull: true,
         },
+        quantity:{
+            type: DataTypes.INTEGER,
+            allowNull: true,
+        },
         created_at: {
             type: DataTypes.DATE,
             allowNull: false,

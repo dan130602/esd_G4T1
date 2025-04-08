@@ -6,6 +6,9 @@
       </div>
     </div>
     <div v-else>
+      <div v-if="orders.length === 0" class="no-orders-message">
+        <div class="">No orders yet.</div>
+      </div>
     <div v-for="(order, orderIndex) in orders" :key="order.order_id" class="order-block">
       <h3>Order ID: {{ order.order_id }}</h3>
 
@@ -150,6 +153,8 @@ export default {
 
         this.loading = false;
       } catch (error) {
+        this.loading = false;
+        this.orders.length = 0;
         console.error("Failed to fetch orders:", error);
       }
     },
@@ -320,5 +325,16 @@ table {
 
 strong, th {
   font-weight: bold;
+}
+
+.no-orders-message {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px; /* Adjust the height as needed */
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+  text-align: center;
 }
 </style>

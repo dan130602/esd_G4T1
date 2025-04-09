@@ -24,7 +24,7 @@ Ensure you have the following installed:
 
 3. **Run kong-setup.ps1 in powershell to set up Kong routes once all containers have started**
     ```powershell
-    ./kong-setup.ps1
+    .\kong-setup.ps1
 
 4. **start the frontend**
     ```bash
@@ -32,4 +32,4 @@ Ensure you have the following installed:
     npm install
     npm run dev
     ```
-    Go to localhost:5173
+    Go to localhost:5173/login

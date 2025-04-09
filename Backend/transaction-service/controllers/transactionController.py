@@ -24,7 +24,7 @@ def create_transaction():
     if not all(field in data for field in required_fields):
         return jsonify({"error": "Missing required fields"}), 400
     
-    if data["status"] not in ["completed", "failed"]:
+    if data["status"] not in ["completed", "failed", "pending", "refunded"]:
         return jsonify({"error": "Invalid status value"}), 400
     
     new_transaction = TransactionService.create_transaction(data["user_id"], data["item_id"], data["amount"], data["status"])

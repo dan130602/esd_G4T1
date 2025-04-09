@@ -10,7 +10,7 @@ export const addToCart = async (req, res) => {
 		}
 
 		const updatedCart = await addItemToCart(userId, item);
-		res.json({ success: true, cart: updatedCart });
+		return res.status(201).json({ success: true, cart: updatedCart });
 	} catch (error) {
 		console.error("Error adding to cart:", error);
 		res.status(500).json({ error: "Internal Server Error" });
@@ -53,11 +53,6 @@ export const removeFromCart = async (req, res) => {
 export const addToOrder = async (req, res) => {
 	try {
 		let userId = req.headers['x-user-id']; // header names are lowercase in Node
-		if (!userId) {
-			// return res.status(401).json({ error: "Missing user ID in headers" });
-			userId = 3
-		}
-
 
 		const updatedCart = await sendToOrder(userId);
 		// res.json({ success: true, cart: updatedCart });

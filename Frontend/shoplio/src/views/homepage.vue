@@ -25,7 +25,7 @@
           </div>
           <div class="product-info">
             <h4 class="product-name">{{ product.item_name }}</h4>
-            <p class="product-price">${{ product.price }}</p>
+            <p class="product-price text-primary">${{ product.price }}</p>
             <p class="stock">Only {{ product.quantity }} left in stock</p>
 
             <div class="quantity-selector">

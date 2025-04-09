@@ -16,5 +16,4 @@ CREATE TABLE transactions (
 --  Insert Transactions
 INSERT INTO transactions (user_id, item_id, amount, status) VALUES
 ('na63gIAVdkgCb9oDL7nim0UkfhO2', 2, 500.00, 'completed'),  -- John buys a Smartphone
-('na63gIAVdkgCb9oDL7nim0UkfhO2', 3, 150.00, 'completed'),  -- Jane buys Headphones
-('na63gIAVdkgCb9oDL7nim0UkfhO2', 1, 1000.00, 'failed');    -- Alice's Laptop purchase fails
+('na63gIAVdkgCb9oDL7nim0UkfhO2', 3, 150.00, 'completed');  -- Jane buys Headphones

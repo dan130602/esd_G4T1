@@ -13,7 +13,6 @@
       </div>
       <p v-else><strong>Items:</strong> Nike Airmax 270 react x2</p>
       <p><strong>Total:</strong> ${{ orderInfo.amount || '118' }}</p>
-      <p><strong>Estimated Delivery:</strong> 3-5 business days</p>
     </div>
 
     <div class="actions">

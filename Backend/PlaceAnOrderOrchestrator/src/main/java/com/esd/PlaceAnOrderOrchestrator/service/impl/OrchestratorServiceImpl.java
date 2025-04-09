@@ -502,6 +502,7 @@ public class OrchestratorServiceImpl implements OrchestratorService {
             // restTemplate.postForObject(emailServiceUrl, emailRequest, Object.class);
             // log.info("Order confirmation email request sent for user: {}, order: {}", userId, orderId);
 
+            // Check for outsystems response
             try {
                 ResponseEntity<Object> response = restTemplate.exchange(
                     emailServiceUrl,

@@ -1,4 +1,4 @@
-import {getAllItems, getItemById, updateItem, deleteItem} from "../controllers/shopController.js";
+import {getAllItems, getItemById, updateItem} from "../controllers/shopController.js";
 import express from 'express';
 
 const router = express.Router();

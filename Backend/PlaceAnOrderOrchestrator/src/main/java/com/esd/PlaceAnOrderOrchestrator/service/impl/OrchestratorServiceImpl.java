@@ -11,8 +11,12 @@ import java.util.function.IntToLongFunction;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import com.esd.PlaceAnOrderOrchestrator.dto.CheckoutRequest;
@@ -457,16 +461,64 @@ public class OrchestratorServiceImpl implements OrchestratorService {
                 log.warn("Could not retrieve user email from login service: {}", ex.getMessage());
             }        
 
-            String content = String.format("Order ID: %d has been paid and pending shipping", orderId);
+            OrderResponse orderDetails = getOrder(orderId);
+
+            // Format items for email
+            StringBuilder itemsText = new StringBuilder();
+            for (OrderItemDto item : orderDetails.getItems()) {
+                String itemLine = String.format("%-30s $%s\n",
+                        item.getItem_name() + " x" + item.getQuantity(),
+                        item.getItem_price());
+                itemsText.append(itemLine);
+            }
+
+            // Create formatted plain text email
+            String formattedContent = String.format(
+                    "================================\n" +
+                    "          ORDER CONFIRMATION       \n" +
+                    "================================\n\n" +
+                    "Order ID: %d\n" +
+                    "Date: %s\n\n" +
+                    "Items:\n" +
+                    "------------------------------------\n" +
+                    "%s" +
+                    "------------------------------------\n" +
+                    "TOTAL: $%s\n\n" +
+                    "Your order has been processed and will be shipped soon.\n\n" +
+                    "Thank you for shopping with us!\n" +
+                    "================================",
+                    orderId,
+                    orderDetails.getCreated(),
+                    itemsText.toString(),
+                    orderDetails.getTotal_amount()
+                );
             String subject = String.format("Order Confirmation for Order ID: %d", orderId);
 
             Map<String, Object> emailRequest = new HashMap<>();
             emailRequest.put("email_address", emailAdd);
             emailRequest.put("subject", subject);
-            emailRequest.put("content", content);
+            emailRequest.put("content", formattedContent);
 
-            restTemplate.postForObject(emailServiceUrl, emailRequest, Object.class);
-            log.info("Order confirmation email request sent for user: {}, order: {}", userId, orderId);
+            // restTemplate.postForObject(emailServiceUrl, emailRequest, Object.class);
+            // log.info("Order confirmation email request sent for user: {}, order: {}", userId, orderId);
+
+            try {
+                ResponseEntity<Object> response = restTemplate.exchange(
+                    emailServiceUrl,
+                    HttpMethod.POST,
+                    new HttpEntity<>(emailRequest),
+                    Object.class
+                );
+                
+                if (response.getStatusCode() == HttpStatus.OK) {
+                    log.info("Order confirmation email successfully sent for user: {}, order: {}", userId, orderId);
+                } else {
+                    log.warn("Order confirmation email request returned unexpected status: {} for user: {}, order: {}", 
+                        response.getStatusCode(), userId, orderId);
+                }
+            } catch (RestClientException e) {
+                log.error("Failed to send order confirmation email for user: {}, order: {}", userId, orderId, e);
+            }
         } catch (Exception e) {
             // Log but don't fail the process
             log.error("Failed to send order confirmation email. Error: {}", e.getMessage());

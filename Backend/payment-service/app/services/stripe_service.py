@@ -183,10 +183,10 @@ class StripeService:
                 })
             
              #pending frontend successful and cancel payment page
-            success_url=f"http://localhost:5173/checkout-success"
+            # success_url=f"http://localhost:5173/checkout-success"
             cancel_url=f"http://localhost:5173/checkout-failure"
             stripe_checkout_session = stripe.checkout.Session.create(
-                success_url=success_url,
+                success_url=f"http://localhost:5173/checkout-success?session_id={'{CHECKOUT_SESSION_ID}'}",
                 cancel_url=cancel_url,
                 line_items=line_items,
                 mode="payment",

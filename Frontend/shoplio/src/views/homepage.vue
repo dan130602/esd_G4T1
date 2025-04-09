@@ -25,17 +25,18 @@
           </div>
           <div class="product-info">
             <h4 class="product-name">{{ product.item_name }}</h4>
-            <p class="product-price text-primary">${{ product.price }}</p>
-            <p class="stock">Only {{ product.quantity }} left in stock</p>
+            <p class="product-price">${{ product.price }}</p>
+            <p class="stock">{{ product.quantity > 0 ? `Only ${product.quantity} left in stock` : `Out of stock`}} </p>
 
-            <div class="quantity-selector">
+            <div class="quantity-selector" v-if="product.quantity > 0">
               <button @click="decreaseQuantity(index)">−</button>
               <span>{{ product.selectedQty }}</span>
               <button @click="increaseQuantity(index, product.quantity)">+</button>
             </div>
 
-            <button class="add-to-cart" @click="addToCart(product)">
-              Add to Cart
+            <button class="add-to-cart" @click="addToCart(product)" 
+              :disabled="product.quantity <= 0" :class="{'button-disabled' : product.quantity <= 0}">
+              {{ product.quantity > 0 ? 'Add to Cart' : 'Out of Stock' }}
             </button>
           </div>
         </div>
@@ -339,5 +340,11 @@ export default {
 .add-to-cart:hover {
   background: linear-gradient(135deg, #007bff, #0056b3);
   transform: scale(1.05);
+}
+
+.button-disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: #cccccc;
 }
 </style>

@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify
 from app.controllers.payment_controller import PaymentController
+from app.models.payment_model import Payment, PaymentItem
 
 payment_controller = PaymentController()
 payment_bp = Blueprint('payments', __name__)
@@ -24,3 +25,37 @@ def stripe_webhook():
 @payment_bp.route('/refund/<int:order_id>', methods=['POST'])
 def refund(order_id):
     return payment_controller.refund(order_id)
+
+#get order by session_id
+@payment_bp.route('/session/<session_id>', methods=['GET'])
+def get_payment_by_session(session_id):
+    try:
+        # Find the payment record with this session ID
+        payment = Payment.query.filter_by(stripe_session_id=session_id).first()
+        
+        if not payment:
+            return jsonify({"error": "Payment not found"}), 404
+        
+        # Get payment items if they exist
+        payment_items = PaymentItem.query.filter_by(
+            payment_id=payment.payment_id
+        ).all()
+        
+        # Construct response
+        response = {
+            "order_id": payment.order_id,
+            "amount": payment.amount,
+            "items": [
+                {
+                    "name": item.name,
+                    "quantity": item.quantity,
+                    "item_price": item.item_price,
+                    "total_price": item.total_price
+                } for item in payment_items
+            ] if payment_items else []
+        }
+        
+        return jsonify(response), 200
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500

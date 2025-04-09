@@ -1,6 +1,7 @@
 from flask import jsonify, request, current_app, abort
 from app.services.payment_service import PaymentService
 from app.services.stripe_service import StripeService
+from app.models.payment_model import Payment
 import stripe
 import traceback
 
@@ -150,6 +151,49 @@ class PaymentController:
             return jsonify({
                 "code": "500",
                 "error": "Internal server error",
+            }), 500
+            
+    def get_checkout_details(self):
+        try:
+            session_id = request.args.get('session_id')
+            payment_intent_id = request.args.get('payment_intent_id')
+            
+            if not session_id and not payment_intent_id:
+                return jsonify({
+                    "code": "400",
+                    "error": "Either session_id or payment_intent_id is required"
+                }), 400
+                
+            # Query by session ID or payment intent ID
+            if session_id:
+                payment = Payment.query.filter_by(stripe_session_id=session_id).first()
+            else:
+                payment = Payment.query.filter_by(stripe_payment_intent_id=payment_intent_id).first()
+            
+            if payment is None:
+                return jsonify({
+                    "code": "404",
+                    "error": "Payment record not found"
+                }), 404
+                
+            # Get payment items if any
+            payment_items = [item.to_dict() for item in payment.items]
+            
+            # Create response with payment and items
+            response = {
+                "payment": payment.to_dict(),
+                "items": payment_items
+            }
+            
+            return jsonify(response), 200
+            
+        except Exception as e:
+            print(f"Error in get_checkout_details: {str(e)}")
+            print(traceback.format_exc())
+            return jsonify({
+                "code": "500",
+                "error": "Internal server error", 
+                "details": str(e)
             }), 500
         
     

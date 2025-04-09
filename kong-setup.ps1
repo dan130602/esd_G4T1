@@ -272,4 +272,43 @@ Invoke-RestMethod -Method POST -Uri "http://localhost:8001/services/place-order-
 
 Write-Host "✅ place-order-orchestrator setup complete!"
 
+# ----------------------------------
+# Payment Service setup
+# ----------------------------------
 
+Write-Host "Creating payment-service..."
+Invoke-RestMethod -Method POST -Uri "http://localhost:8001/services" `
+  -Body "name=payment-service&url=http://payment-service:5002" `
+  -ContentType "application/x-www-form-urlencoded"
+
+Write-Host "Creating routes for payment-service..."
+$paymentRouteBody = @"
+name=payment-route&
+paths=/api/payment&
+strip_path=false&
+methods=GET&
+methods=POST&
+methods=OPTIONS
+"@ -replace "\s+", ""
+
+Invoke-RestMethod -Method POST -Uri "http://localhost:8001/services/payment-service/routes" `
+  -Body $paymentRouteBody `
+  -ContentType "application/x-www-form-urlencoded"
+
+Write-Host "Enabling CORS for payment-service..."
+$paymentPluginBody = @"
+name=cors&
+config.origins=* &
+config.methods=GET&
+config.methods=POST&
+config.methods=OPTIONS&
+config.headers=Accept&
+config.headers=Authorization&
+config.headers=Content-Type
+"@ -replace "\s+", ""
+
+Invoke-RestMethod -Method POST -Uri "http://localhost:8001/services/payment-service/plugins" `
+  -Body $paymentPluginBody `
+  -ContentType "application/x-www-form-urlencoded"
+
+Write-Host "✅ payment-service setup complete!"

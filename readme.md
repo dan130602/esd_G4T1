@@ -23,12 +23,13 @@ Ensure you have the following installed:
     May need to manually start some containers, as some containers may fail due to the time it takes for kafka to set up
 
 3. **Run kong-setup.ps1 in powershell to set up Kong routes once all containers have started**
-    ```bash
-    ./kong-setup.ps1
+    ```powershell
+    .\kong-setup.ps1
 
 4. **start the frontend**
     ```bash
     cd Frontend/shoplio
+    npm install
     npm run dev
     ```
-    Go to localhost:5173
+    Go to localhost:5173/login

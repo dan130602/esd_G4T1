@@ -80,7 +80,6 @@ public class OrchestratorServiceImpl implements OrchestratorService {
 
         try {
             //1. Create order in Order Service
-            //OrderResponse orderResponse = createOrder(checkoutRequest);
             OrderResponse orderResponse = createOrder(checkoutRequest);
             log.info("Order created with ID: {}", orderResponse.getOrder_id());
 
@@ -100,7 +99,7 @@ public class OrchestratorServiceImpl implements OrchestratorService {
                 log.info("Payment initiated, checkout URL: {}", paymentResponse.getCheckout_url());
 
                 return paymentResponse;
-            } else { // 2.2 if not, reject order
+            } else { // 2.2 If not, reject order
                 log.warn("Insufficient stock. Order {} failed", orderResponse.getOrder_id());
                 updateOrderStatus(orderResponse, OrderStatus.FAILED);
                 return createFailedResponse(400, "Insufficient stock for some items.");
@@ -118,7 +117,7 @@ public class OrchestratorServiceImpl implements OrchestratorService {
         // Get order ID from webhook data
         Integer orderId = webhookRequest.getData().getOrderId();
         try {
-            if ("payment.completed".equals(webhookRequest.getEventType())) { //could be charge.succeeded instead of payment.completed
+            if ("payment.completed".equals(webhookRequest.getEventType())) { 
                 // Payment successful - Update order status
                 updateOrderStatus(orderId, OrderStatus.PAID);
                 log.info("Order {} marked as PAID", orderId);
@@ -138,9 +137,6 @@ public class OrchestratorServiceImpl implements OrchestratorService {
                         orderId, e.getMessage()
                     );
                 }
-                
-    
-            
             } else if ("payment.failed".equals(webhookRequest.getEventType())) {
                 // Payment failed - Update order status
                 updateOrderStatus(orderId, OrderStatus.PAYMENT_FAILED);
@@ -157,15 +153,15 @@ public class OrchestratorServiceImpl implements OrchestratorService {
 
     // Helper method to create an order
     private OrderResponse createOrder(CheckoutRequest checkoutRequest) {
-        String url = cartServiceUrl + "/cart/send"; // Uncomment this for production
-        log.info("Retrieving order from cart service on {}", url); // Uncomment this for production
+        String url = cartServiceUrl + "/cart/send"; // cart service
+        log.info("Retrieving order from cart service on {}", url); 
         
-        // Set up headers with the user ID
+        // Setting up headers with the user ID
         HttpHeaders headers = new HttpHeaders();
         headers.set("x-user-id", checkoutRequest.getUser_id());
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        // Create an empty request entity with just the headers
+        // Creating an empty request entity with just the headers
         HttpEntity<String> requestEntity = new HttpEntity<>(null, headers);
 
         // Make the request to the cart service, which will create the order
@@ -175,10 +171,6 @@ public class OrchestratorServiceImpl implements OrchestratorService {
                 response != null ? response.getOrder_id() : "unknown");
 
         return response;
-        
-        // String url = orderServiceUrl + "/api/order";
-        // log.info("Creating order on {}", url);
-        // return restTemplate.postForObject(url, checkoutRequest, OrderResponse.class);
     }
 
     // Helper method to check stock availability
@@ -335,7 +327,6 @@ public class OrchestratorServiceImpl implements OrchestratorService {
         return failedResponse;
     }
     
-    
     // Helper method to initiate payment
     private PaymentResponse initiatePayment(OrderResponse orderResponse) {
         String url = paymentServiceUrl + "/api/payment/create-checkout-session";
@@ -375,7 +366,7 @@ public class OrchestratorServiceImpl implements OrchestratorService {
         for (OrderItemDto item : order_items) {
             Integer item_id = item.getItem_id();
             String item_amount = item.getItem_price();
-            String status = "completed";  // lowercase to match what transaction service expects
+            String status = "completed";  // lowercase, as thats what transaction service expects
 
             try {
                 // Send transaction event via Kafka
@@ -388,7 +379,7 @@ public class OrchestratorServiceImpl implements OrchestratorService {
             }
         }
     }
-    // Helper method for transcation logging via HTTP
+    // Helper method for transcation logging via HTTP (fallback if kafka does not work), commented out as not in use
     // private void processTransactionLogging(Integer orderId) {
     //     OrderResponse userOrder = getOrder(orderId);
     //     Integer user_id = userOrder.getUser_id();

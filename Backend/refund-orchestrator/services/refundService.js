@@ -49,8 +49,6 @@ export const processRefund = async (userId, orderId, reason, itemIds) => {
 export const handleRefundStatus = async (status, user_id, item_id, refundAmount, orderId) => {
   if (status === 'approved') {
     // Step 3: Process transaction
-    console.log(status,user_id,item_id,refundAmount,orderId)
-    console.log("processing transaction")
     const transactionResult = await processTransaction({ user_id, item_id, refundAmount });
     if (!transactionResult.success) {
       return transactionResult; 
@@ -61,7 +59,6 @@ export const handleRefundStatus = async (status, user_id, item_id, refundAmount,
     if (!paymentResult.success) {
       return paymentResult; 
     }
-    console.log("send email line 64 refundservice")
     // Step 5: Send email
     const emailResult = await sendRefundEmail(user_id, item_id, refundAmount, orderId, status);
     if (!emailResult.success) {
@@ -71,8 +68,6 @@ export const handleRefundStatus = async (status, user_id, item_id, refundAmount,
     return { success: true, message: 'Refund request processed successfully' };
   } else if (status === 'rejected') {
     // Maybe notify user or log the reason
-    console.log(status,user_id,item_id,refundAmount,orderId + " line 74")
-    console.log("processing rejection")
     const emailResult = await sendRefundEmail(user_id, item_id, 0, orderId, status);
     return { success: false, message: 'Refund rejected' };
   }
@@ -100,7 +95,6 @@ async function processRefundToStripe(orderId, refundAmount) {
     const paymentResponse = await axios.post(paymentUrl, {
       amount: refundAmount,
     });
-    console.log(paymentResponse.data);
     return { success: true };
   } catch (error) {
     console.error('Error processing payment:', error.message);
@@ -113,11 +107,9 @@ async function sendRefundEmail(user_id, item_id, refundAmount, orderId, status) 
     // get email
     if (status === 'approved') {
       let findEmailUrl = `${API_URLS.loginService}/user-info/${user_id}`;
-      console.log(findEmailUrl)
       const findEmailResponse = await axios.get(findEmailUrl);
       const email = findEmailResponse.data.user.email; 
-      console.log(findEmailResponse.data.user)
-      console.log(email)
+
       let emailUrl = `${API_URLS.emailService}`;
       let emailSubject = `Refund Successful for Order ID: ${orderId}`;
       let message = `Refund successful for item ID: ${item_id} (Order ID: ${orderId}). Amount refunded: $${refundAmount}.`;
@@ -132,11 +124,10 @@ async function sendRefundEmail(user_id, item_id, refundAmount, orderId, status) 
       return { success: true };
     }else{
       let findEmailUrl = `${API_URLS.loginService}/user-info/${user_id}`;
-      console.log(findEmailUrl)
+
       const findEmailResponse = await axios.get(findEmailUrl);
       const email = findEmailResponse.data.user.email; 
-      console.log(findEmailResponse.data.user)
-      console.log(email)
+
       let emailUrl = `${API_URLS.emailService}`;
       let emailSubject = `Refund Unsuccessful for Order ID: ${orderId}`;
       let message = `Refund unsuccessful for item ID: ${item_id} (Order ID: ${orderId}).`;

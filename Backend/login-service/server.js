@@ -95,7 +95,7 @@ app.post('/login', async (req, res) => {
 
   } catch (error) {
     console.error('❌ Login failed:', error.message);
-    return res.status(401).json({ message: 'Unauthorized' });
+    return res.status(500).json({ message: error.message || 'Internal server error' });
   }
 });
 
